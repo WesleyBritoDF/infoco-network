@@ -7,10 +7,825 @@
     <meta name="keywords" content="rede, membros, eventos, networking, comunidade, IN FOCO">
     <title>NETWORK IN FOCO EVENTOS - Rede de Membros e Eventos</title>
     <style>
-        /* (MANTENHA TODOS OS ESTILOS ANTERIORES) */
-        /* Os mesmos estilos do código anterior... */
-        
-        /* Adicione estes estilos extras */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo span {
+            color: var(--secondary-color);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 0;
+            position: relative;
+        }
+
+        nav a:hover {
+            color: var(--secondary-color);
+        }
+
+        nav a.active {
+            color: var(--secondary-color);
+        }
+
+        nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--secondary-color);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-warning {
+            background-color: #f39c12;
+        }
+
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+
+        /* Main Content */
+        main {
+            padding: 3rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background-color: var(--secondary-color);
+            margin: 0.5rem auto;
+        }
+
+        /* Forms */
+        .form-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Image Upload */
+        .image-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .image-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border: 3px solid var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+        }
+
+        .image-preview.event {
+            border-radius: 8px;
+            width: 100%;
+            height: 200px;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview .placeholder {
+            color: #6c757d;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .image-upload-btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .image-upload-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .image-upload-input {
+            display: none;
+        }
+
+        /* Multiple Photos Upload */
+        .multiple-photos-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .photos-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .photo-preview-item {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .photo-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-photo {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(231, 76, 60, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .photos-upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .photos-upload-area:hover {
+            border-color: var(--secondary-color);
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .photos-upload-area i {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .card-action-btn {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .card-action-btn:hover {
+            background-color: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+        }
+
+        .card-action-btn.delete {
+            background-color: rgba(231, 76, 60, 0.9);
+        }
+
+        .card-action-btn.delete:hover {
+            background-color: rgba(192, 57, 43, 1);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .card:hover .card-image img {
+            transform: scale(1.05);
+        }
+
+        .image-counter {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 5;
+        }
+
+        .image-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 5;
+        }
+
+        .card:hover .image-nav {
+            opacity: 1;
+        }
+
+        .image-nav.prev {
+            left: 10px;
+        }
+
+        .image-nav.next {
+            right: 10px;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-footer {
+            padding: 1rem 1.5rem;
+            background-color: #f8f9fa;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .event-date {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .member-role {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background-color: var(--light-color);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 1rem;
+            float: left;
+        }
+
+        .member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            color: var(--accent-color);
+        }
+
+        .modal-body {
+            margin-bottom: 2rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 3rem 0 1.5rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--secondary-color);
+        }
+
+        .footer-section p {
+            margin-bottom: 1rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Interaction Section */
+        .interaction-section {
+            margin: 3rem 0;
+        }
+
+        .discussion-board {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .discussion-form {
+            margin-bottom: 2rem;
+        }
+
+        .discussion-list {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .discussion-item {
+            border-bottom: 1px solid #eee;
+            padding: 1rem 0;
+        }
+
+        .discussion-item:last-child {
+            border-bottom: none;
+        }
+
+        .discussion-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .discussion-author {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .discussion-date {
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        .discussion-content {
+            margin-bottom: 0.5rem;
+        }
+
+        .discussion-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .discussion-action {
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .discussion-action:hover {
+            color: var(--primary-color);
+        }
+
+        .discussion-replies {
+            margin-left: 2rem;
+            margin-top: 1rem;
+            border-left: 2px solid var(--light-color);
+            padding-left: 1rem;
+        }
+
+        .reply-form {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .reply-form.active {
+            display: block;
+        }
+
+        .likes-count {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .liked {
+            color: var(--accent-color);
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .success-message {
+            background-color: var(--success-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* Notifications and Sync */
+        .global-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            box-shadow: var(--shadow);
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .sync-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            display: none;
+        }
+
+        .sync-indicator.syncing {
+            display: block;
+            animation: pulse 1.5s infinite;
+        }
+
         .sync-status {
             position: fixed;
             top: 10px;
@@ -29,7 +844,7 @@
         .sync-status.offline {
             background: var(--accent-color);
         }
-        
+
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -37,12 +852,117 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.7);
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             z-index: 10000;
             color: white;
             font-size: 1.2rem;
+        }
+
+        .btn-loading {
+            display: none;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+                display: none;
+            }
+
+            nav ul.show {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .hero h2 {
+                font-size: 2rem;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                text-align: center;
+                border-bottom: 1px solid #ddd;
+                border-left: 3px solid transparent;
+            }
+
+            .tab.active {
+                border-left-color: var(--secondary-color);
+                border-bottom-color: #ddd;
+            }
+
+            .member-avatar {
+                float: none;
+                margin: 0 auto 1rem;
+                display: block;
+            }
+
+            .photos-preview {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+
+            .photo-preview-item {
+                width: 100px;
+                height: 100px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 1.5rem;
+            }
+
+            .discussion-replies {
+                margin-left: 1rem;
+            }
+
+            .global-notification {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .sync-status {
+                top: 60px;
+                left: 10px;
+            }
         }
     </style>
 </head>
@@ -52,12 +972,17 @@
         <span>🔵</span> Conectado
     </div>
 
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div>Carregando...</div>
+    </div>
+
     <!-- Header -->
     <header>
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1> <span>NETWORK IN FOCO EVENTOS V4</span> </h1>
+                    <h1>NETWORK <span>IN FOCO EVENTOS</span></h1>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
                 <nav>
@@ -146,7 +1071,7 @@
                         </div>
                         <button type="submit" class="btn" id="memberSubmitBtn">
                             <span>Cadastrar Membro</span>
-                            <div class="btn-loading" style="display: none;">Enviando...</div>
+                            <div class="btn-loading">Enviando...</div>
                         </button>
                     </form>
                 </div>
@@ -181,29 +1106,37 @@
                         </div>
                         <button type="submit" class="btn" id="eventSubmitBtn">
                             <span>Cadastrar Evento</span>
-                            <div class="btn-loading" style="display: none;">Enviando...</div>
+                            <div class="btn-loading">Enviando...</div>
                         </button>
                     </form>
                 </div>
             </div>
         </section>
-    </main>
 
-    <!-- Confirmation Modal -->
-    <div class="modal" id="confirmationModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">Confirmar Exclusão</h3>
+        <!-- Interaction Section -->
+        <section id="interacao" class="interaction-section">
+            <h2 class="section-title">Área de Interação</h2>
+            <div class="discussion-board">
+                <div class="discussion-form">
+                    <h3>Iniciar uma Discussão</h3>
+                    <form id="discussionForm">
+                        <div class="form-group">
+                            <label for="discussionTitle">Título</label>
+                            <input type="text" id="discussionTitle" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="discussionContent">Conteúdo</label>
+                            <textarea id="discussionContent" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn">Publicar Discussão</button>
+                    </form>
+                </div>
+                <div class="discussion-list" id="discussionList">
+                    <!-- Discussions will be dynamically added here -->
+                </div>
             </div>
-            <div class="modal-body">
-                <p id="modalMessage">Tem certeza que deseja excluir este item?</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="modalCancel">Cancelar</button>
-                <button class="btn btn-danger" id="modalConfirm">Excluir</button>
-            </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <!-- Footer -->
     <footer id="contato">
@@ -239,139 +1172,180 @@
     </footer>
 
     <script>
-        // ========== CONFIGURAÇÃO DO GOOGLE SHEETS ==========
+        // ========== CONFIGURAÇÃO DO BACKEND ==========
+        // URL do Google Apps Script (substitua pela sua URL)
         const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwQdCcz6VY6L0bXwQ8WZ8Q7Q5h5Q5b5q5q5q5q5q5q5q5q5q5q5q5q/exec';
         
         // ========== VARIÁVEIS GLOBAIS ==========
         let members = [];
         let events = [];
+        let discussions = [];
         let isOnline = true;
 
         // ========== DOM ELEMENTS ==========
         const membersList = document.getElementById('members-list');
         const eventsList = document.getElementById('events-list');
+        const discussionList = document.getElementById('discussionList');
         const memberForm = document.getElementById('memberRegistrationForm');
         const eventForm = document.getElementById('eventRegistrationForm');
+        const discussionForm = document.getElementById('discussionForm');
         const syncStatus = document.getElementById('syncStatus');
+        const loadingOverlay = document.getElementById('loadingOverlay');
         const memberSubmitBtn = document.getElementById('memberSubmitBtn');
         const eventSubmitBtn = document.getElementById('eventSubmitBtn');
 
-        // ========== FUNÇÕES DO GOOGLE SHEETS ==========
+        // ========== FUNÇÕES DO BACKEND ==========
 
-        // Função para carregar membros do Google Sheets
+        // Função para carregar membros
         async function loadMembers() {
             try {
                 showLoading('Carregando membros...');
-                const response = await fetch(`${SHEET_URL}?action=getMembers`);
-                const data = await response.json();
                 
-                if (data.success) {
-                    members = data.data;
-                    renderMembers();
-                    updateSyncStatus(true);
+                // Simulação de API - substitua pela sua URL real
+                // const response = await fetch(`${SHEET_URL}?action=getMembers`);
+                // const data = await response.json();
+                
+                // Simulação enquanto não tem backend
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Carrega do localStorage como fallback
+                const savedMembers = localStorage.getItem('network_members');
+                if (savedMembers) {
+                    members = JSON.parse(savedMembers);
                 } else {
-                    throw new Error('Erro ao carregar membros');
+                    // Dados de exemplo
+                    members = [
+                        {
+                            id: 1,
+                            name: "Ana Silva",
+                            email: "ana.silva@email.com",
+                            phone: "(11) 99999-1111",
+                            role: "Coordenadora",
+                            bio: "Especialista em marketing digital com 10 anos de experiência.",
+                            photo: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                            timestamp: new Date().toISOString()
+                        },
+                        {
+                            id: 2,
+                            name: "Carlos Oliveira",
+                            email: "carlos.oliveira@email.com",
+                            phone: "(11) 99999-2222",
+                            role: "Desenvolvedor",
+                            bio: "Desenvolvedor full-stack com foco em tecnologias modernas.",
+                            photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                            timestamp: new Date().toISOString()
+                        }
+                    ];
                 }
+                
+                renderMembers();
+                updateSyncStatus(true);
+                
             } catch (error) {
                 console.error('Erro ao carregar membros:', error);
                 updateSyncStatus(false);
-                // Tenta carregar do localStorage como fallback
                 loadFromLocalStorage();
             } finally {
                 hideLoading();
             }
         }
 
-        // Função para carregar eventos do Google Sheets
+        // Função para carregar eventos
         async function loadEvents() {
             try {
                 showLoading('Carregando eventos...');
-                const response = await fetch(`${SHEET_URL}?action=getEvents`);
-                const data = await response.json();
                 
-                if (data.success) {
-                    events = data.data;
-                    renderEvents();
-                    updateSyncStatus(true);
+                // Simulação de API
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const savedEvents = localStorage.getItem('network_events');
+                if (savedEvents) {
+                    events = JSON.parse(savedEvents);
                 } else {
-                    throw new Error('Erro ao carregar eventos');
+                    events = [
+                        {
+                            id: 1,
+                            title: "Workshop de Marketing Digital",
+                            date: "2025-10-15",
+                            time: "14:00",
+                            location: "Auditório Principal",
+                            description: "Um workshop completo sobre as melhores estratégias de marketing digital para 2025.",
+                            timestamp: new Date().toISOString()
+                        },
+                        {
+                            id: 2,
+                            title: "Networking para Empreendedores",
+                            date: "2025-10-22",
+                            time: "19:00",
+                            location: "Espaço Coworking",
+                            description: "Encontro para networking entre empreendedores e troca de experiências.",
+                            timestamp: new Date().toISOString()
+                        }
+                    ];
                 }
+                
+                renderEvents();
+                updateSyncStatus(true);
+                
             } catch (error) {
                 console.error('Erro ao carregar eventos:', error);
                 updateSyncStatus(false);
-                // Tenta carregar do localStorage como fallback
                 loadFromLocalStorage();
             } finally {
                 hideLoading();
             }
         }
 
-        // Função para salvar membro no Google Sheets
+        // Função para salvar membro
         async function saveMember(memberData) {
             try {
                 showButtonLoading(memberSubmitBtn, true);
                 
-                const response = await fetch(SHEET_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'addMember',
-                        data: memberData
-                    })
-                });
+                // Simulação de API
+                await new Promise(resolve => setTimeout(resolve, 2000));
                 
-                const result = await response.json();
+                // Adiciona aos dados locais
+                memberData.id = Date.now();
+                members.unshift(memberData);
                 
-                if (result.success) {
-                    showMessage('Membro cadastrado com sucesso! Todos verão esta atualização.', 'success');
-                    await loadMembers(); // Recarrega a lista
-                    return true;
-                } else {
-                    throw new Error(result.error || 'Erro ao salvar membro');
-                }
+                // Salva no localStorage
+                localStorage.setItem('network_members', JSON.stringify(members));
+                
+                renderMembers();
+                showMessage('Membro cadastrado com sucesso!', 'success');
+                return true;
+                
             } catch (error) {
                 console.error('Erro ao salvar membro:', error);
-                showMessage('Erro ao cadastrar membro. Tentando salvar localmente...', 'error');
-                // Fallback para localStorage
-                saveMemberToLocalStorage(memberData);
+                showMessage('Erro ao cadastrar membro.', 'error');
                 return false;
             } finally {
                 showButtonLoading(memberSubmitBtn, false);
             }
         }
 
-        // Função para salvar evento no Google Sheets
+        // Função para salvar evento
         async function saveEvent(eventData) {
             try {
                 showButtonLoading(eventSubmitBtn, true);
                 
-                const response = await fetch(SHEET_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'addEvent',
-                        data: eventData
-                    })
-                });
+                // Simulação de API
+                await new Promise(resolve => setTimeout(resolve, 2000));
                 
-                const result = await response.json();
+                // Adiciona aos dados locais
+                eventData.id = Date.now();
+                events.unshift(eventData);
                 
-                if (result.success) {
-                    showMessage('Evento cadastrado com sucesso! Todos verão esta atualização.', 'success');
-                    await loadEvents(); // Recarrega a lista
-                    return true;
-                } else {
-                    throw new Error(result.error || 'Erro ao salvar evento');
-                }
+                // Salva no localStorage
+                localStorage.setItem('network_events', JSON.stringify(events));
+                
+                renderEvents();
+                showMessage('Evento cadastrado com sucesso!', 'success');
+                return true;
+                
             } catch (error) {
                 console.error('Erro ao salvar evento:', error);
-                showMessage('Erro ao cadastrar evento. Tentando salvar localmente...', 'error');
-                // Fallback para localStorage
-                saveEventToLocalStorage(eventData);
+                showMessage('Erro ao cadastrar evento.', 'error');
                 return false;
             } finally {
                 showButtonLoading(eventSubmitBtn, false);
@@ -379,26 +1353,6 @@
         }
 
         // ========== FALLBACK LOCALSTORAGE ==========
-
-        function saveMemberToLocalStorage(memberData) {
-            const localMembers = JSON.parse(localStorage.getItem('network_members') || '[]');
-            memberData.id = Date.now();
-            localMembers.push(memberData);
-            localStorage.setItem('network_members', JSON.stringify(localMembers));
-            members.push(memberData);
-            renderMembers();
-            showMessage('Membro salvo localmente. Será sincronizado quando online.', 'warning');
-        }
-
-        function saveEventToLocalStorage(eventData) {
-            const localEvents = JSON.parse(localStorage.getItem('network_events') || '[]');
-            eventData.id = Date.now();
-            localEvents.push(eventData);
-            localStorage.setItem('network_events', JSON.stringify(localEvents));
-            events.push(eventData);
-            renderEvents();
-            showMessage('Evento salvo localmente. Será sincronizado quando online.', 'warning');
-        }
 
         function loadFromLocalStorage() {
             const localMembers = JSON.parse(localStorage.getItem('network_members') || '[]');
@@ -460,7 +1414,7 @@
                 eventCard.className = 'card';
                 eventCard.innerHTML = `
                     <div class="card-image">
-                        <img src="${event.photos && event.photos[0] ? event.photos[0] : 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${event.title}" loading="lazy">
+                        <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${event.title}" loading="lazy">
                     </div>
                     <div class="card-header">
                         <h3>${event.title}</h3>
@@ -490,6 +1444,85 @@
             });
         }
 
+        function renderDiscussions() {
+            discussionList.innerHTML = '';
+            
+            if (discussions.length === 0) {
+                discussionList.innerHTML = '<p style="text-align: center;">Nenhuma discussão publicada ainda. Seja o primeiro a iniciar uma conversa!</p>';
+                return;
+            }
+            
+            discussions.forEach(discussion => {
+                const discussionDate = new Date(discussion.date);
+                const formattedDate = discussionDate.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const discussionItem = document.createElement('div');
+                discussionItem.className = 'discussion-item';
+                discussionItem.innerHTML = `
+                    <div class="discussion-header">
+                        <div class="discussion-author">${discussion.author}</div>
+                        <div class="discussion-date">${formattedDate}</div>
+                    </div>
+                    <h4>${discussion.title}</h4>
+                    <div class="discussion-content">
+                        <p>${discussion.content}</p>
+                    </div>
+                    <div class="discussion-actions">
+                        <button class="discussion-action like-btn ${discussion.likedBy && discussion.likedBy.includes(1) ? 'liked' : ''}" data-id="${discussion.id}">
+                            <span class="likes-count">👍 ${discussion.likes || 0}</span>
+                        </button>
+                        <button class="discussion-action reply-btn" data-id="${discussion.id}">
+                            💬 Responder
+                        </button>
+                    </div>
+                    <div class="reply-form" id="reply-form-${discussion.id}">
+                        <div class="form-group">
+                            <textarea class="form-control reply-content" rows="2" placeholder="Escreva sua resposta..."></textarea>
+                        </div>
+                        <button class="btn btn-small submit-reply" data-id="${discussion.id}">Enviar Resposta</button>
+                    </div>
+                `;
+                
+                discussionList.appendChild(discussionItem);
+            });
+            
+            // Add event listeners for discussion actions
+            document.querySelectorAll('.like-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const discussionId = parseInt(this.getAttribute('data-id'));
+                    toggleLike(discussionId);
+                });
+            });
+            
+            document.querySelectorAll('.reply-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const discussionId = parseInt(this.getAttribute('data-id'));
+                    const replyForm = document.getElementById(`reply-form-${discussionId}`);
+                    replyForm.classList.toggle('active');
+                });
+            });
+            
+            document.querySelectorAll('.submit-reply').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const discussionId = parseInt(this.getAttribute('data-id'));
+                    const replyContent = document.querySelector(`#reply-form-${discussionId} .reply-content`).value;
+                    
+                    if (replyContent.trim() === '') {
+                        alert('Por favor, escreva uma resposta antes de enviar.');
+                        return;
+                    }
+                    
+                    addReply(discussionId, replyContent);
+                });
+            });
+        }
+
         // ========== FUNÇÕES AUXILIARES ==========
 
         function updateSyncStatus(online) {
@@ -504,22 +1537,12 @@
         }
 
         function showLoading(message = 'Carregando...') {
-            let overlay = document.getElementById('loadingOverlay');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.id = 'loadingOverlay';
-                overlay.className = 'loading-overlay';
-                document.body.appendChild(overlay);
-            }
-            overlay.innerHTML = `<div>${message}</div>`;
-            overlay.style.display = 'flex';
+            loadingOverlay.innerHTML = `<div>${message}</div>`;
+            loadingOverlay.style.display = 'flex';
         }
 
         function hideLoading() {
-            const overlay = document.getElementById('loadingOverlay');
-            if (overlay) {
-                overlay.style.display = 'none';
-            }
+            loadingOverlay.style.display = 'none';
         }
 
         function showButtonLoading(button, loading) {
@@ -538,21 +1561,16 @@
         }
 
         function showMessage(message, type = 'success') {
+            // Remove notificação existente
+            const existingNotification = document.querySelector('.global-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
             const messageDiv = document.createElement('div');
             messageDiv.className = `global-notification ${type}`;
             messageDiv.textContent = message;
-            messageDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? '#2ecc71' : type === 'error' ? '#e74c3c' : '#f39c12'};
-                color: white;
-                padding: 1rem 1.5rem;
-                border-radius: 4px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                z-index: 10000;
-                animation: slideIn 0.3s ease;
-            `;
+            messageDiv.style.background = type === 'success' ? '#2ecc71' : type === 'error' ? '#e74c3c' : '#f39c12';
             
             document.body.appendChild(messageDiv);
             
@@ -564,6 +1582,45 @@
 
         function participateInEvent(event) {
             showMessage(`Você se inscreveu para participar do evento: ${event.title}`, 'success');
+        }
+
+        function toggleLike(discussionId) {
+            const discussion = discussions.find(d => d.id === discussionId);
+            if (!discussion.likedBy) discussion.likedBy = [];
+            if (!discussion.likes) discussion.likes = 0;
+            
+            const currentUserId = 1;
+            
+            if (discussion.likedBy.includes(currentUserId)) {
+                discussion.likedBy = discussion.likedBy.filter(id => id !== currentUserId);
+                discussion.likes--;
+            } else {
+                discussion.likedBy.push(currentUserId);
+                discussion.likes++;
+            }
+            
+            renderDiscussions();
+        }
+
+        function addReply(discussionId, content) {
+            const discussion = discussions.find(d => d.id === discussionId);
+            if (!discussion.replies) discussion.replies = [];
+            
+            const newReply = {
+                id: discussion.replies.length + 1,
+                content: content,
+                author: "Usuário",
+                date: new Date().toISOString()
+            };
+            
+            discussion.replies.push(newReply);
+            renderDiscussions();
+            
+            // Reset reply form
+            document.querySelector(`#reply-form-${discussionId} .reply-content`).value = '';
+            document.getElementById(`reply-form-${discussionId}`).classList.remove('active');
+            
+            showMessage('Resposta publicada com sucesso!', 'success');
         }
 
         // ========== CONFIGURAÇÃO DE EVENTOS ==========
@@ -586,6 +1643,18 @@
                 });
             });
 
+            // Member photo upload
+            document.getElementById('memberPhoto').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('memberPhotoPreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
             // Member form submission
             memberForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -596,11 +1665,23 @@
                     phone: document.getElementById('memberPhone').value,
                     role: document.getElementById('memberRole').value,
                     bio: document.getElementById('memberBio').value,
-                    photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
                     timestamp: new Date().toISOString()
                 };
                 
-                await saveMember(memberData);
+                // Se há foto, processa ela
+                const photoInput = document.getElementById('memberPhoto');
+                if (photoInput.files && photoInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        memberData.photo = e.target.result;
+                        saveMember(memberData);
+                    };
+                    reader.readAsDataURL(photoInput.files[0]);
+                } else {
+                    memberData.photo = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+                    await saveMember(memberData);
+                }
+                
                 memberForm.reset();
                 document.getElementById('memberPhotoPreview').innerHTML = '<div class="placeholder">Foto do Membro</div>';
             });
@@ -620,6 +1701,31 @@
                 
                 await saveEvent(eventData);
                 eventForm.reset();
+            });
+
+            // Discussion form submission
+            discussionForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('discussionTitle').value;
+                const content = document.getElementById('discussionContent').value;
+                
+                const newDiscussion = {
+                    id: discussions.length + 1,
+                    title: title,
+                    content: content,
+                    author: "Novo Membro",
+                    date: new Date().toISOString(),
+                    likes: 0,
+                    likedBy: [],
+                    replies: []
+                };
+                
+                discussions.push(newDiscussion);
+                renderDiscussions();
+                discussionForm.reset();
+                
+                showMessage('Discussão publicada com sucesso!', 'success');
             });
 
             // Mobile menu
@@ -649,9 +1755,31 @@
         // ========== INICIALIZAÇÃO ==========
 
         async function initializeApp() {
+            // Inicializa discussões
+            discussions = [
+                {
+                    id: 1,
+                    title: "Ideias para o próximo evento",
+                    content: "Gostaria de ouvir sugestões para o tema do nosso próximo encontro. Alguém tem alguma ideia?",
+                    author: "Admin",
+                    date: "2025-09-30T14:30:00",
+                    likes: 3,
+                    likedBy: [2, 3],
+                    replies: [
+                        {
+                            id: 1,
+                            content: "Sugiro um workshop sobre inteligência artificial aplicada ao marketing.",
+                            author: "Usuário",
+                            date: "2025-09-30T15:45:00"
+                        }
+                    ]
+                }
+            ];
+
             setupEventListeners();
             await loadMembers();
             await loadEvents();
+            renderDiscussions();
             
             // Atualiza a cada 30 segundos
             setInterval(async () => {
@@ -665,4 +1793,3 @@
     </script>
 </body>
 </html>
-
