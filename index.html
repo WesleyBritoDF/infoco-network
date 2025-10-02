@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="IN FOCO NETWORK - Conecte-se, compartilhe e cresça com nossa comunidade de membros e eventos">
+    <meta name="description" content="NETWORK IN FOCO EVENTOS - Conecte-se, compartilhe e cresça com nossa comunidade de membros e eventos">
     <meta name="keywords" content="rede, membros, eventos, networking, comunidade, IN FOCO">
     <title>NETWORK IN FOCO EVENTOS - Rede de Membros e Eventos</title>
     <style>
+        
         :root {
             --primary-color: #2c3e50;
             --secondary-color: #3498db;
@@ -964,9 +965,24 @@
                 left: 10px;
             }
         }
+        .debug-info {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: #333;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            display: none;
+        }
     </style>
 </head>
 <body>
+    <!-- Debug Info -->
+    <div class="debug-info" id="debugInfo"></div>
+
     <!-- Sync Status -->
     <div class="sync-status" id="syncStatus">
         <span>🔵</span> Conectado
@@ -982,7 +998,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1>NETWORK <span>IN FOCO EVENTOS V4</span></h1>
+                    <h1>NETWORK <span>IN FOCO EVENTOS V5</span></h1>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
                 <nav>
@@ -1112,30 +1128,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- Interaction Section -->
-        <section id="interacao" class="interaction-section">
-            <h2 class="section-title">Área de Interação</h2>
-            <div class="discussion-board">
-                <div class="discussion-form">
-                    <h3>Iniciar uma Discussão</h3>
-                    <form id="discussionForm">
-                        <div class="form-group">
-                            <label for="discussionTitle">Título</label>
-                            <input type="text" id="discussionTitle" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="discussionContent">Conteúdo</label>
-                            <textarea id="discussionContent" class="form-control" rows="4" required></textarea>
-                        </div>
-                        <button type="submit" class="btn">Publicar Discussão</button>
-                    </form>
-                </div>
-                <div class="discussion-list" id="discussionList">
-                    <!-- Discussions will be dynamically added here -->
-                </div>
-            </div>
-        </section>
     </main>
 
     <!-- Footer -->
@@ -1157,13 +1149,6 @@
                         <a href="#" aria-label="LinkedIn">LI</a>
                     </div>
                 </div>
-                <div class="footer-section">
-                    <h3>Links Rápidos</h3>
-                    <p><a href="#membros">Membros</a></p>
-                    <p><a href="#eventos">Eventos</a></p>
-                    <p><a href="#cadastro">Cadastro</a></p>
-                    <p><a href="#interacao">Interação</a></p>
-                </div>
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2025 NETWORK IN FOCO EVENTOS. Todos os direitos reservados.</p>
@@ -1173,178 +1158,173 @@
 
     <script>
         // ========== CONFIGURAÇÃO DO BACKEND ==========
-        // URL do Google Apps Script (substitua pela sua URL)
-         const SHEET_URL = 'https://script.google.com/macros/s/AKfycbz8Q7XQ6Q5h5Q5b5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q/exec';
+        // SUBSTITUA ESTA URL PELA URL DO SEU GOOGLE APPS SCRIPT!
+        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbz8Q7XQ6Q5h5Q5b5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q/exec';
+        
         // ========== VARIÁVEIS GLOBAIS ==========
         let members = [];
         let events = [];
-        let discussions = [];
         let isOnline = true;
 
         // ========== DOM ELEMENTS ==========
         const membersList = document.getElementById('members-list');
         const eventsList = document.getElementById('events-list');
-        const discussionList = document.getElementById('discussionList');
         const memberForm = document.getElementById('memberRegistrationForm');
         const eventForm = document.getElementById('eventRegistrationForm');
-        const discussionForm = document.getElementById('discussionForm');
         const syncStatus = document.getElementById('syncStatus');
         const loadingOverlay = document.getElementById('loadingOverlay');
         const memberSubmitBtn = document.getElementById('memberSubmitBtn');
         const eventSubmitBtn = document.getElementById('eventSubmitBtn');
+        const debugInfo = document.getElementById('debugInfo');
 
-        // ========== FUNÇÕES DO BACKEND ==========
+        // ========== FUNÇÕES DO GOOGLE SHEETS ==========
 
-        // Função para carregar membros
+        // Função para carregar membros do Google Sheets
         async function loadMembers() {
             try {
                 showLoading('Carregando membros...');
+                updateDebugInfo('Carregando membros...');
                 
-                // Simulação de API - substitua pela sua URL real
-                // const response = await fetch(`${SHEET_URL}?action=getMembers`);
-                // const data = await response.json();
+                const response = await fetch(`${SHEET_URL}?action=getMembers`);
                 
-                // Simulação enquanto não tem backend
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Carrega do localStorage como fallback
-                const savedMembers = localStorage.getItem('network_members');
-                if (savedMembers) {
-                    members = JSON.parse(savedMembers);
-                } else {
-                    // Dados de exemplo
-                    members = [
-                        {
-                            id: 1,
-                            name: "Ana Silva",
-                            email: "ana.silva@email.com",
-                            phone: "(11) 99999-1111",
-                            role: "Coordenadora",
-                            bio: "Especialista em marketing digital com 10 anos de experiência.",
-                            photo: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                            timestamp: new Date().toISOString()
-                        },
-                        {
-                            id: 2,
-                            name: "Carlos Oliveira",
-                            email: "carlos.oliveira@email.com",
-                            phone: "(11) 99999-2222",
-                            role: "Desenvolvedor",
-                            bio: "Desenvolvedor full-stack com foco em tecnologias modernas.",
-                            photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                            timestamp: new Date().toISOString()
-                        }
-                    ];
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
                 }
                 
-                renderMembers();
-                updateSyncStatus(true);
+                const data = await response.json();
+                updateDebugInfo(`Resposta: ${JSON.stringify(data).substring(0, 100)}...`);
                 
+                if (data.success) {
+                    members = data.data || [];
+                    renderMembers();
+                    updateSyncStatus(true);
+                    showMessage('Membros carregados com sucesso!', 'success');
+                } else {
+                    throw new Error(data.data || 'Erro ao carregar membros');
+                }
             } catch (error) {
                 console.error('Erro ao carregar membros:', error);
+                updateDebugInfo(`Erro: ${error.message}`);
                 updateSyncStatus(false);
+                showMessage('Erro ao carregar membros. Usando dados locais.', 'error');
                 loadFromLocalStorage();
             } finally {
                 hideLoading();
             }
         }
 
-        // Função para carregar eventos
+        // Função para carregar eventos do Google Sheets
         async function loadEvents() {
             try {
                 showLoading('Carregando eventos...');
+                updateDebugInfo('Carregando eventos...');
                 
-                // Simulação de API
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                const response = await fetch(`${SHEET_URL}?action=getEvents`);
                 
-                const savedEvents = localStorage.getItem('network_events');
-                if (savedEvents) {
-                    events = JSON.parse(savedEvents);
-                } else {
-                    events = [
-                        {
-                            id: 1,
-                            title: "Workshop de Marketing Digital",
-                            date: "2025-10-15",
-                            time: "14:00",
-                            location: "Auditório Principal",
-                            description: "Um workshop completo sobre as melhores estratégias de marketing digital para 2025.",
-                            timestamp: new Date().toISOString()
-                        },
-                        {
-                            id: 2,
-                            title: "Networking para Empreendedores",
-                            date: "2025-10-22",
-                            time: "19:00",
-                            location: "Espaço Coworking",
-                            description: "Encontro para networking entre empreendedores e troca de experiências.",
-                            timestamp: new Date().toISOString()
-                        }
-                    ];
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
                 }
                 
-                renderEvents();
-                updateSyncStatus(true);
+                const data = await response.json();
+                updateDebugInfo(`Resposta eventos: ${JSON.stringify(data).substring(0, 100)}...`);
                 
+                if (data.success) {
+                    events = data.data || [];
+                    renderEvents();
+                    updateSyncStatus(true);
+                    showMessage('Eventos carregados com sucesso!', 'success');
+                } else {
+                    throw new Error(data.data || 'Erro ao carregar eventos');
+                }
             } catch (error) {
                 console.error('Erro ao carregar eventos:', error);
+                updateDebugInfo(`Erro eventos: ${error.message}`);
                 updateSyncStatus(false);
+                showMessage('Erro ao carregar eventos. Usando dados locais.', 'error');
                 loadFromLocalStorage();
             } finally {
                 hideLoading();
             }
         }
 
-        // Função para salvar membro
+        // Função para salvar membro no Google Sheets
         async function saveMember(memberData) {
             try {
                 showButtonLoading(memberSubmitBtn, true);
+                updateDebugInfo('Enviando membro...');
                 
-                // Simulação de API
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                const response = await fetch(SHEET_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'addMember',
+                        data: memberData
+                    })
+                });
                 
-                // Adiciona aos dados locais
-                memberData.id = Date.now();
-                members.unshift(memberData);
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
                 
-                // Salva no localStorage
-                localStorage.setItem('network_members', JSON.stringify(members));
+                const result = await response.json();
+                updateDebugInfo(`Resposta salvar: ${JSON.stringify(result)}`);
                 
-                renderMembers();
-                showMessage('Membro cadastrado com sucesso!', 'success');
-                return true;
-                
+                if (result.success) {
+                    showMessage('Membro cadastrado com sucesso! Todos verão esta atualização.', 'success');
+                    await loadMembers(); // Recarrega a lista atualizada
+                    return true;
+                } else {
+                    throw new Error(result.data || 'Erro ao salvar membro');
+                }
             } catch (error) {
                 console.error('Erro ao salvar membro:', error);
-                showMessage('Erro ao cadastrar membro.', 'error');
+                updateDebugInfo(`Erro salvar: ${error.message}`);
+                showMessage('Erro ao cadastrar membro. Salvando localmente.', 'error');
+                saveMemberToLocalStorage(memberData);
                 return false;
             } finally {
                 showButtonLoading(memberSubmitBtn, false);
             }
         }
 
-        // Função para salvar evento
+        // Função para salvar evento no Google Sheets
         async function saveEvent(eventData) {
             try {
                 showButtonLoading(eventSubmitBtn, true);
+                updateDebugInfo('Enviando evento...');
                 
-                // Simulação de API
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                const response = await fetch(SHEET_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'addEvent',
+                        data: eventData
+                    })
+                });
                 
-                // Adiciona aos dados locais
-                eventData.id = Date.now();
-                events.unshift(eventData);
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
                 
-                // Salva no localStorage
-                localStorage.setItem('network_events', JSON.stringify(events));
+                const result = await response.json();
+                updateDebugInfo(`Resposta evento: ${JSON.stringify(result)}`);
                 
-                renderEvents();
-                showMessage('Evento cadastrado com sucesso!', 'success');
-                return true;
-                
+                if (result.success) {
+                    showMessage('Evento cadastrado com sucesso! Todos verão esta atualização.', 'success');
+                    await loadEvents(); // Recarrega a lista atualizada
+                    return true;
+                } else {
+                    throw new Error(result.data || 'Erro ao salvar evento');
+                }
             } catch (error) {
                 console.error('Erro ao salvar evento:', error);
-                showMessage('Erro ao cadastrar evento.', 'error');
+                updateDebugInfo(`Erro evento: ${error.message}`);
+                showMessage('Erro ao cadastrar evento. Salvando localmente.', 'error');
+                saveEventToLocalStorage(eventData);
                 return false;
             } finally {
                 showButtonLoading(eventSubmitBtn, false);
@@ -1352,6 +1332,24 @@
         }
 
         // ========== FALLBACK LOCALSTORAGE ==========
+
+        function saveMemberToLocalStorage(memberData) {
+            const localMembers = JSON.parse(localStorage.getItem('network_members') || '[]');
+            memberData.id = Date.now();
+            localMembers.push(memberData);
+            localStorage.setItem('network_members', JSON.stringify(localMembers));
+            members.push(memberData);
+            renderMembers();
+        }
+
+        function saveEventToLocalStorage(eventData) {
+            const localEvents = JSON.parse(localStorage.getItem('network_events') || '[]');
+            eventData.id = Date.now();
+            localEvents.push(eventData);
+            localStorage.setItem('network_events', JSON.stringify(localEvents));
+            events.push(eventData);
+            renderEvents();
+        }
 
         function loadFromLocalStorage() {
             const localMembers = JSON.parse(localStorage.getItem('network_members') || '[]');
@@ -1426,7 +1424,7 @@
                         <p>${event.description}</p>
                     </div>
                     <div class="card-footer">
-                        <button class="btn btn-success btn-participate" data-event-id="${event.id}">Participar</button>
+                        <button class="btn btn-success btn-participate">Participar</button>
                     </div>
                 `;
                 
@@ -1436,88 +1434,7 @@
             document.querySelectorAll('.btn-participate').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
-                    const eventId = parseInt(this.getAttribute('data-event-id'));
-                    const event = events.find(ev => ev.id === eventId);
-                    participateInEvent(event);
-                });
-            });
-        }
-
-        function renderDiscussions() {
-            discussionList.innerHTML = '';
-            
-            if (discussions.length === 0) {
-                discussionList.innerHTML = '<p style="text-align: center;">Nenhuma discussão publicada ainda. Seja o primeiro a iniciar uma conversa!</p>';
-                return;
-            }
-            
-            discussions.forEach(discussion => {
-                const discussionDate = new Date(discussion.date);
-                const formattedDate = discussionDate.toLocaleDateString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                const discussionItem = document.createElement('div');
-                discussionItem.className = 'discussion-item';
-                discussionItem.innerHTML = `
-                    <div class="discussion-header">
-                        <div class="discussion-author">${discussion.author}</div>
-                        <div class="discussion-date">${formattedDate}</div>
-                    </div>
-                    <h4>${discussion.title}</h4>
-                    <div class="discussion-content">
-                        <p>${discussion.content}</p>
-                    </div>
-                    <div class="discussion-actions">
-                        <button class="discussion-action like-btn ${discussion.likedBy && discussion.likedBy.includes(1) ? 'liked' : ''}" data-id="${discussion.id}">
-                            <span class="likes-count">👍 ${discussion.likes || 0}</span>
-                        </button>
-                        <button class="discussion-action reply-btn" data-id="${discussion.id}">
-                            💬 Responder
-                        </button>
-                    </div>
-                    <div class="reply-form" id="reply-form-${discussion.id}">
-                        <div class="form-group">
-                            <textarea class="form-control reply-content" rows="2" placeholder="Escreva sua resposta..."></textarea>
-                        </div>
-                        <button class="btn btn-small submit-reply" data-id="${discussion.id}">Enviar Resposta</button>
-                    </div>
-                `;
-                
-                discussionList.appendChild(discussionItem);
-            });
-            
-            // Add event listeners for discussion actions
-            document.querySelectorAll('.like-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const discussionId = parseInt(this.getAttribute('data-id'));
-                    toggleLike(discussionId);
-                });
-            });
-            
-            document.querySelectorAll('.reply-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const discussionId = parseInt(this.getAttribute('data-id'));
-                    const replyForm = document.getElementById(`reply-form-${discussionId}`);
-                    replyForm.classList.toggle('active');
-                });
-            });
-            
-            document.querySelectorAll('.submit-reply').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const discussionId = parseInt(this.getAttribute('data-id'));
-                    const replyContent = document.querySelector(`#reply-form-${discussionId} .reply-content`).value;
-                    
-                    if (replyContent.trim() === '') {
-                        alert('Por favor, escreva uma resposta antes de enviar.');
-                        return;
-                    }
-                    
-                    addReply(discussionId, replyContent);
+                    showMessage('Inscrição realizada com sucesso!', 'success');
                 });
             });
         }
@@ -1527,12 +1444,20 @@
         function updateSyncStatus(online) {
             isOnline = online;
             if (online) {
-                syncStatus.innerHTML = '<span>🔵</span> Conectado';
+                syncStatus.innerHTML = '<span>🔵</span> Conectado ao Google Sheets';
                 syncStatus.classList.remove('offline');
             } else {
-                syncStatus.innerHTML = '<span>🔴</span> Offline';
+                syncStatus.innerHTML = '<span>🔴</span> Modo Offline (Local)';
                 syncStatus.classList.add('offline');
             }
+        }
+
+        function updateDebugInfo(message) {
+            debugInfo.textContent = message;
+            debugInfo.style.display = 'block';
+            setTimeout(() => {
+                debugInfo.style.display = 'none';
+            }, 5000);
         }
 
         function showLoading(message = 'Carregando...') {
@@ -1560,12 +1485,6 @@
         }
 
         function showMessage(message, type = 'success') {
-            // Remove notificação existente
-            const existingNotification = document.querySelector('.global-notification');
-            if (existingNotification) {
-                existingNotification.remove();
-            }
-            
             const messageDiv = document.createElement('div');
             messageDiv.className = `global-notification ${type}`;
             messageDiv.textContent = message;
@@ -1577,49 +1496,6 @@
                 messageDiv.style.animation = 'slideOut 0.3s ease';
                 setTimeout(() => messageDiv.remove(), 300);
             }, 5000);
-        }
-
-        function participateInEvent(event) {
-            showMessage(`Você se inscreveu para participar do evento: ${event.title}`, 'success');
-        }
-
-        function toggleLike(discussionId) {
-            const discussion = discussions.find(d => d.id === discussionId);
-            if (!discussion.likedBy) discussion.likedBy = [];
-            if (!discussion.likes) discussion.likes = 0;
-            
-            const currentUserId = 1;
-            
-            if (discussion.likedBy.includes(currentUserId)) {
-                discussion.likedBy = discussion.likedBy.filter(id => id !== currentUserId);
-                discussion.likes--;
-            } else {
-                discussion.likedBy.push(currentUserId);
-                discussion.likes++;
-            }
-            
-            renderDiscussions();
-        }
-
-        function addReply(discussionId, content) {
-            const discussion = discussions.find(d => d.id === discussionId);
-            if (!discussion.replies) discussion.replies = [];
-            
-            const newReply = {
-                id: discussion.replies.length + 1,
-                content: content,
-                author: "Usuário",
-                date: new Date().toISOString()
-            };
-            
-            discussion.replies.push(newReply);
-            renderDiscussions();
-            
-            // Reset reply form
-            document.querySelector(`#reply-form-${discussionId} .reply-content`).value = '';
-            document.getElementById(`reply-form-${discussionId}`).classList.remove('active');
-            
-            showMessage('Resposta publicada com sucesso!', 'success');
         }
 
         // ========== CONFIGURAÇÃO DE EVENTOS ==========
@@ -1664,23 +1540,10 @@
                     phone: document.getElementById('memberPhone').value,
                     role: document.getElementById('memberRole').value,
                     bio: document.getElementById('memberBio').value,
-                    timestamp: new Date().toISOString()
+                    photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
                 };
                 
-                // Se há foto, processa ela
-                const photoInput = document.getElementById('memberPhoto');
-                if (photoInput.files && photoInput.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        memberData.photo = e.target.result;
-                        saveMember(memberData);
-                    };
-                    reader.readAsDataURL(photoInput.files[0]);
-                } else {
-                    memberData.photo = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
-                    await saveMember(memberData);
-                }
-                
+                await saveMember(memberData);
                 memberForm.reset();
                 document.getElementById('memberPhotoPreview').innerHTML = '<div class="placeholder">Foto do Membro</div>';
             });
@@ -1694,37 +1557,11 @@
                     date: document.getElementById('eventDate').value,
                     time: document.getElementById('eventTime').value,
                     location: document.getElementById('eventLocation').value,
-                    description: document.getElementById('eventDescription').value,
-                    timestamp: new Date().toISOString()
+                    description: document.getElementById('eventDescription').value
                 };
                 
                 await saveEvent(eventData);
                 eventForm.reset();
-            });
-
-            // Discussion form submission
-            discussionForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const title = document.getElementById('discussionTitle').value;
-                const content = document.getElementById('discussionContent').value;
-                
-                const newDiscussion = {
-                    id: discussions.length + 1,
-                    title: title,
-                    content: content,
-                    author: "Novo Membro",
-                    date: new Date().toISOString(),
-                    likes: 0,
-                    likedBy: [],
-                    replies: []
-                };
-                
-                discussions.push(newDiscussion);
-                renderDiscussions();
-                discussionForm.reset();
-                
-                showMessage('Discussão publicada com sucesso!', 'success');
             });
 
             // Mobile menu
@@ -1754,36 +1591,16 @@
         // ========== INICIALIZAÇÃO ==========
 
         async function initializeApp() {
-            // Inicializa discussões
-            discussions = [
-                {
-                    id: 1,
-                    title: "Ideias para o próximo evento",
-                    content: "Gostaria de ouvir sugestões para o tema do nosso próximo encontro. Alguém tem alguma ideia?",
-                    author: "Admin",
-                    date: "2025-09-30T14:30:00",
-                    likes: 3,
-                    likedBy: [2, 3],
-                    replies: [
-                        {
-                            id: 1,
-                            content: "Sugiro um workshop sobre inteligência artificial aplicada ao marketing.",
-                            author: "Usuário",
-                            date: "2025-09-30T15:45:00"
-                        }
-                    ]
-                }
-            ];
-
             setupEventListeners();
             await loadMembers();
             await loadEvents();
-            renderDiscussions();
             
             // Atualiza a cada 30 segundos
             setInterval(async () => {
-                await loadMembers();
-                await loadEvents();
+                if (isOnline) {
+                    await loadMembers();
+                    await loadEvents();
+                }
             }, 30000);
         }
 
@@ -1792,6 +1609,3 @@
     </script>
 </body>
 </html>
-
-
-
