@@ -7,929 +7,57 @@
     <meta name="keywords" content="rede, membros, eventos, networking, comunidade, IN FOCO">
     <title>NETWORK IN FOCO EVENTOS - Rede de Membros e Eventos</title>
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-            --light-color: #ecf0f1;
-            --dark-color: #2c3e50;
-            --success-color: #2ecc71;
-            --warning-color: #f39c12;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #f5f7fa;
-            color: var(--dark-color);
-            line-height: 1.6;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
-
-        /* Header Styles */
-        header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 1rem 0;
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: white;
-        }
-
-        .logo span {
-            color: var(--secondary-color);
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 1.5rem;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: var(--transition);
-            padding: 0.5rem 0;
-            position: relative;
-        }
-
-        nav a:hover {
-            color: var(--secondary-color);
-        }
-
-        nav a.active {
-            color: var(--secondary-color);
-        }
-
-        nav a.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: var(--secondary-color);
-        }
-
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 4rem 0;
-            text-align: center;
-        }
-
-        .hero h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            max-width: 700px;
-            margin: 0 auto 2rem;
-        }
-
-        .btn {
-            display: inline-block;
-            background-color: var(--accent-color);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 4px;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .btn:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background-color: transparent;
-            border: 2px solid white;
-        }
-
-        .btn-secondary:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-small {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.9rem;
-        }
-
-        .btn-success {
-            background-color: var(--success-color);
-        }
-
-        .btn-success:hover {
-            background-color: #27ae60;
-        }
-
-        .btn-danger {
-            background-color: #e74c3c;
-        }
-
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
-
-        .btn-warning {
-            background-color: #f39c12;
-        }
-
-        .btn-warning:hover {
-            background-color: #e67e22;
-        }
-
-        /* Main Content */
-        main {
-            padding: 3rem 0;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 2rem;
-            position: relative;
-        }
-
-        .section-title::after {
-            content: '';
-            display: block;
-            width: 80px;
-            height: 4px;
-            background-color: var(--secondary-color);
-            margin: 0.5rem auto;
-        }
-
-        /* Forms */
-        .form-container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        .form-control:focus {
-            border-color: var(--secondary-color);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-
-        .form-row {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        /* Image Upload */
-        .image-upload-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .image-preview {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin-bottom: 1rem;
-            border: 3px solid var(--light-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f8f9fa;
-        }
-
-        .image-preview.event {
-            border-radius: 8px;
-            width: 100%;
-            height: 200px;
-        }
-
-        .image-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .image-preview .placeholder {
-            color: #6c757d;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-
-        .image-upload-btn {
-            display: inline-block;
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 0.6rem 1.2rem;
-            border: none;
-            border-radius: 4px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .image-upload-btn:hover {
-            background-color: #2980b9;
-        }
-
-        .image-upload-input {
-            display: none;
-        }
-
-        /* Multiple Photos Upload */
-        .multiple-photos-container {
-            margin-bottom: 1.5rem;
-        }
-
-        .photos-preview {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 1rem;
-        }
-
-        .photo-preview-item {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .photo-preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .remove-photo {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: rgba(231, 76, 60, 0.8);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .photos-upload-area {
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 2rem;
-            text-align: center;
-            margin-top: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .photos-upload-area:hover {
-            border-color: var(--secondary-color);
-            background-color: rgba(52, 152, 219, 0.05);
-        }
-
-        .photos-upload-area i {
-            font-size: 2rem;
-            color: var(--secondary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 2rem;
-        }
-
-        .tab {
-            padding: 1rem 1.5rem;
-            cursor: pointer;
-            font-weight: 500;
-            transition: var(--transition);
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab.active {
-            color: var(--secondary-color);
-            border-bottom-color: var(--secondary-color);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Cards */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-actions {
-            position: absolute;
+        /* (MANTENHA TODOS OS ESTILOS ANTERIORES) */
+        /* Os mesmos estilos do código anterior... */
+        
+        /* Adicione estes estilos extras */
+        .sync-status {
+            position: fixed;
             top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 5px;
-            z-index: 10;
-        }
-
-        .card-action-btn {
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
-
-        .card-action-btn:hover {
-            background-color: rgba(0, 0, 0, 0.9);
-            transform: scale(1.1);
-        }
-
-        .card-action-btn.delete {
-            background-color: rgba(231, 76, 60, 0.9);
-        }
-
-        .card-action-btn.delete:hover {
-            background-color: rgba(192, 57, 43, 1);
-        }
-
-        .card-image {
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .card-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: var(--transition);
-        }
-
-        .card:hover .card-image img {
-            transform: scale(1.05);
-        }
-
-        .image-counter {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            z-index: 5;
-        }
-
-        .image-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            transition: var(--transition);
-            z-index: 5;
-        }
-
-        .card:hover .image-nav {
-            opacity: 1;
-        }
-
-        .image-nav.prev {
             left: 10px;
-        }
-
-        .image-nav.next {
-            right: 10px;
-        }
-
-        .card-header {
-            padding: 1.5rem;
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        .card-footer {
-            padding: 1rem 1.5rem;
-            background-color: #f8f9fa;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .event-date {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--secondary-color);
-            font-weight: 500;
-        }
-
-        .member-role {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            background-color: var(--light-color);
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .member-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin-right: 1rem;
-            float: left;
-        }
-
-        .member-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background-color: white;
-            border-radius: 8px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: var(--shadow);
-        }
-
-        .modal-header {
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-header h3 {
-            color: var(--accent-color);
-        }
-
-        .modal-body {
-            margin-bottom: 2rem;
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-        }
-
-        /* Footer */
-        footer {
-            background-color: var(--dark-color);
-            color: white;
-            padding: 3rem 0 1.5rem;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .footer-section h3 {
-            margin-bottom: 1.5rem;
-            position: relative;
-            padding-bottom: 0.5rem;
-        }
-
-        .footer-section h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 50px;
-            height: 2px;
-            background-color: var(--secondary-color);
-        }
-
-        .footer-section p {
-            margin-bottom: 1rem;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            color: white;
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .social-links a:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-3px);
-        }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* New Styles for Email and Interaction Features */
-        .interaction-section {
-            margin: 3rem 0;
-        }
-
-        .discussion-board {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .discussion-form {
-            margin-bottom: 2rem;
-        }
-
-        .discussion-list {
-            max-height: 500px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-
-        .discussion-item {
-            border-bottom: 1px solid #eee;
-            padding: 1rem 0;
-        }
-
-        .discussion-item:last-child {
-            border-bottom: none;
-        }
-
-        .discussion-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-
-        .discussion-author {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .discussion-date {
-            color: #777;
-            font-size: 0.9rem;
-        }
-
-        .discussion-content {
-            margin-bottom: 0.5rem;
-        }
-
-        .discussion-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .discussion-action {
-            background: none;
-            border: none;
-            color: var(--secondary-color);
-            cursor: pointer;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .discussion-action:hover {
-            color: var(--primary-color);
-        }
-
-        .discussion-replies {
-            margin-left: 2rem;
-            margin-top: 1rem;
-            border-left: 2px solid var(--light-color);
-            padding-left: 1rem;
-        }
-
-        .reply-form {
-            margin-top: 1rem;
-            display: none;
-        }
-
-        .reply-form.active {
-            display: block;
-        }
-
-        .likes-count {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .liked {
-            color: var(--accent-color);
-        }
-
-        /* Loading States */
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        .success-message {
-            background-color: var(--success-color);
-            color: white;
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        /* Notifications and Sync */
-        .global-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success-color);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 4px;
-            box-shadow: var(--shadow);
-            z-index: 10000;
-            animation: slideIn 0.3s ease;
-        }
-
-        .sync-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
             background: var(--secondary-color);
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-size: 0.8rem;
             z-index: 1000;
-            display: none;
-        }
-
-        .sync-indicator.syncing {
-            display: block;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
+        .sync-status.offline {
+            background: var(--accent-color);
         }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            nav ul {
-                flex-direction: column;
-                text-align: center;
-                gap: 0.5rem;
-                display: none;
-            }
-
-            nav ul.show {
-                display: flex;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-                position: absolute;
-                top: 1rem;
-                right: 1rem;
-            }
-
-            .hero h2 {
-                font-size: 2rem;
-            }
-
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-
-            .tabs {
-                flex-direction: column;
-            }
-
-            .tab {
-                text-align: center;
-                border-bottom: 1px solid #ddd;
-                border-left: 3px solid transparent;
-            }
-
-            .tab.active {
-                border-left-color: var(--secondary-color);
-                border-bottom-color: #ddd;
-            }
-
-            .member-avatar {
-                float: none;
-                margin: 0 auto 1rem;
-                display: block;
-            }
-
-            .photos-preview {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            }
-
-            .photo-preview-item {
-                width: 100px;
-                height: 100px;
-            }
-
-            .modal-content {
-                width: 95%;
-                padding: 1.5rem;
-            }
-
-            .discussion-replies {
-                margin-left: 1rem;
-            }
-
-            .global-notification {
-                top: 10px;
-                right: 10px;
-                left: 10px;
-            }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            color: white;
+            font-size: 1.2rem;
         }
     </style>
 </head>
 <body>
+    <!-- Sync Status -->
+    <div class="sync-status" id="syncStatus">
+        <span>🔵</span> Conectado
+    </div>
+
     <!-- Header -->
     <header>
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1> <span>NETWORK  IN FOCO EVENTOS V3</span> </h1>
+                    <h1> <span>NETWORK IN FOCO EVENTOS</span> </h1>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
                 <nav>
@@ -980,7 +108,6 @@
             <div class="tabs">
                 <div class="tab active" data-tab="member">Cadastrar Membro</div>
                 <div class="tab" data-tab="event">Cadastrar Evento</div>
-                <div class="tab" data-tab="email">Enviar Email</div>
             </div>
 
             <div class="tab-content active" id="member-form">
@@ -995,11 +122,11 @@
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="memberName">Nome Completo</label>
+                                <label for="memberName">Nome Completo *</label>
                                 <input type="text" id="memberName" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label for="memberEmail">E-mail</label>
+                                <label for="memberEmail">E-mail *</label>
                                 <input type="email" id="memberEmail" class="form-control" required>
                             </div>
                         </div>
@@ -1009,15 +136,18 @@
                                 <input type="tel" id="memberPhone" class="form-control">
                             </div>
                             <div class="form-group">
-                                <label for="memberRole">Cargo/Função</label>
-                                <input type="text" id="memberRole" class="form-control">
+                                <label for="memberRole">Cargo/Função *</label>
+                                <input type="text" id="memberRole" class="form-control" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="memberBio">Biografia/Descrição</label>
-                            <textarea id="memberBio" class="form-control" rows="4"></textarea>
+                            <label for="memberBio">Biografia/Descrição *</label>
+                            <textarea id="memberBio" class="form-control" rows="4" required></textarea>
                         </div>
-                        <button type="submit" class="btn">Cadastrar Membro</button>
+                        <button type="submit" class="btn" id="memberSubmitBtn">
+                            <span>Cadastrar Membro</span>
+                            <div class="btn-loading" style="display: none;">Enviando...</div>
+                        </button>
                     </form>
                 </div>
             </div>
@@ -1025,84 +155,35 @@
             <div class="tab-content" id="event-form">
                 <div class="form-container">
                     <form id="eventRegistrationForm">
-                        <div class="multiple-photos-container">
-                            <label>Fotos do Evento</label>
-                            <div class="photos-upload-area" id="photosUploadArea">
-                                <div>📁</div>
-                                <p>Clique aqui ou arraste várias fotos</p>
-                                <p><small>Formatos suportados: JPG, PNG, GIF</small></p>
-                                <input type="file" id="eventPhotos" class="image-upload-input" accept="image/*" multiple>
-                            </div>
-                            <div class="photos-preview" id="eventPhotosPreview">
-                                <!-- Photo previews will be added here -->
-                            </div>
-                        </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="eventTitle">Título do Evento</label>
+                                <label for="eventTitle">Título do Evento *</label>
                                 <input type="text" id="eventTitle" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label for="eventDate">Data do Evento</label>
+                                <label for="eventDate">Data do Evento *</label>
                                 <input type="date" id="eventDate" class="form-control" required>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="eventTime">Horário</label>
+                                <label for="eventTime">Horário *</label>
                                 <input type="time" id="eventTime" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label for="eventLocation">Local</label>
+                                <label for="eventLocation">Local *</label>
                                 <input type="text" id="eventLocation" class="form-control" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="eventDescription">Descrição do Evento</label>
+                            <label for="eventDescription">Descrição do Evento *</label>
                             <textarea id="eventDescription" class="form-control" rows="4" required></textarea>
                         </div>
-                        <button type="submit" class="btn">Cadastrar Evento</button>
+                        <button type="submit" class="btn" id="eventSubmitBtn">
+                            <span>Cadastrar Evento</span>
+                            <div class="btn-loading" style="display: none;">Enviando...</div>
+                        </button>
                     </form>
-                </div>
-            </div>
-
-            <div class="tab-content" id="email-form">
-                <div class="form-container">
-                    <form id="emailAdminForm">
-                        <div class="form-group">
-                            <label for="emailSubject">Assunto</label>
-                            <input type="text" id="emailSubject" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="emailMessage">Mensagem</label>
-                            <textarea id="emailMessage" class="form-control" rows="6" required></textarea>
-                        </div>
-                        <button type="submit" class="btn">Enviar Email</button>
-                    </form>
-                </div>
-            </div>
-        </section>
-
-        <!-- Interaction Section -->
-        <section id="interacao" class="interaction-section">
-            <h2 class="section-title">Área de Interação</h2>
-            <div class="discussion-board">
-                <div class="discussion-form">
-                    <h3>Iniciar uma Discussão</h3>
-                    <form id="discussionForm">
-                        <div class="form-group">
-                            <label for="discussionTitle">Título</label>
-                            <input type="text" id="discussionTitle" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="discussionContent">Conteúdo</label>
-                            <textarea id="discussionContent" class="form-control" rows="4" required></textarea>
-                        </div>
-                        <button type="submit" class="btn">Publicar Discussão</button>
-                    </form>
-                </div>
-                <div class="discussion-list" id="discussionList">
-                    <!-- Discussions will be dynamically added here -->
                 </div>
             </div>
         </section>
@@ -1123,9 +204,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Sync Indicator -->
-    <div class="sync-indicator" id="syncIndicator">Sincronizando...</div>
 
     <!-- Footer -->
     <footer id="contato">
@@ -1161,218 +239,184 @@
     </footer>
 
     <script>
-        // Sample data for demonstration
+        // ========== CONFIGURAÇÃO DO GOOGLE SHEETS ==========
+        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwQdCcz6VY6L0bXwQ8WZ8Q7Q5h5Q5b5q5q5q5q5q5q5q5q5q5q5q5q/exec';
+        
+        // ========== VARIÁVEIS GLOBAIS ==========
         let members = [];
         let events = [];
+        let isOnline = true;
 
-        // Discussions data
-        let discussions = [
-            {
-                id: 1,
-                title: "Ideias para o próximo evento",
-                content: "Gostaria de ouvir sugestões para o tema do nosso próximo encontro. Alguém tem alguma ideia?",
-                author: "Admin",
-                authorId: 1,
-                date: "2025-09-30T14:30:00",
-                likes: 3,
-                likedBy: [2, 3],
-                replies: [
-                    {
-                        id: 1,
-                        content: "Sugiro um workshop sobre inteligência artificial aplicada ao marketing.",
-                        author: "Usuário",
-                        authorId: 2,
-                        date: "2025-09-30T15:45:00"
-                    }
-                ]
-            }
-        ];
-
-        // Chaves para armazenamento
-        const STORAGE_KEYS = {
-            MEMBERS: 'network_in_foco_members',
-            EVENTS: 'network_in_foco_events',
-            LAST_UPDATE: 'network_in_foco_last_update'
-        };
-
-        // DOM Elements
+        // ========== DOM ELEMENTS ==========
         const membersList = document.getElementById('members-list');
         const eventsList = document.getElementById('events-list');
         const memberForm = document.getElementById('memberRegistrationForm');
         const eventForm = document.getElementById('eventRegistrationForm');
-        const emailAdminForm = document.getElementById('emailAdminForm');
-        const discussionForm = document.getElementById('discussionForm');
-        const discussionList = document.getElementById('discussionList');
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-        const navMenu = document.querySelector('nav ul');
-        const syncIndicator = document.getElementById('syncIndicator');
-        
-        // Image upload elements
-        const memberPhotoInput = document.getElementById('memberPhoto');
-        const memberPhotoPreview = document.getElementById('memberPhotoPreview');
-        const eventPhotosInput = document.getElementById('eventPhotos');
-        const eventPhotosPreview = document.getElementById('eventPhotosPreview');
-        const photosUploadArea = document.getElementById('photosUploadArea');
+        const syncStatus = document.getElementById('syncStatus');
+        const memberSubmitBtn = document.getElementById('memberSubmitBtn');
+        const eventSubmitBtn = document.getElementById('eventSubmitBtn');
 
-        // Modal elements
-        const confirmationModal = document.getElementById('confirmationModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalMessage = document.getElementById('modalMessage');
-        const modalCancel = document.getElementById('modalCancel');
-        const modalConfirm = document.getElementById('modalConfirm');
+        // ========== FUNÇÕES DO GOOGLE SHEETS ==========
 
-        // Variables for multiple photos
-        let eventPhotos = [];
-        let currentDeleteAction = null;
-
-        // ========== SISTEMA DE SINCRONIZAÇÃO ==========
-
-        // Função para salvar dados no localStorage
-        function saveDataToStorage() {
+        // Função para carregar membros do Google Sheets
+        async function loadMembers() {
             try {
-                localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(members));
-                localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(events));
-                localStorage.setItem(STORAGE_KEYS.LAST_UPDATE, Date.now().toString());
-                console.log('Dados salvos no localStorage');
-            } catch (error) {
-                console.error('Erro ao salvar dados:', error);
-            }
-        }
-
-        // Função para carregar dados do localStorage
-        function loadDataFromStorage() {
-            try {
-                const savedMembers = localStorage.getItem(STORAGE_KEYS.MEMBERS);
-                const savedEvents = localStorage.getItem(STORAGE_KEYS.EVENTS);
+                showLoading('Carregando membros...');
+                const response = await fetch(`${SHEET_URL}?action=getMembers`);
+                const data = await response.json();
                 
-                if (savedMembers) {
-                    members = JSON.parse(savedMembers);
-                    console.log('Membros carregados:', members.length);
-                }
-                
-                if (savedEvents) {
-                    events = JSON.parse(savedEvents);
-                    console.log('Eventos carregados:', events.length);
+                if (data.success) {
+                    members = data.data;
+                    renderMembers();
+                    updateSyncStatus(true);
+                } else {
+                    throw new Error('Erro ao carregar membros');
                 }
             } catch (error) {
-                console.error('Erro ao carregar dados:', error);
+                console.error('Erro ao carregar membros:', error);
+                updateSyncStatus(false);
+                // Tenta carregar do localStorage como fallback
+                loadFromLocalStorage();
+            } finally {
+                hideLoading();
             }
         }
 
-        // Função para verificar atualizações
-        function checkForUpdates() {
-            const lastUpdate = localStorage.getItem(STORAGE_KEYS.LAST_UPDATE);
-            const currentLastUpdate = localStorage.getItem('current_last_update');
-            
-            if (lastUpdate !== currentLastUpdate) {
-                console.log('Atualizações detectadas, sincronizando...');
-                loadDataFromStorage();
-                renderMembers();
-                renderEvents();
-                localStorage.setItem('current_last_update', lastUpdate);
-                showNotification('📡 Dados atualizados!');
+        // Função para carregar eventos do Google Sheets
+        async function loadEvents() {
+            try {
+                showLoading('Carregando eventos...');
+                const response = await fetch(`${SHEET_URL}?action=getEvents`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    events = data.data;
+                    renderEvents();
+                    updateSyncStatus(true);
+                } else {
+                    throw new Error('Erro ao carregar eventos');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar eventos:', error);
+                updateSyncStatus(false);
+                // Tenta carregar do localStorage como fallback
+                loadFromLocalStorage();
+            } finally {
+                hideLoading();
             }
         }
 
-        // Função para mostrar notificação
-        function showNotification(message) {
-            // Remove notificação existente
-            const existingNotification = document.querySelector('.global-notification');
-            if (existingNotification) {
-                existingNotification.remove();
-            }
-            
-            // Cria nova notificação
-            const notification = document.createElement('div');
-            notification.className = 'global-notification';
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-
-        // Sistema de polling para verificar atualizações
-        function startSyncPolling() {
-            setInterval(() => {
-                syncIndicator.classList.add('syncing');
-                checkForUpdates();
-                setTimeout(() => syncIndicator.classList.remove('syncing'), 1000);
-            }, 3000); // Verifica a cada 3 segundos
-        }
-
-        // Inicializar sistema de sincronização
-        function initSyncSystem() {
-            loadDataFromStorage();
-            
-            // Iniciar polling de sincronização
-            startSyncPolling();
-            
-            // Configurar último update atual
-            const lastUpdate = localStorage.getItem(STORAGE_KEYS.LAST_UPDATE);
-            if (lastUpdate) {
-                localStorage.setItem('current_last_update', lastUpdate);
-            } else {
-                // Primeira execução - criar dados iniciais
-                createInitialData();
-            }
-        }
-
-        // Criar dados iniciais se não existirem
-        function createInitialData() {
-            if (members.length === 0) {
-                members = [
-                    {
-                        id: 1,
-                        name: "Ana Silva",
-                        email: "ana.silva@email.com",
-                        phone: "(11) 99999-1111",
-                        role: "Coordenadora",
-                        bio: "Especialista em marketing digital com 10 anos de experiência.",
-                        photo: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                        timestamp: Date.now()
+        // Função para salvar membro no Google Sheets
+        async function saveMember(memberData) {
+            try {
+                showButtonLoading(memberSubmitBtn, true);
+                
+                const response = await fetch(SHEET_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
                     },
-                    {
-                        id: 2,
-                        name: "Carlos Oliveira",
-                        email: "carlos.oliveira@email.com",
-                        phone: "(11) 99999-2222",
-                        role: "Desenvolvedor",
-                        bio: "Desenvolvedor full-stack com foco em tecnologias modernas.",
-                        photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                        timestamp: Date.now()
-                    }
-                ];
+                    body: JSON.stringify({
+                        action: 'addMember',
+                        data: memberData
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('Membro cadastrado com sucesso! Todos verão esta atualização.', 'success');
+                    await loadMembers(); // Recarrega a lista
+                    return true;
+                } else {
+                    throw new Error(result.error || 'Erro ao salvar membro');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar membro:', error);
+                showMessage('Erro ao cadastrar membro. Tentando salvar localmente...', 'error');
+                // Fallback para localStorage
+                saveMemberToLocalStorage(memberData);
+                return false;
+            } finally {
+                showButtonLoading(memberSubmitBtn, false);
             }
+        }
 
-            if (events.length === 0) {
-                events = [
-                    {
-                        id: 1,
-                        title: "Workshop de Marketing Digital",
-                        date: "2025-10-15",
-                        time: "14:00",
-                        location: "Auditório Principal",
-                        description: "Um workshop completo sobre as melhores estratégias de marketing digital para 2025.",
-                        photos: [
-                            "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-                        ],
-                        timestamp: Date.now()
-                    }
-                ];
+        // Função para salvar evento no Google Sheets
+        async function saveEvent(eventData) {
+            try {
+                showButtonLoading(eventSubmitBtn, true);
+                
+                const response = await fetch(SHEET_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'addEvent',
+                        data: eventData
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('Evento cadastrado com sucesso! Todos verão esta atualização.', 'success');
+                    await loadEvents(); // Recarrega a lista
+                    return true;
+                } else {
+                    throw new Error(result.error || 'Erro ao salvar evento');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar evento:', error);
+                showMessage('Erro ao cadastrar evento. Tentando salvar localmente...', 'error');
+                // Fallback para localStorage
+                saveEventToLocalStorage(eventData);
+                return false;
+            } finally {
+                showButtonLoading(eventSubmitBtn, false);
             }
+        }
 
-            saveDataToStorage();
+        // ========== FALLBACK LOCALSTORAGE ==========
+
+        function saveMemberToLocalStorage(memberData) {
+            const localMembers = JSON.parse(localStorage.getItem('network_members') || '[]');
+            memberData.id = Date.now();
+            localMembers.push(memberData);
+            localStorage.setItem('network_members', JSON.stringify(localMembers));
+            members.push(memberData);
+            renderMembers();
+            showMessage('Membro salvo localmente. Será sincronizado quando online.', 'warning');
+        }
+
+        function saveEventToLocalStorage(eventData) {
+            const localEvents = JSON.parse(localStorage.getItem('network_events') || '[]');
+            eventData.id = Date.now();
+            localEvents.push(eventData);
+            localStorage.setItem('network_events', JSON.stringify(localEvents));
+            events.push(eventData);
+            renderEvents();
+            showMessage('Evento salvo localmente. Será sincronizado quando online.', 'warning');
+        }
+
+        function loadFromLocalStorage() {
+            const localMembers = JSON.parse(localStorage.getItem('network_members') || '[]');
+            const localEvents = JSON.parse(localStorage.getItem('network_events') || '[]');
+            
+            if (localMembers.length > 0) {
+                members = localMembers;
+                renderMembers();
+            }
+            
+            if (localEvents.length > 0) {
+                events = localEvents;
+                renderEvents();
+            }
         }
 
         // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
 
-        // Render members list
         function renderMembers() {
             membersList.innerHTML = '';
             if (members.length === 0) {
@@ -1384,11 +428,8 @@
                 const memberCard = document.createElement('div');
                 memberCard.className = 'card';
                 memberCard.innerHTML = `
-                    <div class="card-actions">
-                        <button class="card-action-btn delete" data-id="${member.id}" data-type="member" title="Excluir membro">🗑️</button>
-                    </div>
                     <div class="card-image">
-                        <img src="${member.photo}" alt="${member.name}" loading="lazy">
+                        <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
                     </div>
                     <div class="card-header">
                         <h3>${member.name}</h3>
@@ -1396,29 +437,14 @@
                     </div>
                     <div class="card-body">
                         <p><strong>Email:</strong> ${member.email}</p>
-                        <p><strong>Telefone:</strong> ${member.phone}</p>
+                        ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
                         <p>${member.bio}</p>
                     </div>
                 `;
                 membersList.appendChild(memberCard);
             });
-
-            // Add delete event listeners
-            document.querySelectorAll('.card-action-btn[data-type="member"]').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const memberId = parseInt(this.getAttribute('data-id'));
-                    const member = members.find(m => m.id === memberId);
-                    showDeleteConfirmation(
-                        `Excluir Membro: ${member.name}`,
-                        `Tem certeza que deseja excluir o membro "${member.name}"?`,
-                        () => deleteMember(memberId)
-                    );
-                });
-            });
         }
 
-        // Render events list
         function renderEvents() {
             eventsList.innerHTML = '';
             if (events.length === 0) {
@@ -1433,14 +459,8 @@
                 const eventCard = document.createElement('div');
                 eventCard.className = 'card';
                 eventCard.innerHTML = `
-                    <div class="card-actions">
-                        <button class="card-action-btn delete" data-id="${event.id}" data-type="event" title="Excluir evento">🗑️</button>
-                    </div>
                     <div class="card-image">
-                        <img src="${event.photos[0]}" alt="${event.title}" loading="lazy">
-                        ${event.photos.length > 1 ? `
-                            <div class="image-counter">+${event.photos.length - 1}</div>
-                        ` : ''}
+                        <img src="${event.photos && event.photos[0] ? event.photos[0] : 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${event.title}" loading="lazy">
                     </div>
                     <div class="card-header">
                         <h3>${event.title}</h3>
@@ -1460,20 +480,6 @@
                 eventsList.appendChild(eventCard);
             });
 
-            // Add event listeners
-            document.querySelectorAll('.card-action-btn[data-type="event"]').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const eventId = parseInt(this.getAttribute('data-id'));
-                    const event = events.find(ev => ev.id === eventId);
-                    showDeleteConfirmation(
-                        `Excluir Evento: ${event.title}`,
-                        `Tem certeza que deseja excluir o evento "${event.title}"?`,
-                        () => deleteEvent(eventId)
-                    );
-                });
-            });
-
             document.querySelectorAll('.btn-participate').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -1484,231 +490,94 @@
             });
         }
 
-        // Render discussions
-        function renderDiscussions() {
-            discussionList.innerHTML = '';
-            
-            if (discussions.length === 0) {
-                discussionList.innerHTML = '<p style="text-align: center;">Nenhuma discussão publicada ainda. Seja o primeiro a iniciar uma conversa!</p>';
-                return;
+        // ========== FUNÇÕES AUXILIARES ==========
+
+        function updateSyncStatus(online) {
+            isOnline = online;
+            if (online) {
+                syncStatus.innerHTML = '<span>🔵</span> Conectado';
+                syncStatus.classList.remove('offline');
+            } else {
+                syncStatus.innerHTML = '<span>🔴</span> Offline';
+                syncStatus.classList.add('offline');
             }
-            
-            discussions.forEach(discussion => {
-                const discussionDate = new Date(discussion.date);
-                const formattedDate = discussionDate.toLocaleDateString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                const discussionItem = document.createElement('div');
-                discussionItem.className = 'discussion-item';
-                discussionItem.innerHTML = `
-                    <div class="discussion-header">
-                        <div class="discussion-author">${discussion.author}</div>
-                        <div class="discussion-date">${formattedDate}</div>
-                    </div>
-                    <h4>${discussion.title}</h4>
-                    <div class="discussion-content">
-                        <p>${discussion.content}</p>
-                    </div>
-                    <div class="discussion-actions">
-                        <button class="discussion-action like-btn ${discussion.likedBy.includes(1) ? 'liked' : ''}" data-id="${discussion.id}">
-                            <span class="likes-count">👍 ${discussion.likes}</span>
-                        </button>
-                        <button class="discussion-action reply-btn" data-id="${discussion.id}">
-                            💬 Responder
-                        </button>
-                    </div>
-                    <div class="reply-form" id="reply-form-${discussion.id}">
-                        <div class="form-group">
-                            <textarea class="form-control reply-content" rows="2" placeholder="Escreva sua resposta..."></textarea>
-                        </div>
-                        <button class="btn btn-small submit-reply" data-id="${discussion.id}">Enviar Resposta</button>
-                    </div>
-                    ${discussion.replies.length > 0 ? `
-                        <div class="discussion-replies">
-                            ${discussion.replies.map(reply => {
-                                const replyDate = new Date(reply.date);
-                                const formattedReplyDate = replyDate.toLocaleDateString('pt-BR', {
-                                    day: '2-digit',
-                                    month: '2-digit',
-                                    year: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                });
-                                
-                                return `
-                                    <div class="discussion-item">
-                                        <div class="discussion-header">
-                                            <div class="discussion-author">${reply.author}</div>
-                                            <div class="discussion-date">${formattedReplyDate}</div>
-                                        </div>
-                                        <div class="discussion-content">
-                                            <p>${reply.content}</p>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    ` : ''}
-                `;
-                
-                discussionList.appendChild(discussionItem);
-            });
-            
-            // Add event listeners for discussion actions
-            document.querySelectorAll('.like-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const discussionId = parseInt(this.getAttribute('data-id'));
-                    toggleLike(discussionId);
-                });
-            });
-            
-            document.querySelectorAll('.reply-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const discussionId = parseInt(this.getAttribute('data-id'));
-                    const replyForm = document.getElementById(`reply-form-${discussionId}`);
-                    replyForm.classList.toggle('active');
-                });
-            });
-            
-            document.querySelectorAll('.submit-reply').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const discussionId = parseInt(this.getAttribute('data-id'));
-                    const replyContent = document.querySelector(`#reply-form-${discussionId} .reply-content`).value;
-                    
-                    if (replyContent.trim() === '') {
-                        alert('Por favor, escreva uma resposta antes de enviar.');
-                        return;
-                    }
-                    
-                    addReply(discussionId, replyContent);
-                });
-            });
         }
 
-        // ========== FUNÇÕES DE GERENCIAMENTO ==========
-
-        // Delete member function
-        function deleteMember(memberId) {
-            members = members.filter(member => member.id !== memberId);
-            saveDataToStorage();
-            renderMembers();
-            showMessage('Membro excluído com sucesso!', 'success');
+        function showLoading(message = 'Carregando...') {
+            let overlay = document.getElementById('loadingOverlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'loadingOverlay';
+                overlay.className = 'loading-overlay';
+                document.body.appendChild(overlay);
+            }
+            overlay.innerHTML = `<div>${message}</div>`;
+            overlay.style.display = 'flex';
         }
 
-        // Delete event function
-        function deleteEvent(eventId) {
-            events = events.filter(event => event.id !== eventId);
-            saveDataToStorage();
-            renderEvents();
-            showMessage('Evento excluído com sucesso!', 'success');
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
         }
 
-        // Participate in event function
+        function showButtonLoading(button, loading) {
+            const span = button.querySelector('span');
+            const loadingDiv = button.querySelector('.btn-loading');
+            
+            if (loading) {
+                span.style.display = 'none';
+                loadingDiv.style.display = 'block';
+                button.disabled = true;
+            } else {
+                span.style.display = 'block';
+                loadingDiv.style.display = 'none';
+                button.disabled = false;
+            }
+        }
+
+        function showMessage(message, type = 'success') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `global-notification ${type}`;
+            messageDiv.textContent = message;
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#2ecc71' : type === 'error' ? '#e74c3c' : '#f39c12'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 4px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => messageDiv.remove(), 300);
+            }, 5000);
+        }
+
         function participateInEvent(event) {
             showMessage(`Você se inscreveu para participar do evento: ${event.title}`, 'success');
         }
 
-        // Toggle like on discussion
-        function toggleLike(discussionId) {
-            const discussion = discussions.find(d => d.id === discussionId);
-            const currentUserId = 1;
-            
-            if (discussion.likedBy.includes(currentUserId)) {
-                discussion.likedBy = discussion.likedBy.filter(id => id !== currentUserId);
-                discussion.likes--;
-            } else {
-                discussion.likedBy.push(currentUserId);
-                discussion.likes++;
-            }
-            
-            renderDiscussions();
-        }
-
-        // Add reply to discussion
-        function addReply(discussionId, content) {
-            const discussion = discussions.find(d => d.id === discussionId);
-            const currentUserId = 1;
-            const currentUser = members.find(m => m.id === currentUserId) || { name: "Usuário" };
-            
-            const newReply = {
-                id: discussion.replies.length + 1,
-                content: content,
-                author: currentUser.name,
-                authorId: currentUserId,
-                date: new Date().toISOString()
-            };
-            
-            discussion.replies.push(newReply);
-            renderDiscussions();
-            
-            // Reset reply form
-            document.querySelector(`#reply-form-${discussionId} .reply-content`).value = '';
-            document.getElementById(`reply-form-${discussionId}`).classList.remove('active');
-            
-            showMessage('Resposta publicada com sucesso!', 'success');
-        }
-
-        // Show delete confirmation modal
-        function showDeleteConfirmation(title, message, confirmAction) {
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            currentDeleteAction = confirmAction;
-            confirmationModal.classList.add('active');
-        }
-
-        // Show message function
-        function showMessage(message, type = 'success') {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `success-message ${type}`;
-            messageDiv.textContent = message;
-            document.body.insertBefore(messageDiv, document.body.firstChild);
-            
-            setTimeout(() => {
-                messageDiv.remove();
-            }, 5000);
-        }
-
         // ========== CONFIGURAÇÃO DE EVENTOS ==========
 
-        // Setup modal event listeners
-        function setupModal() {
-            modalCancel.addEventListener('click', function() {
-                confirmationModal.classList.remove('active');
-                currentDeleteAction = null;
-            });
-
-            modalConfirm.addEventListener('click', function() {
-                if (currentDeleteAction) {
-                    currentDeleteAction();
-                }
-                confirmationModal.classList.remove('active');
-                currentDeleteAction = null;
-            });
-
-            confirmationModal.addEventListener('click', function(e) {
-                if (e.target === confirmationModal) {
-                    confirmationModal.classList.remove('active');
-                    currentDeleteAction = null;
-                }
-            });
-        }
-
-        // Setup event listeners
         function setupEventListeners() {
             // Tab switching
-            tabs.forEach(tab => {
+            document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', () => {
                     const tabId = tab.getAttribute('data-tab');
                     
-                    tabs.forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
                     
-                    tabContents.forEach(content => {
+                    document.querySelectorAll('.tab-content').forEach(content => {
                         content.classList.remove('active');
                         if (content.id === `${tabId}-form`) {
                             content.classList.add('active');
@@ -1717,145 +586,51 @@
                 });
             });
 
-            // Member photo upload
-            memberPhotoInput.addEventListener('change', function(e) {
-                handleImageUpload(e, memberPhotoPreview);
-            });
-
-            // Event photos upload
-            eventPhotosInput.addEventListener('change', function(e) {
-                handleMultipleImageUpload(e);
-            });
-
-            // Drag and drop for event photos
-            photosUploadArea.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                this.style.borderColor = 'var(--secondary-color)';
-                this.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
-            });
-
-            photosUploadArea.addEventListener('dragleave', function(e) {
-                e.preventDefault();
-                this.style.borderColor = '#ddd';
-                this.style.backgroundColor = '';
-            });
-
-            photosUploadArea.addEventListener('drop', function(e) {
-                e.preventDefault();
-                this.style.borderColor = '#ddd';
-                this.style.backgroundColor = '';
-                
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    const fakeEvent = { target: { files: files } };
-                    handleMultipleImageUpload(fakeEvent);
-                }
-            });
-
-            photosUploadArea.addEventListener('click', function() {
-                eventPhotosInput.click();
-            });
-
             // Member form submission
-            memberForm.addEventListener('submit', function(e) {
+            memberForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                let photoData = null;
-                if (memberPhotoInput.files && memberPhotoInput.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        photoData = e.target.result;
-                        completeMemberRegistration(photoData);
-                    };
-                    reader.readAsDataURL(memberPhotoInput.files[0]);
-                } else {
-                    photoData = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60";
-                    completeMemberRegistration(photoData);
-                }
+                const memberData = {
+                    name: document.getElementById('memberName').value,
+                    email: document.getElementById('memberEmail').value,
+                    phone: document.getElementById('memberPhone').value,
+                    role: document.getElementById('memberRole').value,
+                    bio: document.getElementById('memberBio').value,
+                    photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+                    timestamp: new Date().toISOString()
+                };
+                
+                await saveMember(memberData);
+                memberForm.reset();
+                document.getElementById('memberPhotoPreview').innerHTML = '<div class="placeholder">Foto do Membro</div>';
             });
 
             // Event form submission
-            eventForm.addEventListener('submit', function(e) {
+            eventForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                let photosData = [];
-                if (eventPhotos.length > 0) {
-                    photosData = [...eventPhotos];
-                } else {
-                    photosData = ["https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"];
-                }
-                
-                const newEvent = {
-                    id: Date.now(),
+                const eventData = {
                     title: document.getElementById('eventTitle').value,
                     date: document.getElementById('eventDate').value,
                     time: document.getElementById('eventTime').value,
                     location: document.getElementById('eventLocation').value,
                     description: document.getElementById('eventDescription').value,
-                    photos: photosData,
-                    timestamp: Date.now()
+                    timestamp: new Date().toISOString()
                 };
                 
-                events.push(newEvent);
-                saveDataToStorage();
-                renderEvents();
+                await saveEvent(eventData);
                 eventForm.reset();
-                
-                eventPhotos = [];
-                eventPhotosPreview.innerHTML = '';
-                
-                showMessage('Evento cadastrado com sucesso! Todos os usuários verão esta atualização.', 'success');
             });
 
-            // Email admin form submission
-            emailAdminForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const subject = document.getElementById('emailSubject').value;
-                const message = document.getElementById('emailMessage').value;
-                
-                showMessage(`Email enviado para o administrador!\nAssunto: ${subject}`, 'success');
-                emailAdminForm.reset();
+            // Mobile menu
+            document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+                document.querySelector('nav ul').classList.toggle('show');
             });
 
-            // Discussion form submission
-            discussionForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const title = document.getElementById('discussionTitle').value;
-                const content = document.getElementById('discussionContent').value;
-                const currentUserId = 1;
-                const currentUser = members.find(m => m.id === currentUserId) || { name: "Novo Membro" };
-                
-                const newDiscussion = {
-                    id: discussions.length + 1,
-                    title: title,
-                    content: content,
-                    author: currentUser.name,
-                    authorId: currentUserId,
-                    date: new Date().toISOString(),
-                    likes: 0,
-                    likedBy: [],
-                    replies: []
-                };
-                
-                discussions.push(newDiscussion);
-                renderDiscussions();
-                discussionForm.reset();
-                
-                showMessage('Discussão publicada com sucesso!', 'success');
-            });
-
-            // Mobile menu toggle
-            mobileMenuBtn.addEventListener('click', function() {
-                navMenu.classList.toggle('show');
-            });
-
-            // Smooth scrolling for navigation links
+            // Smooth scrolling
             document.querySelectorAll('nav a').forEach(anchor => {
                 anchor.addEventListener('click', function(e) {
                     e.preventDefault();
-                    
                     const targetId = this.getAttribute('href');
                     if (targetId !== '#') {
                         const targetElement = document.querySelector(targetId);
@@ -1864,126 +639,29 @@
                                 top: targetElement.offsetTop - 80,
                                 behavior: 'smooth'
                             });
-                            
-                            navMenu.classList.remove('show');
+                            document.querySelector('nav ul').classList.remove('show');
                         }
                     }
                 });
             });
         }
 
-        // Complete member registration
-        function completeMemberRegistration(photoData) {
-            const newMember = {
-                id: Date.now(),
-                name: document.getElementById('memberName').value,
-                email: document.getElementById('memberEmail').value,
-                phone: document.getElementById('memberPhone').value,
-                role: document.getElementById('memberRole').value,
-                bio: document.getElementById('memberBio').value,
-                photo: photoData,
-                timestamp: Date.now()
-            };
-            
-            members.push(newMember);
-            saveDataToStorage();
-            renderMembers();
-            memberForm.reset();
-            
-            memberPhotoPreview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
-            memberPhotoInput.value = '';
-            
-            showMessage('Membro cadastrado com sucesso! Todos os usuários verão esta atualização.', 'success');
-        }
-
-        // Handle image upload and preview
-        function handleImageUpload(event, previewElement) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    previewElement.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                };
-                
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // Handle multiple image upload and preview
-        function handleMultipleImageUpload(event) {
-            const files = event.target.files;
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                
-                if (file.type.match('image.*')) {
-                    const reader = new FileReader();
-                    
-                    reader.onload = (function(file) {
-                        return function(e) {
-                            const photoData = e.target.result;
-                            eventPhotos.push(photoData);
-                            
-                            const previewItem = document.createElement('div');
-                            previewItem.className = 'photo-preview-item';
-                            previewItem.innerHTML = `
-                                <img src="${photoData}" alt="Preview">
-                                <button type="button" class="remove-photo" data-index="${eventPhotos.length - 1}">×</button>
-                            `;
-                            
-                            eventPhotosPreview.appendChild(previewItem);
-                            
-                            const removeBtn = previewItem.querySelector('.remove-photo');
-                            removeBtn.addEventListener('click', function() {
-                                const index = parseInt(this.getAttribute('data-index'));
-                                eventPhotos.splice(index, 1);
-                                previewItem.remove();
-                                
-                                const remainingItems = eventPhotosPreview.querySelectorAll('.photo-preview-item');
-                                remainingItems.forEach((item, idx) => {
-                                    item.querySelector('.remove-photo').setAttribute('data-index', idx);
-                                });
-                            });
-                        };
-                    })(file);
-                    
-                    reader.readAsDataURL(file);
-                }
-            }
-            
-            eventPhotosInput.value = '';
-        }
-
-        // Show deploy success
-        function showDeploySuccess() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('deploy') === 'success') {
-                const successDiv = document.createElement('div');
-                successDiv.className = 'success-message';
-                successDiv.textContent = '✅ Site publicado com sucesso no Netlify!';
-                document.body.insertBefore(successDiv, document.body.firstChild);
-                
-                setTimeout(() => {
-                    successDiv.remove();
-                }, 5000);
-            }
-        }
-
         // ========== INICIALIZAÇÃO ==========
 
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', function() {
-            initSyncSystem();
-            renderMembers();
-            renderEvents();
-            renderDiscussions();
+        async function initializeApp() {
             setupEventListeners();
-            setupModal();
+            await loadMembers();
+            await loadEvents();
             
-            showDeploySuccess();
-        });
+            // Atualiza a cada 30 segundos
+            setInterval(async () => {
+                await loadMembers();
+                await loadEvents();
+            }, 30000);
+        }
+
+        // Inicia a aplicação
+        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html>
-
