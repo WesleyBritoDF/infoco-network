@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NETWORK IN FOCO - Rede de Membros e Eventos</title>
+    <meta name="description" content="IN FOCO NETWORK - Conecte-se, compartilhe e cresça com nossa comunidade de membros e eventos">
+    <meta name="keywords" content="rede, membros, eventos, networking, comunidade, IN FOCO">
+    <title>IN FOCO NETWORK - Rede de Membros e Eventos</title>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -60,9 +62,14 @@
             gap: 10px;
         }
 
-        .logo img {
-            height: 50px;
-            width: auto;
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo span {
+            color: var(--secondary-color);
         }
 
         nav ul {
@@ -675,10 +682,6 @@
         }
 
         /* New Styles for Email and Interaction Features */
-        .email-admin-section {
-            margin: 3rem 0;
-        }
-
         .interaction-section {
             margin: 3rem 0;
         }
@@ -776,6 +779,21 @@
             color: var(--accent-color);
         }
 
+        /* Loading States */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .success-message {
+            background-color: var(--success-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .header-content {
@@ -857,8 +875,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <!-- Logo substituído pela imagem -->
-                    <img src="WhatsApp Image 2025-09-30 at 17.49.06.jpeg" alt="IN FOCO NETWORK">
+                    <h1>IN <span>FOCO</span> NETWORK</h1>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
                 <nav>
@@ -1054,7 +1071,7 @@
     </div>
 
     <!-- Footer -->
-    <footer>
+    <footer id="contato">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
@@ -1063,13 +1080,13 @@
                 </div>
                 <div class="footer-section">
                     <h3>Contato</h3>
-                    <p>Email: contato@infoco.com</p>
+                    <p>Email: contato@networkingfoco.com.br</p>
                     <p>Telefone: (11) 99999-9999</p>
                     <div class="social-links">
-                        <a href="#">FB</a>
-                        <a href="#">IG</a>
-                        <a href="#">TW</a>
-                        <a href="#">LI</a>
+                        <a href="#" aria-label="Facebook">FB</a>
+                        <a href="#" aria-label="Instagram">IG</a>
+                        <a href="#" aria-label="Twitter">TW</a>
+                        <a href="#" aria-label="LinkedIn">LI</a>
                     </div>
                 </div>
                 <div class="footer-section">
@@ -1081,7 +1098,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 IN FOCO. Todos os direitos reservados.</p>
+                <p>&copy; 2025 IN FOCO NETWORK. Todos os direitos reservados.</p>
             </div>
         </div>
     </footer>
@@ -1128,8 +1145,7 @@
                 description: "Um workshop completo sobre as melhores estratégias de marketing digital para 2025.",
                 photos: [
                     "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                    "https://images.unsplash.com/photo-1551834326-a51b4a96ef47?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                    "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                    "https://images.unsplash.com/photo-1551834326-a51b4a96ef47?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
                 ]
             },
             {
@@ -1140,19 +1156,7 @@
                 location: "Espaço Coworking",
                 description: "Encontro para networking entre empreendedores e troca de experiências.",
                 photos: [
-                    "https://images.unsplash.com/photo-1551834326-a51b4a96ef47?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                    "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-                ]
-            },
-            {
-                id: 3,
-                title: "Palestra: Inovação e Tecnologia",
-                date: "2025-11-05",
-                time: "09:00",
-                location: "Sala de Conferências",
-                description: "Discussão sobre as tendências mais recentes em tecnologia e inovação.",
-                photos: [
-                    "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                    "https://images.unsplash.com/photo-1551834326-a51b4a96ef47?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
                 ]
             }
         ];
@@ -1165,7 +1169,7 @@
                 content: "Gostaria de ouvir sugestões para o tema do nosso próximo encontro. Alguém tem alguma ideia?",
                 author: "Ana Silva",
                 authorId: 1,
-                date: "2025-09-10T14:30:00",
+                date: "2025-09-30T14:30:00",
                 likes: 3,
                 likedBy: [2, 3],
                 replies: [
@@ -1174,33 +1178,7 @@
                         content: "Sugiro um workshop sobre inteligência artificial aplicada ao marketing.",
                         author: "Carlos Oliveira",
                         authorId: 2,
-                        date: "2025-09-10T15:45:00"
-                    },
-                    {
-                        id: 2,
-                        content: "Acho que poderíamos falar sobre sustentabilidade nos negócios.",
-                        author: "Mariana Santos",
-                        authorId: 3,
-                        date: "2025-09-11T09:20:00"
-                    }
-                ]
-            },
-            {
-                id: 2,
-                title: "Recomendações de livros",
-                content: "Alguém tem recomendações de livros interessantes sobre empreendedorismo?",
-                author: "Carlos Oliveira",
-                authorId: 2,
-                date: "2025-09-05T11:15:00",
-                likes: 1,
-                likedBy: [1],
-                replies: [
-                    {
-                        id: 1,
-                        content: "Recomendo 'O Poder do Hábito' e 'A Startup Enxuta'.",
-                        author: "Ana Silva",
-                        authorId: 1,
-                        date: "2025-09-05T13:30:00"
+                        date: "2025-09-30T15:45:00"
                     }
                 ]
             }
@@ -1244,20 +1222,42 @@
             renderDiscussions();
             setupEventListeners();
             setupModal();
+            
+            // Show success message if coming from Netlify deploy
+            showDeploySuccess();
         });
+
+        function showDeploySuccess() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('deploy') === 'success') {
+                const successDiv = document.createElement('div');
+                successDiv.className = 'success-message';
+                successDiv.textContent = '✅ Site publicado com sucesso no Netlify!';
+                document.body.insertBefore(successDiv, document.body.firstChild);
+                
+                setTimeout(() => {
+                    successDiv.remove();
+                }, 5000);
+            }
+        }
 
         // Render members list
         function renderMembers() {
             membersList.innerHTML = '';
+            if (members.length === 0) {
+                membersList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum membro cadastrado ainda.</p>';
+                return;
+            }
+            
             members.forEach(member => {
                 const memberCard = document.createElement('div');
                 memberCard.className = 'card';
                 memberCard.innerHTML = `
                     <div class="card-actions">
-                        <button class="card-action-btn delete" data-id="${member.id}" data-type="member">🗑️</button>
+                        <button class="card-action-btn delete" data-id="${member.id}" data-type="member" title="Excluir membro">🗑️</button>
                     </div>
                     <div class="card-image">
-                        <img src="${member.photo}" alt="${member.name}">
+                        <img src="${member.photo}" alt="${member.name}" loading="lazy">
                     </div>
                     <div class="card-header">
                         <h3>${member.name}</h3>
@@ -1272,7 +1272,7 @@
                 membersList.appendChild(memberCard);
             });
 
-            // Add delete event listeners to member cards
+            // Add delete event listeners
             document.querySelectorAll('.card-action-btn[data-type="member"]').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -1280,7 +1280,7 @@
                     const member = members.find(m => m.id === memberId);
                     showDeleteConfirmation(
                         `Excluir Membro: ${member.name}`,
-                        `Tem certeza que deseja excluir o membro "${member.name}"? Esta ação não pode ser desfeita.`,
+                        `Tem certeza que deseja excluir o membro "${member.name}"?`,
                         () => deleteMember(memberId)
                     );
                 });
@@ -1290,6 +1290,11 @@
         // Render events list
         function renderEvents() {
             eventsList.innerHTML = '';
+            if (events.length === 0) {
+                eventsList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum evento cadastrado ainda.</p>';
+                return;
+            }
+            
             events.forEach(event => {
                 const eventDate = new Date(event.date);
                 const formattedDate = eventDate.toLocaleDateString('pt-BR');
@@ -1298,14 +1303,12 @@
                 eventCard.className = 'card';
                 eventCard.innerHTML = `
                     <div class="card-actions">
-                        <button class="card-action-btn delete" data-id="${event.id}" data-type="event">🗑️</button>
+                        <button class="card-action-btn delete" data-id="${event.id}" data-type="event" title="Excluir evento">🗑️</button>
                     </div>
                     <div class="card-image">
-                        <img src="${event.photos[0]}" alt="${event.title}">
+                        <img src="${event.photos[0]}" alt="${event.title}" loading="lazy">
                         ${event.photos.length > 1 ? `
                             <div class="image-counter">+${event.photos.length - 1}</div>
-                            <button class="image-nav prev">❮</button>
-                            <button class="image-nav next">❯</button>
                         ` : ''}
                     </div>
                     <div class="card-header">
@@ -1323,31 +1326,10 @@
                     </div>
                 `;
                 
-                // Add image navigation functionality if there are multiple photos
-                if (event.photos.length > 1) {
-                    const cardImage = eventCard.querySelector('.card-image img');
-                    const prevBtn = eventCard.querySelector('.image-nav.prev');
-                    const nextBtn = eventCard.querySelector('.image-nav.next');
-                    
-                    let currentPhotoIndex = 0;
-                    
-                    prevBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        currentPhotoIndex = (currentPhotoIndex - 1 + event.photos.length) % event.photos.length;
-                        cardImage.src = event.photos[currentPhotoIndex];
-                    });
-                    
-                    nextBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        currentPhotoIndex = (currentPhotoIndex + 1) % event.photos.length;
-                        cardImage.src = event.photos[currentPhotoIndex];
-                    });
-                }
-                
                 eventsList.appendChild(eventCard);
             });
 
-            // Add delete event listeners to event cards
+            // Add event listeners
             document.querySelectorAll('.card-action-btn[data-type="event"]').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -1355,13 +1337,12 @@
                     const event = events.find(ev => ev.id === eventId);
                     showDeleteConfirmation(
                         `Excluir Evento: ${event.title}`,
-                        `Tem certeza que deseja excluir o evento "${event.title}"? Todas as fotos do evento também serão excluídas. Esta ação não pode ser desfeita.`,
+                        `Tem certeza que deseja excluir o evento "${event.title}"?`,
                         () => deleteEvent(eventId)
                     );
                 });
             });
 
-            // Add participate button functionality
             document.querySelectorAll('.btn-participate').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -1377,7 +1358,7 @@
             discussionList.innerHTML = '';
             
             if (discussions.length === 0) {
-                discussionList.innerHTML = '<p>Nenhuma discussão publicada ainda. Seja o primeiro a iniciar uma conversa!</p>';
+                discussionList.innerHTML = '<p style="text-align: center;">Nenhuma discussão publicada ainda. Seja o primeiro a iniciar uma conversa!</p>';
                 return;
             }
             
@@ -1482,32 +1463,30 @@
         function deleteMember(memberId) {
             members = members.filter(member => member.id !== memberId);
             renderMembers();
-            alert('Membro excluído com sucesso!');
+            showMessage('Membro excluído com sucesso!', 'success');
         }
 
         // Delete event function
         function deleteEvent(eventId) {
             events = events.filter(event => event.id !== eventId);
             renderEvents();
-            alert('Evento excluído com sucesso!');
+            showMessage('Evento excluído com sucesso!', 'success');
         }
 
         // Participate in event function
         function participateInEvent(event) {
-            alert(`Você se inscreveu para participar do evento: ${event.title}\n\nData: ${new Date(event.date).toLocaleDateString('pt-BR')}\nHorário: ${event.time}\nLocal: ${event.location}`);
+            showMessage(`Você se inscreveu para participar do evento: ${event.title}`, 'success');
         }
 
         // Toggle like on discussion
         function toggleLike(discussionId) {
             const discussion = discussions.find(d => d.id === discussionId);
-            const currentUserId = 1; // In a real app, this would be the logged-in user's ID
+            const currentUserId = 1;
             
             if (discussion.likedBy.includes(currentUserId)) {
-                // Unlike
                 discussion.likedBy = discussion.likedBy.filter(id => id !== currentUserId);
                 discussion.likes--;
             } else {
-                // Like
                 discussion.likedBy.push(currentUserId);
                 discussion.likes++;
             }
@@ -1518,8 +1497,8 @@
         // Add reply to discussion
         function addReply(discussionId, content) {
             const discussion = discussions.find(d => d.id === discussionId);
-            const currentUserId = 1; // In a real app, this would be the logged-in user's ID
-            const currentUser = members.find(m => m.id === currentUserId);
+            const currentUserId = 1;
+            const currentUser = members.find(m => m.id === currentUserId) || { name: "Usuário" };
             
             const newReply = {
                 id: discussion.replies.length + 1,
@@ -1535,6 +1514,8 @@
             // Reset reply form
             document.querySelector(`#reply-form-${discussionId} .reply-content`).value = '';
             document.getElementById(`reply-form-${discussionId}`).classList.remove('active');
+            
+            showMessage('Resposta publicada com sucesso!', 'success');
         }
 
         // Show delete confirmation modal
@@ -1543,6 +1524,18 @@
             modalMessage.textContent = message;
             currentDeleteAction = confirmAction;
             confirmationModal.classList.add('active');
+        }
+
+        // Show message function
+        function showMessage(message, type = 'success') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `success-message ${type}`;
+            messageDiv.textContent = message;
+            document.body.insertBefore(messageDiv, document.body.firstChild);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
         }
 
         // Setup modal event listeners
@@ -1560,7 +1553,6 @@
                 currentDeleteAction = null;
             });
 
-            // Close modal when clicking outside
             confirmationModal.addEventListener('click', function(e) {
                 if (e.target === confirmationModal) {
                     confirmationModal.classList.remove('active');
@@ -1576,11 +1568,9 @@
                 tab.addEventListener('click', () => {
                     const tabId = tab.getAttribute('data-tab');
                     
-                    // Update active tab
                     tabs.forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
                     
-                    // Show corresponding content
                     tabContents.forEach(content => {
                         content.classList.remove('active');
                         if (content.id === `${tabId}-form`) {
@@ -1620,17 +1610,11 @@
                 
                 const files = e.dataTransfer.files;
                 if (files.length > 0) {
-                    // Create a fake event object to pass to handleMultipleImageUpload
-                    const fakeEvent = {
-                        target: {
-                            files: files
-                        }
-                    };
+                    const fakeEvent = { target: { files: files } };
                     handleMultipleImageUpload(fakeEvent);
                 }
             });
 
-            // Click on upload area to trigger file input
             photosUploadArea.addEventListener('click', function() {
                 eventPhotosInput.click();
             });
@@ -1639,7 +1623,6 @@
             memberForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Get the image data if available
                 let photoData = null;
                 if (memberPhotoInput.files && memberPhotoInput.files[0]) {
                     const reader = new FileReader();
@@ -1649,7 +1632,6 @@
                     };
                     reader.readAsDataURL(memberPhotoInput.files[0]);
                 } else {
-                    // Use default avatar if no image is selected
                     photoData = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60";
                     completeMemberRegistration(photoData);
                 }
@@ -1659,12 +1641,10 @@
             eventForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Use uploaded photos or default image if none selected
                 let photosData = [];
                 if (eventPhotos.length > 0) {
                     photosData = [...eventPhotos];
                 } else {
-                    // Use default event image if no images are selected
                     photosData = ["https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"];
                 }
                 
@@ -1682,11 +1662,10 @@
                 renderEvents();
                 eventForm.reset();
                 
-                // Reset photos preview
                 eventPhotos = [];
                 eventPhotosPreview.innerHTML = '';
                 
-                alert('Evento cadastrado com sucesso!');
+                showMessage('Evento cadastrado com sucesso!', 'success');
             });
 
             // Email admin form submission
@@ -1696,10 +1675,7 @@
                 const subject = document.getElementById('emailSubject').value;
                 const message = document.getElementById('emailMessage').value;
                 
-                // In a real application, this would send an actual email
-                // For this demo, we'll just show a confirmation
-                alert(`Email enviado para o administrador!\n\nAssunto: ${subject}\n\nMensagem: ${message}`);
-                
+                showMessage(`Email enviado para o administrador!\nAssunto: ${subject}`, 'success');
                 emailAdminForm.reset();
             });
 
@@ -1709,8 +1685,8 @@
                 
                 const title = document.getElementById('discussionTitle').value;
                 const content = document.getElementById('discussionContent').value;
-                const currentUserId = 1; // In a real app, this would be the logged-in user's ID
-                const currentUser = members.find(m => m.id === currentUserId);
+                const currentUserId = 1;
+                const currentUser = members.find(m => m.id === currentUserId) || { name: "Novo Membro" };
                 
                 const newDiscussion = {
                     id: discussions.length + 1,
@@ -1728,7 +1704,7 @@
                 renderDiscussions();
                 discussionForm.reset();
                 
-                alert('Discussão publicada com sucesso!');
+                showMessage('Discussão publicada com sucesso!', 'success');
             });
 
             // Mobile menu toggle
@@ -1750,7 +1726,6 @@
                                 behavior: 'smooth'
                             });
                             
-                            // Close mobile menu if open
                             navMenu.classList.remove('show');
                         }
                     }
@@ -1758,7 +1733,7 @@
             });
         }
 
-        // Complete member registration after image is loaded
+        // Complete member registration
         function completeMemberRegistration(photoData) {
             const newMember = {
                 id: members.length + 1,
@@ -1774,11 +1749,10 @@
             renderMembers();
             memberForm.reset();
             
-            // Reset photo preview
             memberPhotoPreview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
             memberPhotoInput.value = '';
             
-            alert('Membro cadastrado com sucesso!');
+            showMessage('Membro cadastrado com sucesso!', 'success');
         }
 
         // Handle image upload and preview
@@ -1810,7 +1784,6 @@
                             const photoData = e.target.result;
                             eventPhotos.push(photoData);
                             
-                            // Create preview element
                             const previewItem = document.createElement('div');
                             previewItem.className = 'photo-preview-item';
                             previewItem.innerHTML = `
@@ -1820,14 +1793,12 @@
                             
                             eventPhotosPreview.appendChild(previewItem);
                             
-                            // Add event listener to remove button
                             const removeBtn = previewItem.querySelector('.remove-photo');
                             removeBtn.addEventListener('click', function() {
                                 const index = parseInt(this.getAttribute('data-index'));
                                 eventPhotos.splice(index, 1);
                                 previewItem.remove();
                                 
-                                // Update data-index for remaining items
                                 const remainingItems = eventPhotosPreview.querySelectorAll('.photo-preview-item');
                                 remainingItems.forEach((item, idx) => {
                                     item.querySelector('.remove-photo').setAttribute('data-index', idx);
@@ -1840,10 +1811,8 @@
                 }
             }
             
-            // Reset file input to allow selecting the same files again
             eventPhotosInput.value = '';
         }
     </script>
 </body>
-
 </html>
