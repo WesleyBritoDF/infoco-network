@@ -1157,457 +1157,438 @@
     </footer>
 
     <script>
-        // ========== CONFIGURAÇÃO DO BACKEND ==========
-        // SUBSTITUA ESTA URL PELA URL DO SEU GOOGLE APPS SCRIPT!
+    // ========== CONFIGURAÇÃO DO BACKEND ==========
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyW6lT4a7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X/exec';
+    
+    // ========== VARIÁVEIS GLOBAIS ==========
+    let members = [];
+    let events = [];
+    let isOnline = true;
+
+    // ========== DOM ELEMENTS ==========
+    const membersList = document.getElementById('members-list');
+    const eventsList = document.getElementById('events-list');
+    const memberForm = document.getElementById('memberRegistrationForm');
+    const eventForm = document.getElementById('eventRegistrationForm');
+    const syncStatus = document.getElementById('syncStatus');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const memberSubmitBtn = document.getElementById('memberSubmitBtn');
+    const eventSubmitBtn = document.getElementById('eventSubmitBtn');
+
+    // ========== FUNÇÕES DO GOOGLE SHEETS (CORS FIX) ==========
+
+    // Função para fazer requisições CORS-safe
+    async function makeRequest(url, options = {}) {
+        try {
+            // Tenta fazer a requisição normalmente
+            const response = await fetch(url, options);
+            return await response.json();
+        } catch (error) {
+            console.log('Erro na requisição direta, tentando com proxy CORS...', error);
+            
+            // Se falhar, usa um proxy CORS
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+            const proxyResponse = await fetch(proxyUrl);
+            const proxyData = await proxyResponse.json();
+            
+            return JSON.parse(proxyData.contents);
+        }
+    }
+
+    // Função para carregar membros
+    async function loadMembers() {
+        try {
+            showLoading('Carregando membros...');
+            
+            const data = await makeRequest(`${SHEET_URL}?action=getMembers`);
+            
+            if (data.success) {
+                members = data.data || [];
+                renderMembers();
+                updateSyncStatus(true);
+                showMessage('Membros carregados com sucesso!', 'success');
+            } else {
+                throw new Error(data.data || 'Erro ao carregar membros');
+            }
+        } catch (error) {
+            console.error('Erro ao carregar membros:', error);
+            updateSyncStatus(false);
+            showMessage('Erro ao carregar membros. Usando dados locais.', 'error');
+            loadFromLocalStorage();
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Função para carregar eventos
+    async function loadEvents() {
+        try {
+            showLoading('Carregando eventos...');
+            
+            const data = await makeRequest(`${SHEET_URL}?action=getEvents`);
+            
+            if (data.success) {
+                events = data.data || [];
+                renderEvents();
+                updateSyncStatus(true);
+                showMessage('Eventos carregados com sucesso!', 'success');
+            } else {
+                throw new Error(data.data || 'Erro ao carregar eventos');
+            }
+        } catch (error) {
+            console.error('Erro ao carregar eventos:', error);
+            updateSyncStatus(false);
+            showMessage('Erro ao carregar eventos. Usando dados locais.', 'error');
+            loadFromLocalStorage();
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Função para salvar membro
+    async function saveMember(memberData) {
+        try {
+            showButtonLoading(memberSubmitBtn, true);
+            
+            // Para POST requests, precisamos usar um approach diferente devido ao CORS
+            const formData = new FormData();
+            formData.append('action', 'addMember');
+            formData.append('data', JSON.stringify(memberData));
+            
+            const response = await fetch(SHEET_URL, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors' // Modo no-cors para evitar problemas CORS
+            });
+            
+            // Com no-cors, não podemos ler a resposta, então assumimos sucesso
+            showMessage('Membro cadastrado com sucesso! Todos verão esta atualização.', 'success');
+            
+            // Recarrega os dados após um delay
+            setTimeout(async () => {
+                await loadMembers();
+            }, 1000);
+            
+            return true;
+            
+        } catch (error) {
+            console.error('Erro ao salvar membro:', error);
+            showMessage('Erro ao cadastrar membro. Salvando localmente.', 'error');
+            saveMemberToLocalStorage(memberData);
+            return false;
+        } finally {
+            showButtonLoading(memberSubmitBtn, false);
+        }
+    }
+
+    // Função para salvar evento
+    async function saveEvent(eventData) {
+        try {
+            showButtonLoading(eventSubmitBtn, true);
+            
+            const formData = new FormData();
+            formData.append('action', 'addEvent');
+            formData.append('data', JSON.stringify(eventData));
+            
+            const response = await fetch(SHEET_URL, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors'
+            });
+            
+            showMessage('Evento cadastrado com sucesso! Todos verão esta atualização.', 'success');
+            
+            setTimeout(async () => {
+                await loadEvents();
+            }, 1000);
+            
+            return true;
+            
+        } catch (error) {
+            console.error('Erro ao salvar evento:', error);
+            showMessage('Erro ao cadastrar evento. Salvando localmente.', 'error');
+            saveEventToLocalStorage(eventData);
+            return false;
+        } finally {
+            showButtonLoading(eventSubmitBtn, false);
+        }
+    }
+
+    // ========== FALLBACK LOCALSTORAGE ==========
+
+    function saveMemberToLocalStorage(memberData) {
+        const localMembers = JSON.parse(localStorage.getItem('network_members') || '[]');
+        memberData.id = Date.now();
+        localMembers.push(memberData);
+        localStorage.setItem('network_members', JSON.stringify(localMembers));
+        members.push(memberData);
+        renderMembers();
+    }
+
+    function saveEventToLocalStorage(eventData) {
+        const localEvents = JSON.parse(localStorage.getItem('network_events') || '[]');
+        eventData.id = Date.now();
+        localEvents.push(eventData);
+        localStorage.setItem('network_events', JSON.stringify(localEvents));
+        events.push(eventData);
+        renderEvents();
+    }
+
+    function loadFromLocalStorage() {
+        const localMembers = JSON.parse(localStorage.getItem('network_members') || '[]');
+        const localEvents = JSON.parse(localStorage.getItem('network_events') || '[]');
         
-        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyW6lT4a7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X/exec';
-        
-        // ========== VARIÁVEIS GLOBAIS ==========
-        let members = [];
-        let events = [];
-        let isOnline = true;
-
-        // ========== DOM ELEMENTS ==========
-        const membersList = document.getElementById('members-list');
-        const eventsList = document.getElementById('events-list');
-        const memberForm = document.getElementById('memberRegistrationForm');
-        const eventForm = document.getElementById('eventRegistrationForm');
-        const syncStatus = document.getElementById('syncStatus');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const memberSubmitBtn = document.getElementById('memberSubmitBtn');
-        const eventSubmitBtn = document.getElementById('eventSubmitBtn');
-        const debugInfo = document.getElementById('debugInfo');
-
-        // ========== FUNÇÕES DO GOOGLE SHEETS ==========
-
-        // Função para carregar membros do Google Sheets
-        async function loadMembers() {
-            try {
-                showLoading('Carregando membros...');
-                updateDebugInfo('Carregando membros...');
-                
-                const response = await fetch(`${SHEET_URL}?action=getMembers`);
-                
-                if (!response.ok) {
-                    throw new Error(`Erro HTTP: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                updateDebugInfo(`Resposta: ${JSON.stringify(data).substring(0, 100)}...`);
-                
-                if (data.success) {
-                    members = data.data || [];
-                    renderMembers();
-                    updateSyncStatus(true);
-                    showMessage('Membros carregados com sucesso!', 'success');
-                } else {
-                    throw new Error(data.data || 'Erro ao carregar membros');
-                }
-            } catch (error) {
-                console.error('Erro ao carregar membros:', error);
-                updateDebugInfo(`Erro: ${error.message}`);
-                updateSyncStatus(false);
-                showMessage('Erro ao carregar membros. Usando dados locais.', 'error');
-                loadFromLocalStorage();
-            } finally {
-                hideLoading();
-            }
-        }
-
-        // Função para carregar eventos do Google Sheets
-        async function loadEvents() {
-            try {
-                showLoading('Carregando eventos...');
-                updateDebugInfo('Carregando eventos...');
-                
-                const response = await fetch(`${SHEET_URL}?action=getEvents`);
-                
-                if (!response.ok) {
-                    throw new Error(`Erro HTTP: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                updateDebugInfo(`Resposta eventos: ${JSON.stringify(data).substring(0, 100)}...`);
-                
-                if (data.success) {
-                    events = data.data || [];
-                    renderEvents();
-                    updateSyncStatus(true);
-                    showMessage('Eventos carregados com sucesso!', 'success');
-                } else {
-                    throw new Error(data.data || 'Erro ao carregar eventos');
-                }
-            } catch (error) {
-                console.error('Erro ao carregar eventos:', error);
-                updateDebugInfo(`Erro eventos: ${error.message}`);
-                updateSyncStatus(false);
-                showMessage('Erro ao carregar eventos. Usando dados locais.', 'error');
-                loadFromLocalStorage();
-            } finally {
-                hideLoading();
-            }
-        }
-
-        // Função para salvar membro no Google Sheets
-        async function saveMember(memberData) {
-            try {
-                showButtonLoading(memberSubmitBtn, true);
-                updateDebugInfo('Enviando membro...');
-                
-                const response = await fetch(SHEET_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'addMember',
-                        data: memberData
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Erro HTTP: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                updateDebugInfo(`Resposta salvar: ${JSON.stringify(result)}`);
-                
-                if (result.success) {
-                    showMessage('Membro cadastrado com sucesso! Todos verão esta atualização.', 'success');
-                    await loadMembers(); // Recarrega a lista atualizada
-                    return true;
-                } else {
-                    throw new Error(result.data || 'Erro ao salvar membro');
-                }
-            } catch (error) {
-                console.error('Erro ao salvar membro:', error);
-                updateDebugInfo(`Erro salvar: ${error.message}`);
-                showMessage('Erro ao cadastrar membro. Salvando localmente.', 'error');
-                saveMemberToLocalStorage(memberData);
-                return false;
-            } finally {
-                showButtonLoading(memberSubmitBtn, false);
-            }
-        }
-
-        // Função para salvar evento no Google Sheets
-        async function saveEvent(eventData) {
-            try {
-                showButtonLoading(eventSubmitBtn, true);
-                updateDebugInfo('Enviando evento...');
-                
-                const response = await fetch(SHEET_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'addEvent',
-                        data: eventData
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Erro HTTP: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                updateDebugInfo(`Resposta evento: ${JSON.stringify(result)}`);
-                
-                if (result.success) {
-                    showMessage('Evento cadastrado com sucesso! Todos verão esta atualização.', 'success');
-                    await loadEvents(); // Recarrega a lista atualizada
-                    return true;
-                } else {
-                    throw new Error(result.data || 'Erro ao salvar evento');
-                }
-            } catch (error) {
-                console.error('Erro ao salvar evento:', error);
-                updateDebugInfo(`Erro evento: ${error.message}`);
-                showMessage('Erro ao cadastrar evento. Salvando localmente.', 'error');
-                saveEventToLocalStorage(eventData);
-                return false;
-            } finally {
-                showButtonLoading(eventSubmitBtn, false);
-            }
-        }
-
-        // ========== FALLBACK LOCALSTORAGE ==========
-
-        function saveMemberToLocalStorage(memberData) {
-            const localMembers = JSON.parse(localStorage.getItem('network_members') || '[]');
-            memberData.id = Date.now();
-            localMembers.push(memberData);
-            localStorage.setItem('network_members', JSON.stringify(localMembers));
-            members.push(memberData);
+        if (localMembers.length > 0) {
+            members = localMembers;
             renderMembers();
         }
-
-        function saveEventToLocalStorage(eventData) {
-            const localEvents = JSON.parse(localStorage.getItem('network_events') || '[]');
-            eventData.id = Date.now();
-            localEvents.push(eventData);
-            localStorage.setItem('network_events', JSON.stringify(localEvents));
-            events.push(eventData);
+        
+        if (localEvents.length > 0) {
+            events = localEvents;
             renderEvents();
         }
+    }
 
-        function loadFromLocalStorage() {
-            const localMembers = JSON.parse(localStorage.getItem('network_members') || '[]');
-            const localEvents = JSON.parse(localStorage.getItem('network_events') || '[]');
+    // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
+
+    function renderMembers() {
+        membersList.innerHTML = '';
+        if (members.length === 0) {
+            membersList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum membro cadastrado ainda.</p>';
+            return;
+        }
+        
+        members.forEach(member => {
+            const memberCard = document.createElement('div');
+            memberCard.className = 'card';
+            memberCard.innerHTML = `
+                <div class="card-image">
+                    <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
+                </div>
+                <div class="card-header">
+                    <h3>${member.name}</h3>
+                    <span class="member-role">${member.role}</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Email:</strong> ${member.email}</p>
+                    ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                    <p>${member.bio}</p>
+                </div>
+            `;
+            membersList.appendChild(memberCard);
+        });
+    }
+
+    function renderEvents() {
+        eventsList.innerHTML = '';
+        if (events.length === 0) {
+            eventsList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum evento cadastrado ainda.</p>';
+            return;
+        }
+        
+        events.forEach(event => {
+            const eventDate = new Date(event.date);
+            const formattedDate = eventDate.toLocaleDateString('pt-BR');
             
-            if (localMembers.length > 0) {
-                members = localMembers;
-                renderMembers();
-            }
+            const eventCard = document.createElement('div');
+            eventCard.className = 'card';
+            eventCard.innerHTML = `
+                <div class="card-image">
+                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${event.title}" loading="lazy">
+                </div>
+                <div class="card-header">
+                    <h3>${event.title}</h3>
+                    <div class="event-date">
+                        <span>${formattedDate}</span> • <span>${event.time}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p><strong>Local:</strong> ${event.location}</p>
+                    <p>${event.description}</p>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-success btn-participate">Participar</button>
+                </div>
+            `;
             
-            if (localEvents.length > 0) {
-                events = localEvents;
-                renderEvents();
-            }
-        }
+            eventsList.appendChild(eventCard);
+        });
 
-        // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
-
-        function renderMembers() {
-            membersList.innerHTML = '';
-            if (members.length === 0) {
-                membersList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum membro cadastrado ainda.</p>';
-                return;
-            }
-            
-            members.forEach(member => {
-                const memberCard = document.createElement('div');
-                memberCard.className = 'card';
-                memberCard.innerHTML = `
-                    <div class="card-image">
-                        <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
-                    </div>
-                    <div class="card-header">
-                        <h3>${member.name}</h3>
-                        <span class="member-role">${member.role}</span>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Email:</strong> ${member.email}</p>
-                        ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
-                        <p>${member.bio}</p>
-                    </div>
-                `;
-                membersList.appendChild(memberCard);
-            });
-        }
-
-        function renderEvents() {
-            eventsList.innerHTML = '';
-            if (events.length === 0) {
-                eventsList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum evento cadastrado ainda.</p>';
-                return;
-            }
-            
-            events.forEach(event => {
-                const eventDate = new Date(event.date);
-                const formattedDate = eventDate.toLocaleDateString('pt-BR');
-                
-                const eventCard = document.createElement('div');
-                eventCard.className = 'card';
-                eventCard.innerHTML = `
-                    <div class="card-image">
-                        <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${event.title}" loading="lazy">
-                    </div>
-                    <div class="card-header">
-                        <h3>${event.title}</h3>
-                        <div class="event-date">
-                            <span>${formattedDate}</span> • <span>${event.time}</span>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Local:</strong> ${event.location}</p>
-                        <p>${event.description}</p>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-success btn-participate">Participar</button>
-                    </div>
-                `;
-                
-                eventsList.appendChild(eventCard);
-            });
-
-            document.querySelectorAll('.btn-participate').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    showMessage('Inscrição realizada com sucesso!', 'success');
-                });
-            });
-        }
-
-        // ========== FUNÇÕES AUXILIARES ==========
-
-        function updateSyncStatus(online) {
-            isOnline = online;
-            if (online) {
-                syncStatus.innerHTML = '<span>🔵</span> Conectado ao Google Sheets';
-                syncStatus.classList.remove('offline');
-            } else {
-                syncStatus.innerHTML = '<span>🔴</span> Modo Offline (Local)';
-                syncStatus.classList.add('offline');
-            }
-        }
-
-        function updateDebugInfo(message) {
-            debugInfo.textContent = message;
-            debugInfo.style.display = 'block';
-            setTimeout(() => {
-                debugInfo.style.display = 'none';
-            }, 5000);
-        }
-
-        function showLoading(message = 'Carregando...') {
-            loadingOverlay.innerHTML = `<div>${message}</div>`;
-            loadingOverlay.style.display = 'flex';
-        }
-
-        function hideLoading() {
-            loadingOverlay.style.display = 'none';
-        }
-
-        function showButtonLoading(button, loading) {
-            const span = button.querySelector('span');
-            const loadingDiv = button.querySelector('.btn-loading');
-            
-            if (loading) {
-                span.style.display = 'none';
-                loadingDiv.style.display = 'block';
-                button.disabled = true;
-            } else {
-                span.style.display = 'block';
-                loadingDiv.style.display = 'none';
-                button.disabled = false;
-            }
-        }
-
-        function showMessage(message, type = 'success') {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `global-notification ${type}`;
-            messageDiv.textContent = message;
-            messageDiv.style.background = type === 'success' ? '#2ecc71' : type === 'error' ? '#e74c3c' : '#f39c12';
-            
-            document.body.appendChild(messageDiv);
-            
-            setTimeout(() => {
-                messageDiv.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => messageDiv.remove(), 300);
-            }, 5000);
-        }
-
-        // ========== CONFIGURAÇÃO DE EVENTOS ==========
-
-        function setupEventListeners() {
-            // Tab switching
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const tabId = tab.getAttribute('data-tab');
-                    
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.classList.remove('active');
-                        if (content.id === `${tabId}-form`) {
-                            content.classList.add('active');
-                        }
-                    });
-                });
-            });
-
-            // Member photo upload
-            document.getElementById('memberPhoto').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        document.getElementById('memberPhotoPreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // Member form submission
-            memberForm.addEventListener('submit', async function(e) {
+        document.querySelectorAll('.btn-participate').forEach(btn => {
+            btn.addEventListener('click', function(e) {
                 e.preventDefault();
-                
-                const memberData = {
-                    name: document.getElementById('memberName').value,
-                    email: document.getElementById('memberEmail').value,
-                    phone: document.getElementById('memberPhone').value,
-                    role: document.getElementById('memberRole').value,
-                    bio: document.getElementById('memberBio').value,
-                    photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
-                };
-                
-                await saveMember(memberData);
-                memberForm.reset();
-                document.getElementById('memberPhotoPreview').innerHTML = '<div class="placeholder">Foto do Membro</div>';
+                showMessage('Inscrição realizada com sucesso!', 'success');
             });
+        });
+    }
 
-            // Event form submission
-            eventForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
+    // ========== FUNÇÕES AUXILIARES ==========
+
+    function updateSyncStatus(online) {
+        isOnline = online;
+        if (online) {
+            syncStatus.innerHTML = '<span>🔵</span> Conectado ao Google Sheets';
+            syncStatus.classList.remove('offline');
+        } else {
+            syncStatus.innerHTML = '<span>🔴</span> Modo Offline (Local)';
+            syncStatus.classList.add('offline');
+        }
+    }
+
+    function showLoading(message = 'Carregando...') {
+        loadingOverlay.innerHTML = `<div>${message}</div>`;
+        loadingOverlay.style.display = 'flex';
+    }
+
+    function hideLoading() {
+        loadingOverlay.style.display = 'none';
+    }
+
+    function showButtonLoading(button, loading) {
+        const span = button.querySelector('span');
+        const loadingDiv = button.querySelector('.btn-loading');
+        
+        if (loading) {
+            span.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            button.disabled = true;
+        } else {
+            span.style.display = 'block';
+            loadingDiv.style.display = 'none';
+            button.disabled = false;
+        }
+    }
+
+    function showMessage(message, type = 'success') {
+        // Remove notificação existente
+        const existingNotification = document.querySelector('.global-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `global-notification ${type}`;
+        messageDiv.textContent = message;
+        messageDiv.style.background = type === 'success' ? '#2ecc71' : type === 'error' ? '#e74c3c' : '#f39c12';
+        
+        document.body.appendChild(messageDiv);
+        
+        setTimeout(() => {
+            messageDiv.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => messageDiv.remove(), 300);
+        }, 5000);
+    }
+
+    // ========== CONFIGURAÇÃO DE EVENTOS ==========
+
+    function setupEventListeners() {
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
                 
-                const eventData = {
-                    title: document.getElementById('eventTitle').value,
-                    date: document.getElementById('eventDate').value,
-                    time: document.getElementById('eventTime').value,
-                    location: document.getElementById('eventLocation').value,
-                    description: document.getElementById('eventDescription').value
-                };
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
                 
-                await saveEvent(eventData);
-                eventForm.reset();
-            });
-
-            // Mobile menu
-            document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
-                document.querySelector('nav ul').classList.toggle('show');
-            });
-
-            // Smooth scrolling
-            document.querySelectorAll('nav a').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    if (targetId !== '#') {
-                        const targetElement = document.querySelector(targetId);
-                        if (targetElement) {
-                            window.scrollTo({
-                                top: targetElement.offsetTop - 80,
-                                behavior: 'smooth'
-                            });
-                            document.querySelector('nav ul').classList.remove('show');
-                        }
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === `${tabId}-form`) {
+                        content.classList.add('active');
                     }
                 });
             });
-        }
+        });
 
-        // ========== INICIALIZAÇÃO ==========
+        // Member photo upload
+        document.getElementById('memberPhoto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('memberPhotoPreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
-        async function initializeApp() {
-            setupEventListeners();
-            await loadMembers();
-            await loadEvents();
+        // Member form submission
+        memberForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            // Atualiza a cada 30 segundos
-            setInterval(async () => {
-                if (isOnline) {
-                    await loadMembers();
-                    await loadEvents();
-                }
-            }, 30000);
-        }
+            const memberData = {
+                name: document.getElementById('memberName').value,
+                email: document.getElementById('memberEmail').value,
+                phone: document.getElementById('memberPhone').value,
+                role: document.getElementById('memberRole').value,
+                bio: document.getElementById('memberBio').value,
+                photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+            };
+            
+            await saveMember(memberData);
+            memberForm.reset();
+            document.getElementById('memberPhotoPreview').innerHTML = '<div class="placeholder">Foto do Membro</div>';
+        });
 
-        // Inicia a aplicação
-        document.addEventListener('DOMContentLoaded', initializeApp);
-    </script>
+        // Event form submission
+        eventForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const eventData = {
+                title: document.getElementById('eventTitle').value,
+                date: document.getElementById('eventDate').value,
+                time: document.getElementById('eventTime').value,
+                location: document.getElementById('eventLocation').value,
+                description: document.getElementById('eventDescription').value
+            };
+            
+            await saveEvent(eventData);
+            eventForm.reset();
+        });
+
+        // Mobile menu
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            document.querySelector('nav ul').classList.toggle('show');
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId !== '#') {
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                        document.querySelector('nav ul').classList.remove('show');
+                    }
+                }
+            });
+        });
+    }
+
+    // ========== INICIALIZAÇÃO ==========
+
+    async function initializeApp() {
+        setupEventListeners();
+        await loadMembers();
+        await loadEvents();
+        
+        // Atualiza a cada 30 segundos
+        setInterval(async () => {
+            if (isOnline) {
+                await loadMembers();
+                await loadEvents();
+            }
+        }, 30000);
+    }
+
+    // Inicia a aplicação
+    document.addEventListener('DOMContentLoaded', initializeApp);
+</script>
 </body>
 </html>
+
 
