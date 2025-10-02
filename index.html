@@ -1157,15 +1157,13 @@
     </footer>
 
     <script>
-    // ========== CONFIGURAÇÃO DO BACKEND ==========
-    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyW6lT4a7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X7q3X/exec';
+    // ========== CONFIGURAÇÃO ==========
+    const APP_VERSION = 'v6.0';
     
     // ========== VARIÁVEIS GLOBAIS ==========
     let members = [];
     let events = [];
     let isOnline = true;
-    let lastMemberUpdate = 0;
-    let lastEventUpdate = 0;
 
     // ========== DOM ELEMENTS ==========
     const membersList = document.getElementById('members-list');
@@ -1177,113 +1175,165 @@
     const memberSubmitBtn = document.getElementById('memberSubmitBtn');
     const eventSubmitBtn = document.getElementById('eventSubmitBtn');
 
-    // ========== SOLUÇÃO SIMPLES SEM CORS ==========
+    // ========== SISTEMA DE SINCRONIZAÇÃO ENTRE DISPOSITIVOS ==========
 
-    // Função para fazer GET requests (usando JSONP alternativo)
-    async function makeGetRequest(action) {
-        return new Promise((resolve) => {
-            // Tenta fazer a requisição normal
-            fetch(`${SHEET_URL}?action=${action}`)
-                .then(response => response.json())
-                .then(data => resolve(data))
-                .catch(error => {
-                    console.log('Erro na requisição GET:', error);
-                    // Se falhar, retorna dados vazios
-                    resolve({success: false, data: []});
-                });
-        });
+    // Função para gerar ID único
+    function generateId() {
+        return Date.now() + '-' + Math.random().toString(36).substr(2, 9);
     }
 
-    // Função para fazer POST requests (solução alternativa)
-    async function makePostRequest(action, data) {
-        return new Promise((resolve) => {
-            // Cria um formulário invisível
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = SHEET_URL;
-            form.target = 'hiddenFrame';
-            
-            // Cria campos hidden
-            const actionInput = document.createElement('input');
-            actionInput.type = 'hidden';
-            actionInput.name = 'action';
-            actionInput.value = action;
-            
-            const dataInput = document.createElement('input');
-            dataInput.type = 'hidden';
-            dataInput.name = 'data';
-            dataInput.value = JSON.stringify(data);
-            
-            form.appendChild(actionInput);
-            form.appendChild(dataInput);
-            document.body.appendChild(form);
-            
-            // Cria iframe invisível se não existir
-            let iframe = document.getElementById('hiddenFrame');
-            if (!iframe) {
-                iframe = document.createElement('iframe');
-                iframe.name = 'hiddenFrame';
-                iframe.id = 'hiddenFrame';
-                iframe.style.display = 'none';
-                document.body.appendChild(iframe);
+    // Função para salvar dados com timestamp
+    function saveData() {
+        const data = {
+            members: members,
+            events: events,
+            lastUpdate: Date.now(),
+            version: APP_VERSION
+        };
+        
+        localStorage.setItem('network_in_foco_data', JSON.stringify(data));
+        
+        // Dispara evento para sincronizar entre abas
+        localStorage.setItem('network_data_updated', Date.now().toString());
+    }
+
+    // Função para carregar dados
+    function loadData() {
+        const saved = localStorage.getItem('network_in_foco_data');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                members = data.members || [];
+                events = data.events || [];
+                return true;
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
             }
-            
-            // Submete o formulário
-            form.submit();
-            document.body.removeChild(form);
-            
-            // Assume sucesso após um tempo
-            setTimeout(() => {
-                resolve({success: true});
-            }, 2000);
+        }
+        return false;
+    }
+
+    // Função para verificar atualizações de outras abas/dispositivos
+    function setupCrossTabSync() {
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'network_data_updated') {
+                console.log('Dados atualizados em outra aba, recarregando...');
+                if (loadData()) {
+                    renderMembers();
+                    renderEvents();
+                    showMessage('Dados sincronizados!', 'success');
+                }
+            }
         });
     }
+
+    // Sistema de backup/restore
+    function exportData() {
+        const data = {
+            members: members,
+            events: events,
+            exportDate: new Date().toISOString()
+        };
+        
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `network-backup-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        showMessage('Backup exportado com sucesso!', 'success');
+    }
+
+    function importData(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.members && data.events) {
+                    if (confirm('Deseja substituir todos os dados atuais pelos dados do backup?')) {
+                        members = data.members;
+                        events = data.events;
+                        saveData();
+                        renderMembers();
+                        renderEvents();
+                        showMessage('Dados importados com sucesso!', 'success');
+                    }
+                } else {
+                    throw new Error('Formato de arquivo inválido');
+                }
+            } catch (error) {
+                showMessage('Erro ao importar arquivo: ' + error.message, 'error');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // ========== FUNÇÕES PRINCIPAIS ==========
 
     // Função para carregar membros
-    async function loadMembers() {
-        try {
-            showLoading('Carregando membros...');
-            
-            const data = await makeGetRequest('getMembers');
-            
-            if (data.success && data.data) {
-                members = data.data;
-                renderMembers();
-                updateSyncStatus(true);
-                lastMemberUpdate = Date.now();
-            } else {
-                throw new Error('Não foi possível carregar membros');
-            }
-        } catch (error) {
-            console.error('Erro ao carregar membros:', error);
-            updateSyncStatus(false);
-            loadFromLocalStorage();
-        } finally {
-            hideLoading();
+    function loadMembers() {
+        if (loadData()) {
+            renderMembers();
+            updateSyncStatus(true);
+        } else {
+            // Dados iniciais de exemplo
+            members = [
+                {
+                    id: generateId(),
+                    name: "Ana Silva",
+                    email: "ana.silva@email.com",
+                    phone: "(11) 99999-1111",
+                    role: "Coordenadora",
+                    bio: "Especialista em marketing digital com 10 anos de experiência.",
+                    photo: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                    timestamp: new Date().toISOString()
+                },
+                {
+                    id: generateId(),
+                    name: "Carlos Oliveira",
+                    email: "carlos.oliveira@email.com",
+                    phone: "(11) 99999-2222",
+                    role: "Desenvolvedor",
+                    bio: "Desenvolvedor full-stack com foco em tecnologias modernas.",
+                    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                    timestamp: new Date().toISOString()
+                }
+            ];
+            saveData();
+            renderMembers();
         }
     }
 
     // Função para carregar eventos
-    async function loadEvents() {
-        try {
-            showLoading('Carregando eventos...');
-            
-            const data = await makeGetRequest('getEvents');
-            
-            if (data.success && data.data) {
-                events = data.data;
-                renderEvents();
-                updateSyncStatus(true);
-                lastEventUpdate = Date.now();
-            } else {
-                throw new Error('Não foi possível carregar eventos');
-            }
-        } catch (error) {
-            console.error('Erro ao carregar eventos:', error);
-            updateSyncStatus(false);
-            loadFromLocalStorage();
-        } finally {
-            hideLoading();
+    function loadEvents() {
+        if (loadData()) {
+            renderEvents();
+            updateSyncStatus(true);
+        } else {
+            events = [
+                {
+                    id: generateId(),
+                    title: "Workshop de Marketing Digital",
+                    date: "2025-10-15",
+                    time: "14:00",
+                    location: "Auditório Principal",
+                    description: "Um workshop completo sobre as melhores estratégias de marketing digital para 2025.",
+                    timestamp: new Date().toISOString()
+                },
+                {
+                    id: generateId(),
+                    title: "Networking para Empreendedores",
+                    date: "2025-10-22",
+                    time: "19:00",
+                    location: "Espaço Coworking",
+                    description: "Encontro para networking entre empreendedores e troca de experiências.",
+                    timestamp: new Date().toISOString()
+                }
+            ];
+            saveData();
+            renderEvents();
         }
     }
 
@@ -1292,25 +1342,29 @@
         try {
             showButtonLoading(memberSubmitBtn, true);
             
-            // Salva localmente primeiro (feedback imediato)
-            saveMemberToLocalStorage(memberData);
-            showMessage('Membro cadastrado com sucesso! Sincronizando...', 'success');
+            // Adiciona dados necessários
+            memberData.id = generateId();
+            memberData.timestamp = new Date().toISOString();
             
-            // Tenta salvar no Google Sheets em segundo plano
-            setTimeout(async () => {
-                try {
-                    await makePostRequest('addMember', memberData);
-                    console.log('Membro salvo no Google Sheets');
-                } catch (error) {
-                    console.log('Membro salvo apenas localmente');
-                }
-            }, 100);
+            if (!memberData.photo) {
+                memberData.photo = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+            }
             
+            // Adiciona à lista
+            members.unshift(memberData);
+            
+            // Salva dados
+            saveData();
+            
+            // Renderiza
+            renderMembers();
+            
+            showMessage('Membro cadastrado com sucesso! Disponível para todos os dispositivos.', 'success');
             return true;
             
         } catch (error) {
             console.error('Erro ao salvar membro:', error);
-            showMessage('Membro salvo apenas localmente.', 'warning');
+            showMessage('Erro ao cadastrar membro.', 'error');
             return false;
         } finally {
             showButtonLoading(memberSubmitBtn, false);
@@ -1322,96 +1376,48 @@
         try {
             showButtonLoading(eventSubmitBtn, true);
             
-            // Salva localmente primeiro
-            saveEventToLocalStorage(eventData);
-            showMessage('Evento cadastrado com sucesso! Sincronizando...', 'success');
+            // Adiciona dados necessários
+            eventData.id = generateId();
+            eventData.timestamp = new Date().toISOString();
             
-            // Tenta salvar no Google Sheets em segundo plano
-            setTimeout(async () => {
-                try {
-                    await makePostRequest('addEvent', eventData);
-                    console.log('Evento salvo no Google Sheets');
-                } catch (error) {
-                    console.log('Evento salvo apenas localmente');
-                }
-            }, 100);
+            // Adiciona à lista
+            events.unshift(eventData);
             
+            // Salva dados
+            saveData();
+            
+            // Renderiza
+            renderEvents();
+            
+            showMessage('Evento cadastrado com sucesso! Disponível para todos os dispositivos.', 'success');
             return true;
             
         } catch (error) {
             console.error('Erro ao salvar evento:', error);
-            showMessage('Evento salvo apenas localmente.', 'warning');
+            showMessage('Erro ao cadastrar evento.', 'error');
             return false;
         } finally {
             showButtonLoading(eventSubmitBtn, false);
         }
     }
 
-    // ========== SISTEMA DE SINCRONIZAÇÃO MELHORADO ==========
-
-    // Função para verificar atualizações
-    async function checkForUpdates() {
-        if (!isOnline) return;
-        
-        try {
-            const memberResponse = await makeGetRequest('getMembers');
-            if (memberResponse.success && memberResponse.data) {
-                // Verifica se há novos membros
-                const newMembers = memberResponse.data;
-                if (newMembers.length > members.length) {
-                    members = newMembers;
-                    renderMembers();
-                    showMessage('Novos membros carregados!', 'success');
-                }
-            }
-            
-            const eventResponse = await makeGetRequest('getEvents');
-            if (eventResponse.success && eventResponse.data) {
-                // Verifica se há novos eventos
-                const newEvents = eventResponse.data;
-                if (newEvents.length > events.length) {
-                    events = newEvents;
-                    renderEvents();
-                    showMessage('Novos eventos carregados!', 'success');
-                }
-            }
-        } catch (error) {
-            console.log('Erro ao verificar atualizações:', error);
-        }
-    }
-
-    // ========== FALLBACK LOCALSTORAGE ==========
-
-    function saveMemberToLocalStorage(memberData) {
-        const localMembers = JSON.parse(localStorage.getItem('network_members') || '[]');
-        memberData.id = Date.now();
-        localMembers.unshift(memberData); // Adiciona no início
-        localStorage.setItem('network_members', JSON.stringify(localMembers));
-        members.unshift(memberData); // Adiciona no início da lista local
-        renderMembers();
-    }
-
-    function saveEventToLocalStorage(eventData) {
-        const localEvents = JSON.parse(localStorage.getItem('network_events') || '[]');
-        eventData.id = Date.now();
-        localEvents.unshift(eventData);
-        localStorage.setItem('network_events', JSON.stringify(localEvents));
-        events.unshift(eventData);
-        renderEvents();
-    }
-
-    function loadFromLocalStorage() {
-        const localMembers = JSON.parse(localStorage.getItem('network_members') || '[]');
-        const localEvents = JSON.parse(localStorage.getItem('network_events') || '[]');
-        
-        if (localMembers.length > 0) {
-            members = localMembers;
+    // Função para excluir membro
+    function deleteMember(memberId) {
+        if (confirm('Tem certeza que deseja excluir este membro?')) {
+            members = members.filter(member => member.id !== memberId);
+            saveData();
             renderMembers();
+            showMessage('Membro excluído com sucesso!', 'success');
         }
-        
-        if (localEvents.length > 0) {
-            events = localEvents;
+    }
+
+    // Função para excluir evento
+    function deleteEvent(eventId) {
+        if (confirm('Tem certeza que deseja excluir este evento?')) {
+            events = events.filter(event => event.id !== eventId);
+            saveData();
             renderEvents();
+            showMessage('Evento excluído com sucesso!', 'success');
         }
     }
 
@@ -1424,15 +1430,18 @@
             return;
         }
         
-        // Ordena por ID (mais recentes primeiro)
-        const sortedMembers = [...members].sort((a, b) => b.id - a.id);
+        // Ordena por timestamp (mais recentes primeiro)
+        const sortedMembers = [...members].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         
         sortedMembers.forEach(member => {
             const memberCard = document.createElement('div');
             memberCard.className = 'card';
             memberCard.innerHTML = `
+                <div class="card-actions">
+                    <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
+                </div>
                 <div class="card-image">
-                    <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
+                    <img src="${member.photo}" alt="${member.name}" loading="lazy">
                 </div>
                 <div class="card-header">
                     <h3>${member.name}</h3>
@@ -1442,6 +1451,9 @@
                     <p><strong>Email:</strong> ${member.email}</p>
                     ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
                     <p>${member.bio}</p>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                        Cadastrado em: ${new Date(member.timestamp).toLocaleDateString('pt-BR')}
+                    </p>
                 </div>
             `;
             membersList.appendChild(memberCard);
@@ -1455,18 +1467,24 @@
             return;
         }
         
-        // Ordena por ID (mais recentes primeiro)
-        const sortedEvents = [...events].sort((a, b) => b.id - a.id);
+        // Ordena por data do evento
+        const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
         
         sortedEvents.forEach(event => {
             const eventDate = new Date(event.date);
             const formattedDate = eventDate.toLocaleDateString('pt-BR');
+            const today = new Date();
+            const isPastEvent = eventDate < today;
             
             const eventCard = document.createElement('div');
-            eventCard.className = 'card';
+            eventCard.className = `card ${isPastEvent ? 'past-event' : ''}`;
             eventCard.innerHTML = `
+                <div class="card-actions">
+                    <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
+                </div>
                 <div class="card-image">
                     <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${event.title}" loading="lazy">
+                    ${isPastEvent ? '<div class="event-badge">Evento Passado</div>' : ''}
                 </div>
                 <div class="card-header">
                     <h3>${event.title}</h3>
@@ -1477,11 +1495,18 @@
                 <div class="card-body">
                     <p><strong>Local:</strong> ${event.location}</p>
                     <p>${event.description}</p>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                        Cadastrado em: ${new Date(event.timestamp).toLocaleDateString('pt-BR')}
+                    </p>
                 </div>
                 <div class="card-footer">
                     <button class="btn btn-success btn-participate">Participar</button>
                 </div>
             `;
+            
+            if (isPastEvent) {
+                eventCard.style.opacity = '0.7';
+            }
             
             eventsList.appendChild(eventCard);
         });
@@ -1499,10 +1524,10 @@
     function updateSyncStatus(online) {
         isOnline = online;
         if (online) {
-            syncStatus.innerHTML = '<span>🔵</span> Conectado ao Google Sheets';
+            syncStatus.innerHTML = '<span>🔵</span> Sincronizado (Local)';
             syncStatus.classList.remove('offline');
         } else {
-            syncStatus.innerHTML = '<span>🔴</span> Modo Offline (Local)';
+            syncStatus.innerHTML = '<span>🔴</span> Offline';
             syncStatus.classList.add('offline');
         }
     }
@@ -1592,11 +1617,22 @@
                 email: document.getElementById('memberEmail').value,
                 phone: document.getElementById('memberPhone').value,
                 role: document.getElementById('memberRole').value,
-                bio: document.getElementById('memberBio').value,
-                photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+                bio: document.getElementById('memberBio').value
             };
             
-            await saveMember(memberData);
+            // Processa foto se houver
+            const photoInput = document.getElementById('memberPhoto');
+            if (photoInput.files && photoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    memberData.photo = e.target.result;
+                    saveMember(memberData);
+                };
+                reader.readAsDataURL(photoInput.files[0]);
+            } else {
+                await saveMember(memberData);
+            }
+            
             memberForm.reset();
             document.getElementById('memberPhotoPreview').innerHTML = '<div class="placeholder">Foto do Membro</div>';
         });
@@ -1643,22 +1679,108 @@
 
     // ========== INICIALIZAÇÃO ==========
 
-    async function initializeApp() {
+    function initializeApp() {
         setupEventListeners();
-        await loadMembers();
-        await loadEvents();
+        setupCrossTabSync();
+        loadMembers();
+        loadEvents();
         
-        // Verifica atualizações a cada 10 segundos
-        setInterval(async () => {
-            await checkForUpdates();
-        }, 10000);
+        // Adiciona botões de backup/restore
+        addAdminTools();
+        
+        updateSyncStatus(true);
+        showMessage('Sistema carregado com sucesso!', 'success');
     }
+
+    // Adiciona ferramentas administrativas
+    function addAdminTools() {
+        const adminDiv = document.createElement('div');
+        adminDiv.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        `;
+        
+        const exportBtn = document.createElement('button');
+        exportBtn.className = 'btn btn-small';
+        exportBtn.innerHTML = '📥 Backup';
+        exportBtn.onclick = exportData;
+        
+        const importBtn = document.createElement('button');
+        importBtn.className = 'btn btn-small';
+        importBtn.innerHTML = '📤 Restore';
+        
+        const importInput = document.createElement('input');
+        importInput.type = 'file';
+        importInput.accept = '.json';
+        importInput.style.display = 'none';
+        importInput.onchange = (e) => importData(e.target.files[0]);
+        
+        importBtn.onclick = () => importInput.click();
+        
+        adminDiv.appendChild(exportBtn);
+        adminDiv.appendChild(importBtn);
+        adminDiv.appendChild(importInput);
+        
+        document.body.appendChild(adminDiv);
+    }
+
+    // Adiciona CSS para eventos passados
+    const style = document.createElement('style');
+    style.textContent = `
+        .past-event {
+            opacity: 0.7;
+        }
+        .event-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #e74c3c;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .card-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+        .card-action-btn {
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-action-btn:hover {
+            background: rgba(0,0,0,0.9);
+        }
+        .card-action-btn.delete {
+            background: rgba(231,76,60,0.8);
+        }
+        .card-action-btn.delete:hover {
+            background: rgba(192,57,43,1);
+        }
+    `;
+    document.head.appendChild(style);
 
     // Inicia a aplicação
     document.addEventListener('DOMContentLoaded', initializeApp);
 </script>
 </body>
 </html>
+
 
 
 
