@@ -1164,6 +1164,8 @@
     let members = [];
     let events = [];
     let isOnline = true;
+    let lastMemberUpdate = 0;
+    let lastEventUpdate = 0;
 
     // ========== DOM ELEMENTS ==========
     const membersList = document.getElementById('members-list');
@@ -1175,24 +1177,66 @@
     const memberSubmitBtn = document.getElementById('memberSubmitBtn');
     const eventSubmitBtn = document.getElementById('eventSubmitBtn');
 
-    // ========== FUNÇÕES DO GOOGLE SHEETS (CORS FIX) ==========
+    // ========== SOLUÇÃO SIMPLES SEM CORS ==========
 
-    // Função para fazer requisições CORS-safe
-    async function makeRequest(url, options = {}) {
-        try {
-            // Tenta fazer a requisição normalmente
-            const response = await fetch(url, options);
-            return await response.json();
-        } catch (error) {
-            console.log('Erro na requisição direta, tentando com proxy CORS...', error);
+    // Função para fazer GET requests (usando JSONP alternativo)
+    async function makeGetRequest(action) {
+        return new Promise((resolve) => {
+            // Tenta fazer a requisição normal
+            fetch(`${SHEET_URL}?action=${action}`)
+                .then(response => response.json())
+                .then(data => resolve(data))
+                .catch(error => {
+                    console.log('Erro na requisição GET:', error);
+                    // Se falhar, retorna dados vazios
+                    resolve({success: false, data: []});
+                });
+        });
+    }
+
+    // Função para fazer POST requests (solução alternativa)
+    async function makePostRequest(action, data) {
+        return new Promise((resolve) => {
+            // Cria um formulário invisível
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = SHEET_URL;
+            form.target = 'hiddenFrame';
             
-            // Se falhar, usa um proxy CORS
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-            const proxyResponse = await fetch(proxyUrl);
-            const proxyData = await proxyResponse.json();
+            // Cria campos hidden
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = action;
             
-            return JSON.parse(proxyData.contents);
-        }
+            const dataInput = document.createElement('input');
+            dataInput.type = 'hidden';
+            dataInput.name = 'data';
+            dataInput.value = JSON.stringify(data);
+            
+            form.appendChild(actionInput);
+            form.appendChild(dataInput);
+            document.body.appendChild(form);
+            
+            // Cria iframe invisível se não existir
+            let iframe = document.getElementById('hiddenFrame');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.name = 'hiddenFrame';
+                iframe.id = 'hiddenFrame';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+            }
+            
+            // Submete o formulário
+            form.submit();
+            document.body.removeChild(form);
+            
+            // Assume sucesso após um tempo
+            setTimeout(() => {
+                resolve({success: true});
+            }, 2000);
+        });
     }
 
     // Função para carregar membros
@@ -1200,20 +1244,19 @@
         try {
             showLoading('Carregando membros...');
             
-            const data = await makeRequest(`${SHEET_URL}?action=getMembers`);
+            const data = await makeGetRequest('getMembers');
             
-            if (data.success) {
-                members = data.data || [];
+            if (data.success && data.data) {
+                members = data.data;
                 renderMembers();
                 updateSyncStatus(true);
-                showMessage('Membros carregados com sucesso!', 'success');
+                lastMemberUpdate = Date.now();
             } else {
-                throw new Error(data.data || 'Erro ao carregar membros');
+                throw new Error('Não foi possível carregar membros');
             }
         } catch (error) {
             console.error('Erro ao carregar membros:', error);
             updateSyncStatus(false);
-            showMessage('Erro ao carregar membros. Usando dados locais.', 'error');
             loadFromLocalStorage();
         } finally {
             hideLoading();
@@ -1225,20 +1268,19 @@
         try {
             showLoading('Carregando eventos...');
             
-            const data = await makeRequest(`${SHEET_URL}?action=getEvents`);
+            const data = await makeGetRequest('getEvents');
             
-            if (data.success) {
-                events = data.data || [];
+            if (data.success && data.data) {
+                events = data.data;
                 renderEvents();
                 updateSyncStatus(true);
-                showMessage('Eventos carregados com sucesso!', 'success');
+                lastEventUpdate = Date.now();
             } else {
-                throw new Error(data.data || 'Erro ao carregar eventos');
+                throw new Error('Não foi possível carregar eventos');
             }
         } catch (error) {
             console.error('Erro ao carregar eventos:', error);
             updateSyncStatus(false);
-            showMessage('Erro ao carregar eventos. Usando dados locais.', 'error');
             loadFromLocalStorage();
         } finally {
             hideLoading();
@@ -1250,31 +1292,25 @@
         try {
             showButtonLoading(memberSubmitBtn, true);
             
-            // Para POST requests, precisamos usar um approach diferente devido ao CORS
-            const formData = new FormData();
-            formData.append('action', 'addMember');
-            formData.append('data', JSON.stringify(memberData));
+            // Salva localmente primeiro (feedback imediato)
+            saveMemberToLocalStorage(memberData);
+            showMessage('Membro cadastrado com sucesso! Sincronizando...', 'success');
             
-            const response = await fetch(SHEET_URL, {
-                method: 'POST',
-                body: formData,
-                mode: 'no-cors' // Modo no-cors para evitar problemas CORS
-            });
-            
-            // Com no-cors, não podemos ler a resposta, então assumimos sucesso
-            showMessage('Membro cadastrado com sucesso! Todos verão esta atualização.', 'success');
-            
-            // Recarrega os dados após um delay
+            // Tenta salvar no Google Sheets em segundo plano
             setTimeout(async () => {
-                await loadMembers();
-            }, 1000);
+                try {
+                    await makePostRequest('addMember', memberData);
+                    console.log('Membro salvo no Google Sheets');
+                } catch (error) {
+                    console.log('Membro salvo apenas localmente');
+                }
+            }, 100);
             
             return true;
             
         } catch (error) {
             console.error('Erro ao salvar membro:', error);
-            showMessage('Erro ao cadastrar membro. Salvando localmente.', 'error');
-            saveMemberToLocalStorage(memberData);
+            showMessage('Membro salvo apenas localmente.', 'warning');
             return false;
         } finally {
             showButtonLoading(memberSubmitBtn, false);
@@ -1286,31 +1322,61 @@
         try {
             showButtonLoading(eventSubmitBtn, true);
             
-            const formData = new FormData();
-            formData.append('action', 'addEvent');
-            formData.append('data', JSON.stringify(eventData));
+            // Salva localmente primeiro
+            saveEventToLocalStorage(eventData);
+            showMessage('Evento cadastrado com sucesso! Sincronizando...', 'success');
             
-            const response = await fetch(SHEET_URL, {
-                method: 'POST',
-                body: formData,
-                mode: 'no-cors'
-            });
-            
-            showMessage('Evento cadastrado com sucesso! Todos verão esta atualização.', 'success');
-            
+            // Tenta salvar no Google Sheets em segundo plano
             setTimeout(async () => {
-                await loadEvents();
-            }, 1000);
+                try {
+                    await makePostRequest('addEvent', eventData);
+                    console.log('Evento salvo no Google Sheets');
+                } catch (error) {
+                    console.log('Evento salvo apenas localmente');
+                }
+            }, 100);
             
             return true;
             
         } catch (error) {
             console.error('Erro ao salvar evento:', error);
-            showMessage('Erro ao cadastrar evento. Salvando localmente.', 'error');
-            saveEventToLocalStorage(eventData);
+            showMessage('Evento salvo apenas localmente.', 'warning');
             return false;
         } finally {
             showButtonLoading(eventSubmitBtn, false);
+        }
+    }
+
+    // ========== SISTEMA DE SINCRONIZAÇÃO MELHORADO ==========
+
+    // Função para verificar atualizações
+    async function checkForUpdates() {
+        if (!isOnline) return;
+        
+        try {
+            const memberResponse = await makeGetRequest('getMembers');
+            if (memberResponse.success && memberResponse.data) {
+                // Verifica se há novos membros
+                const newMembers = memberResponse.data;
+                if (newMembers.length > members.length) {
+                    members = newMembers;
+                    renderMembers();
+                    showMessage('Novos membros carregados!', 'success');
+                }
+            }
+            
+            const eventResponse = await makeGetRequest('getEvents');
+            if (eventResponse.success && eventResponse.data) {
+                // Verifica se há novos eventos
+                const newEvents = eventResponse.data;
+                if (newEvents.length > events.length) {
+                    events = newEvents;
+                    renderEvents();
+                    showMessage('Novos eventos carregados!', 'success');
+                }
+            }
+        } catch (error) {
+            console.log('Erro ao verificar atualizações:', error);
         }
     }
 
@@ -1319,18 +1385,18 @@
     function saveMemberToLocalStorage(memberData) {
         const localMembers = JSON.parse(localStorage.getItem('network_members') || '[]');
         memberData.id = Date.now();
-        localMembers.push(memberData);
+        localMembers.unshift(memberData); // Adiciona no início
         localStorage.setItem('network_members', JSON.stringify(localMembers));
-        members.push(memberData);
+        members.unshift(memberData); // Adiciona no início da lista local
         renderMembers();
     }
 
     function saveEventToLocalStorage(eventData) {
         const localEvents = JSON.parse(localStorage.getItem('network_events') || '[]');
         eventData.id = Date.now();
-        localEvents.push(eventData);
+        localEvents.unshift(eventData);
         localStorage.setItem('network_events', JSON.stringify(localEvents));
-        events.push(eventData);
+        events.unshift(eventData);
         renderEvents();
     }
 
@@ -1358,7 +1424,10 @@
             return;
         }
         
-        members.forEach(member => {
+        // Ordena por ID (mais recentes primeiro)
+        const sortedMembers = [...members].sort((a, b) => b.id - a.id);
+        
+        sortedMembers.forEach(member => {
             const memberCard = document.createElement('div');
             memberCard.className = 'card';
             memberCard.innerHTML = `
@@ -1386,7 +1455,10 @@
             return;
         }
         
-        events.forEach(event => {
+        // Ordena por ID (mais recentes primeiro)
+        const sortedEvents = [...events].sort((a, b) => b.id - a.id);
+        
+        sortedEvents.forEach(event => {
             const eventDate = new Date(event.date);
             const formattedDate = eventDate.toLocaleDateString('pt-BR');
             
@@ -1469,7 +1541,7 @@
         const messageDiv = document.createElement('div');
         messageDiv.className = `global-notification ${type}`;
         messageDiv.textContent = message;
-        messageDiv.style.background = type === 'success' ? '#2ecc71' : type === 'error' ? '#e74c3c' : '#f39c12';
+        messageDiv.style.background = type === 'success' ? '#2ecc71' : type === 'warning' ? '#f39c12' : '#e74c3c';
         
         document.body.appendChild(messageDiv);
         
@@ -1576,13 +1648,10 @@
         await loadMembers();
         await loadEvents();
         
-        // Atualiza a cada 30 segundos
+        // Verifica atualizações a cada 10 segundos
         setInterval(async () => {
-            if (isOnline) {
-                await loadMembers();
-                await loadEvents();
-            }
-        }, 30000);
+            await checkForUpdates();
+        }, 10000);
     }
 
     // Inicia a aplicação
@@ -1590,6 +1659,7 @@
 </script>
 </body>
 </html>
+
 
 
 
