@@ -794,6 +794,54 @@
             text-align: center;
         }
 
+        /* Notifications and Sync */
+        .global-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            box-shadow: var(--shadow);
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .sync-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            display: none;
+        }
+
+        .sync-indicator.syncing {
+            display: block;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .header-content {
@@ -865,6 +913,12 @@
 
             .discussion-replies {
                 margin-left: 1rem;
+            }
+
+            .global-notification {
+                top: 10px;
+                right: 10px;
+                left: 10px;
             }
         }
     </style>
@@ -1070,6 +1124,9 @@
         </div>
     </div>
 
+    <!-- Sync Indicator -->
+    <div class="sync-indicator" id="syncIndicator">Sincronizando...</div>
+
     <!-- Footer -->
     <footer id="contato">
         <div class="container">
@@ -1105,61 +1162,8 @@
 
     <script>
         // Sample data for demonstration
-        let members = [
-            {
-                id: 1,
-                name: "Ana Silva",
-                email: "ana.silva@email.com",
-                phone: "(11) 99999-1111",
-                role: "Coordenadora",
-                bio: "Especialista em marketing digital com 10 anos de experiência.",
-                photo: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-            },
-            {
-                id: 2,
-                name: "Carlos Oliveira",
-                email: "carlos.oliveira@email.com",
-                phone: "(11) 99999-2222",
-                role: "Desenvolvedor",
-                bio: "Desenvolvedor full-stack com foco em tecnologias modernas.",
-                photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-            },
-            {
-                id: 3,
-                name: "Mariana Santos",
-                email: "mariana.santos@email.com",
-                phone: "(11) 99999-3333",
-                role: "Designer",
-                bio: "Designer gráfica com paixão por criar experiências visuais únicas.",
-                photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-            }
-        ];
-
-        let events = [
-            {
-                id: 1,
-                title: "Workshop de Marketing Digital",
-                date: "2025-10-15",
-                time: "14:00",
-                location: "Auditório Principal",
-                description: "Um workshop completo sobre as melhores estratégias de marketing digital para 2025.",
-                photos: [
-                    "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                    "https://images.unsplash.com/photo-1551834326-a51b4a96ef47?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-                ]
-            },
-            {
-                id: 2,
-                title: "Networking para Empreendedores",
-                date: "2025-10-22",
-                time: "19:00",
-                location: "Espaço Coworking",
-                description: "Encontro para networking entre empreendedores e troca de experiências.",
-                photos: [
-                    "https://images.unsplash.com/photo-1551834326-a51b4a96ef47?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-                ]
-            }
-        ];
+        let members = [];
+        let events = [];
 
         // Discussions data
         let discussions = [
@@ -1167,7 +1171,7 @@
                 id: 1,
                 title: "Ideias para o próximo evento",
                 content: "Gostaria de ouvir sugestões para o tema do nosso próximo encontro. Alguém tem alguma ideia?",
-                author: "Ana Silva",
+                author: "Admin",
                 authorId: 1,
                 date: "2025-09-30T14:30:00",
                 likes: 3,
@@ -1176,13 +1180,20 @@
                     {
                         id: 1,
                         content: "Sugiro um workshop sobre inteligência artificial aplicada ao marketing.",
-                        author: "Carlos Oliveira",
+                        author: "Usuário",
                         authorId: 2,
                         date: "2025-09-30T15:45:00"
                     }
                 ]
             }
         ];
+
+        // Chaves para armazenamento
+        const STORAGE_KEYS = {
+            MEMBERS: 'network_in_foco_members',
+            EVENTS: 'network_in_foco_events',
+            LAST_UPDATE: 'network_in_foco_last_update'
+        };
 
         // DOM Elements
         const membersList = document.getElementById('members-list');
@@ -1196,6 +1207,7 @@
         const tabContents = document.querySelectorAll('.tab-content');
         const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
         const navMenu = document.querySelector('nav ul');
+        const syncIndicator = document.getElementById('syncIndicator');
         
         // Image upload elements
         const memberPhotoInput = document.getElementById('memberPhoto');
@@ -1215,31 +1227,150 @@
         let eventPhotos = [];
         let currentDeleteAction = null;
 
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', function() {
-            renderMembers();
-            renderEvents();
-            renderDiscussions();
-            setupEventListeners();
-            setupModal();
-            
-            // Show success message if coming from Netlify deploy
-            showDeploySuccess();
-        });
+        // ========== SISTEMA DE SINCRONIZAÇÃO ==========
 
-        function showDeploySuccess() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('deploy') === 'success') {
-                const successDiv = document.createElement('div');
-                successDiv.className = 'success-message';
-                successDiv.textContent = '✅ Site publicado com sucesso no Netlify!';
-                document.body.insertBefore(successDiv, document.body.firstChild);
-                
-                setTimeout(() => {
-                    successDiv.remove();
-                }, 5000);
+        // Função para salvar dados no localStorage
+        function saveDataToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(members));
+                localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(events));
+                localStorage.setItem(STORAGE_KEYS.LAST_UPDATE, Date.now().toString());
+                console.log('Dados salvos no localStorage');
+            } catch (error) {
+                console.error('Erro ao salvar dados:', error);
             }
         }
+
+        // Função para carregar dados do localStorage
+        function loadDataFromStorage() {
+            try {
+                const savedMembers = localStorage.getItem(STORAGE_KEYS.MEMBERS);
+                const savedEvents = localStorage.getItem(STORAGE_KEYS.EVENTS);
+                
+                if (savedMembers) {
+                    members = JSON.parse(savedMembers);
+                    console.log('Membros carregados:', members.length);
+                }
+                
+                if (savedEvents) {
+                    events = JSON.parse(savedEvents);
+                    console.log('Eventos carregados:', events.length);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
+        }
+
+        // Função para verificar atualizações
+        function checkForUpdates() {
+            const lastUpdate = localStorage.getItem(STORAGE_KEYS.LAST_UPDATE);
+            const currentLastUpdate = localStorage.getItem('current_last_update');
+            
+            if (lastUpdate !== currentLastUpdate) {
+                console.log('Atualizações detectadas, sincronizando...');
+                loadDataFromStorage();
+                renderMembers();
+                renderEvents();
+                localStorage.setItem('current_last_update', lastUpdate);
+                showNotification('📡 Dados atualizados!');
+            }
+        }
+
+        // Função para mostrar notificação
+        function showNotification(message) {
+            // Remove notificação existente
+            const existingNotification = document.querySelector('.global-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Cria nova notificação
+            const notification = document.createElement('div');
+            notification.className = 'global-notification';
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Sistema de polling para verificar atualizações
+        function startSyncPolling() {
+            setInterval(() => {
+                syncIndicator.classList.add('syncing');
+                checkForUpdates();
+                setTimeout(() => syncIndicator.classList.remove('syncing'), 1000);
+            }, 3000); // Verifica a cada 3 segundos
+        }
+
+        // Inicializar sistema de sincronização
+        function initSyncSystem() {
+            loadDataFromStorage();
+            
+            // Iniciar polling de sincronização
+            startSyncPolling();
+            
+            // Configurar último update atual
+            const lastUpdate = localStorage.getItem(STORAGE_KEYS.LAST_UPDATE);
+            if (lastUpdate) {
+                localStorage.setItem('current_last_update', lastUpdate);
+            } else {
+                // Primeira execução - criar dados iniciais
+                createInitialData();
+            }
+        }
+
+        // Criar dados iniciais se não existirem
+        function createInitialData() {
+            if (members.length === 0) {
+                members = [
+                    {
+                        id: 1,
+                        name: "Ana Silva",
+                        email: "ana.silva@email.com",
+                        phone: "(11) 99999-1111",
+                        role: "Coordenadora",
+                        bio: "Especialista em marketing digital com 10 anos de experiência.",
+                        photo: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                        timestamp: Date.now()
+                    },
+                    {
+                        id: 2,
+                        name: "Carlos Oliveira",
+                        email: "carlos.oliveira@email.com",
+                        phone: "(11) 99999-2222",
+                        role: "Desenvolvedor",
+                        bio: "Desenvolvedor full-stack com foco em tecnologias modernas.",
+                        photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                        timestamp: Date.now()
+                    }
+                ];
+            }
+
+            if (events.length === 0) {
+                events = [
+                    {
+                        id: 1,
+                        title: "Workshop de Marketing Digital",
+                        date: "2025-10-15",
+                        time: "14:00",
+                        location: "Auditório Principal",
+                        description: "Um workshop completo sobre as melhores estratégias de marketing digital para 2025.",
+                        photos: [
+                            "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                        ],
+                        timestamp: Date.now()
+                    }
+                ];
+            }
+
+            saveDataToStorage();
+        }
+
+        // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
 
         // Render members list
         function renderMembers() {
@@ -1459,9 +1590,12 @@
             });
         }
 
+        // ========== FUNÇÕES DE GERENCIAMENTO ==========
+
         // Delete member function
         function deleteMember(memberId) {
             members = members.filter(member => member.id !== memberId);
+            saveDataToStorage();
             renderMembers();
             showMessage('Membro excluído com sucesso!', 'success');
         }
@@ -1469,6 +1603,7 @@
         // Delete event function
         function deleteEvent(eventId) {
             events = events.filter(event => event.id !== eventId);
+            saveDataToStorage();
             renderEvents();
             showMessage('Evento excluído com sucesso!', 'success');
         }
@@ -1537,6 +1672,8 @@
                 messageDiv.remove();
             }, 5000);
         }
+
+        // ========== CONFIGURAÇÃO DE EVENTOS ==========
 
         // Setup modal event listeners
         function setupModal() {
@@ -1649,23 +1786,25 @@
                 }
                 
                 const newEvent = {
-                    id: events.length + 1,
+                    id: Date.now(),
                     title: document.getElementById('eventTitle').value,
                     date: document.getElementById('eventDate').value,
                     time: document.getElementById('eventTime').value,
                     location: document.getElementById('eventLocation').value,
                     description: document.getElementById('eventDescription').value,
-                    photos: photosData
+                    photos: photosData,
+                    timestamp: Date.now()
                 };
                 
                 events.push(newEvent);
+                saveDataToStorage();
                 renderEvents();
                 eventForm.reset();
                 
                 eventPhotos = [];
                 eventPhotosPreview.innerHTML = '';
                 
-                showMessage('Evento cadastrado com sucesso!', 'success');
+                showMessage('Evento cadastrado com sucesso! Todos os usuários verão esta atualização.', 'success');
             });
 
             // Email admin form submission
@@ -1736,23 +1875,25 @@
         // Complete member registration
         function completeMemberRegistration(photoData) {
             const newMember = {
-                id: members.length + 1,
+                id: Date.now(),
                 name: document.getElementById('memberName').value,
                 email: document.getElementById('memberEmail').value,
                 phone: document.getElementById('memberPhone').value,
                 role: document.getElementById('memberRole').value,
                 bio: document.getElementById('memberBio').value,
-                photo: photoData
+                photo: photoData,
+                timestamp: Date.now()
             };
             
             members.push(newMember);
+            saveDataToStorage();
             renderMembers();
             memberForm.reset();
             
             memberPhotoPreview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
             memberPhotoInput.value = '';
             
-            showMessage('Membro cadastrado com sucesso!', 'success');
+            showMessage('Membro cadastrado com sucesso! Todos os usuários verão esta atualização.', 'success');
         }
 
         // Handle image upload and preview
@@ -1813,10 +1954,35 @@
             
             eventPhotosInput.value = '';
         }
+
+        // Show deploy success
+        function showDeploySuccess() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('deploy') === 'success') {
+                const successDiv = document.createElement('div');
+                successDiv.className = 'success-message';
+                successDiv.textContent = '✅ Site publicado com sucesso no Netlify!';
+                document.body.insertBefore(successDiv, document.body.firstChild);
+                
+                setTimeout(() => {
+                    successDiv.remove();
+                }, 5000);
+            }
+        }
+
+        // ========== INICIALIZAÇÃO ==========
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            initSyncSystem();
+            renderMembers();
+            renderEvents();
+            renderDiscussions();
+            setupEventListeners();
+            setupModal();
+            
+            showDeploySuccess();
+        });
     </script>
 </body>
 </html>
-
-
-
-
