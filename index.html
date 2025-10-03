@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="NETWORK IN FOCO EVENTOS - Conecte-se, compartilhe e cresça com nossa comunidade de membros e eventos">
+    <meta name="description" content="IN FOCO NETWORK - Conecte-se, compartilhe e cresça com nossa comunidade de membros e eventos">
     <meta name="keywords" content="rede, membros, eventos, networking, comunidade, IN FOCO">
     <title>NETWORK IN FOCO EVENTOS - Rede de Membros e Eventos</title>
     <style>
-        
         :root {
             --primary-color: #2c3e50;
             --secondary-color: #3498db;
@@ -16,6 +15,8 @@
             --dark-color: #2c3e50;
             --success-color: #2ecc71;
             --warning-color: #f39c12;
+            --sponsor-color: #9b59b6;
+            --darceiro-color: #1abc9c;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
         }
@@ -190,6 +191,22 @@
             background-color: #e67e22;
         }
 
+        .btn-sponsor {
+            background-color: var(--sponsor-color);
+        }
+
+        .btn-sponsor:hover {
+            background-color: #8e44ad;
+        }
+
+        .btn-darceiro {
+            background-color: var(--darceiro-color);
+        }
+
+        .btn-darceiro:hover {
+            background-color: #16a085;
+        }
+
         /* Main Content */
         main {
             padding: 3rem 0;
@@ -208,6 +225,14 @@
             height: 4px;
             background-color: var(--secondary-color);
             margin: 0.5rem auto;
+        }
+
+        .section-title.sponsor::after {
+            background-color: var(--sponsor-color);
+        }
+
+        .section-title.darceiro::after {
+            background-color: var(--darceiro-color);
         }
 
         /* Forms */
@@ -274,10 +299,10 @@
             background-color: #f8f9fa;
         }
 
-        .image-preview.event {
+        .image-preview.sponsor {
             border-radius: 8px;
-            width: 100%;
-            height: 200px;
+            width: 200px;
+            height: 120px;
         }
 
         .image-preview img {
@@ -310,99 +335,6 @@
 
         .image-upload-input {
             display: none;
-        }
-
-        /* Multiple Photos Upload */
-        .multiple-photos-container {
-            margin-bottom: 1.5rem;
-        }
-
-        .photos-preview {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 1rem;
-        }
-
-        .photo-preview-item {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .photo-preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .remove-photo {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: rgba(231, 76, 60, 0.8);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .photos-upload-area {
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 2rem;
-            text-align: center;
-            margin-top: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .photos-upload-area:hover {
-            border-color: var(--secondary-color);
-            background-color: rgba(52, 152, 219, 0.05);
-        }
-
-        .photos-upload-area i {
-            font-size: 2rem;
-            color: var(--secondary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 2rem;
-        }
-
-        .tab {
-            padding: 1rem 1.5rem;
-            cursor: pointer;
-            font-weight: 500;
-            transition: var(--transition);
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab.active {
-            color: var(--secondary-color);
-            border-bottom-color: var(--secondary-color);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
         }
 
         /* Cards */
@@ -481,53 +413,18 @@
             transform: scale(1.05);
         }
 
-        .image-counter {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            z-index: 5;
-        }
-
-        .image-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            transition: var(--transition);
-            z-index: 5;
-        }
-
-        .card:hover .image-nav {
-            opacity: 1;
-        }
-
-        .image-nav.prev {
-            left: 10px;
-        }
-
-        .image-nav.next {
-            right: 10px;
-        }
-
         .card-header {
             padding: 1.5rem;
             background-color: var(--primary-color);
             color: white;
+        }
+
+        .card-header.sponsor {
+            background-color: var(--sponsor-color);
+        }
+
+        .card-header.darceiro {
+            background-color: var(--darceiro-color);
         }
 
         .card-body {
@@ -559,225 +456,63 @@
             font-weight: 500;
         }
 
-        .member-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin-right: 1rem;
-            float: left;
-        }
-
-        .member-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background-color: white;
-            border-radius: 8px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: var(--shadow);
-        }
-
-        .modal-header {
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-header h3 {
-            color: var(--accent-color);
-        }
-
-        .modal-body {
-            margin-bottom: 2rem;
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-        }
-
-        /* Footer */
-        footer {
-            background-color: var(--dark-color);
+        .sponsor-level {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background-color: var(--sponsor-color);
             color: white;
-            padding: 3rem 0 1.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .footer-section h3 {
-            margin-bottom: 1.5rem;
-            position: relative;
-            padding-bottom: 0.5rem;
-        }
-
-        .footer-section h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 50px;
-            height: 2px;
-            background-color: var(--secondary-color);
-        }
-
-        .footer-section p {
-            margin-bottom: 1rem;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
+        .darceiro-type {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background-color: var(--darceiro-color);
             color: white;
-            text-decoration: none;
-            transition: var(--transition);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
-        .social-links a:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-3px);
-        }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* Interaction Section */
-        .interaction-section {
-            margin: 3rem 0;
-        }
-
-        .discussion-board {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .discussion-form {
-            margin-bottom: 2rem;
-        }
-
-        .discussion-list {
-            max-height: 500px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-
-        .discussion-item {
-            border-bottom: 1px solid #eee;
-            padding: 1rem 0;
-        }
-
-        .discussion-item:last-child {
-            border-bottom: none;
-        }
-
-        .discussion-header {
+        /* Tabs */
+        .tabs {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
 
-        .discussion-author {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .discussion-date {
-            color: #777;
-            font-size: 0.9rem;
-        }
-
-        .discussion-content {
-            margin-bottom: 0.5rem;
-        }
-
-        .discussion-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .discussion-action {
-            background: none;
-            border: none;
-            color: var(--secondary-color);
+        .tab {
+            padding: 1rem 1.5rem;
             cursor: pointer;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
+            font-weight: 500;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
         }
 
-        .discussion-action:hover {
-            color: var(--primary-color);
+        .tab.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
         }
 
-        .discussion-replies {
-            margin-left: 2rem;
-            margin-top: 1rem;
-            border-left: 2px solid var(--light-color);
-            padding-left: 1rem;
+        .tab.sponsor.active {
+            color: var(--sponsor-color);
+            border-bottom-color: var(--sponsor-color);
         }
 
-        .reply-form {
-            margin-top: 1rem;
+        .tab.darceiro.active {
+            color: var(--darceiro-color);
+            border-bottom-color: var(--darceiro-color);
+        }
+
+        .tab-content {
             display: none;
         }
 
-        .reply-form.active {
+        .tab-content.active {
             display: block;
-        }
-
-        .likes-count {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .liked {
-            color: var(--accent-color);
         }
 
         /* Loading States */
@@ -807,24 +542,6 @@
             box-shadow: var(--shadow);
             z-index: 10000;
             animation: slideIn 0.3s ease;
-        }
-
-        .sync-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--secondary-color);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            z-index: 1000;
-            display: none;
-        }
-
-        .sync-indicator.syncing {
-            display: block;
-            animation: pulse 1.5s infinite;
         }
 
         .sync-status {
@@ -873,12 +590,6 @@
         @keyframes slideOut {
             from { transform: translateX(0); opacity: 1; }
             to { transform: translateX(100%); opacity: 0; }
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
         }
 
         /* Responsive Design */
@@ -930,28 +641,12 @@
                 border-bottom-color: #ddd;
             }
 
-            .member-avatar {
-                float: none;
-                margin: 0 auto 1rem;
-                display: block;
+            .tab.sponsor.active {
+                border-left-color: var(--sponsor-color);
             }
 
-            .photos-preview {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            }
-
-            .photo-preview-item {
-                width: 100px;
-                height: 100px;
-            }
-
-            .modal-content {
-                width: 95%;
-                padding: 1.5rem;
-            }
-
-            .discussion-replies {
-                margin-left: 1rem;
+            .tab.darceiro.active {
+                border-left-color: var(--darceiro-color);
             }
 
             .global-notification {
@@ -965,24 +660,9 @@
                 left: 10px;
             }
         }
-        .debug-info {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            background: #333;
-            color: white;
-            padding: 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            z-index: 1000;
-            display: none;
-        }
     </style>
 </head>
 <body>
-    <!-- Debug Info -->
-    <div class="debug-info" id="debugInfo"></div>
-
     <!-- Sync Status -->
     <div class="sync-status" id="syncStatus">
         <span>🔵</span> Conectado
@@ -998,7 +678,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1>NETWORK <span>IN FOCO EVENTOS V8</span></h1>
+                    <h1>NETWORK <span>IN FOCO EVENTOS</span></h1>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
                 <nav>
@@ -1006,9 +686,9 @@
                         <li><a href="#" class="active">Início</a></li>
                         <li><a href="#membros">Membros</a></li>
                         <li><a href="#eventos">Eventos</a></li>
+                        <li><a href="#darceiros">Parceiros</a></li>
+                        <li><a href="#patrocinadores">Patrocinadores</a></li>
                         <li><a href="#cadastro">Cadastro</a></li>
-                        <li><a href="#interacao">Interação</a></li>
-                        <li><a href="#contato">Contato</a></li>
                     </ul>
                 </nav>
             </div>
@@ -1019,8 +699,8 @@
     <section class="hero">
         <div class="container">
             <h2>Conecte-se. Compartilhe. Cresça.</h2>
-            <p>Uma plataforma para cadastrar membros da sua rede e divulgar eventos de forma eficiente.</p>
-            <a href="#cadastro" class="btn">Cadastrar Membro</a>
+            <p>Uma plataforma completa para gerenciar membros, eventos, darceiros e patrocinadores.</p>
+            <a href="#cadastro" class="btn">Começar Agora</a>
             <a href="#eventos" class="btn btn-secondary">Ver Eventos</a>
         </div>
     </section>
@@ -1043,14 +723,33 @@
             </div>
         </section>
 
+        <!-- Darceiros Section -->
+        <section id="darceiros">
+            <h2 class="section-title darceiro">Nossos Darceiros</h2>
+            <div class="cards-grid" id="darceiros-list">
+                <!-- Darceiros will be dynamically added here -->
+            </div>
+        </section>
+
+        <!-- Sponsors Section -->
+        <section id="patrocinadores">
+            <h2 class="section-title sponsor">Nossos Patrocinadores</h2>
+            <div class="cards-grid" id="sponsors-list">
+                <!-- Sponsors will be dynamically added here -->
+            </div>
+        </section>
+
         <!-- Registration Section -->
         <section id="cadastro">
             <h2 class="section-title">Cadastro</h2>
             <div class="tabs">
                 <div class="tab active" data-tab="member">Cadastrar Membro</div>
                 <div class="tab" data-tab="event">Cadastrar Evento</div>
+                <div class="tab darceiro" data-tab="darceiro">Cadastrar Darceiro</div>
+                <div class="tab sponsor" data-tab="sponsor">Cadastrar Patrocinador</div>
             </div>
 
+            <!-- Member Form -->
             <div class="tab-content active" id="member-form">
                 <div class="form-container">
                     <form id="memberRegistrationForm">
@@ -1093,6 +792,7 @@
                 </div>
             </div>
 
+            <!-- Event Form -->
             <div class="tab-content" id="event-form">
                 <div class="form-container">
                     <form id="eventRegistrationForm">
@@ -1127,11 +827,109 @@
                     </form>
                 </div>
             </div>
+
+            <!-- Darceiro Form -->
+            <div class="tab-content" id="darceiro-form">
+                <div class="form-container">
+                    <form id="darceiroRegistrationForm">
+                        <div class="image-upload-container">
+                            <div class="image-preview" id="darceiroPhotoPreview">
+                                <div class="placeholder">Logo/Foto</div>
+                            </div>
+                            <input type="file" id="darceiroPhoto" class="image-upload-input" accept="image/*">
+                            <label for="darceiroPhoto" class="image-upload-btn">Selecionar Imagem</label>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="darceiroName">Nome/Razão Social *</label>
+                                <input type="text" id="darceiroName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="darceiroType">Tipo de Darceiro *</label>
+                                <select id="darceiroType" class="form-control" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Ouro">Ouro</option>
+                                    <option value="Prata">Prata</option>
+                                    <option value="Bronze">Bronze</option>
+                                    <option value="Apoiador">Apoiador</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="darceiroContact">Contato *</label>
+                                <input type="text" id="darceiroContact" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="darceiroWebsite">Website</label>
+                                <input type="url" id="darceiroWebsite" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="darceiroDescription">Descrição *</label>
+                            <textarea id="darceiroDescription" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-darceiro" id="darceiroSubmitBtn">
+                            <span>Cadastrar Darceiro</span>
+                            <div class="btn-loading">Enviando...</div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sponsor Form -->
+            <div class="tab-content" id="sponsor-form">
+                <div class="form-container">
+                    <form id="sponsorRegistrationForm">
+                        <div class="image-upload-container">
+                            <div class="image-preview sponsor" id="sponsorLogoPreview">
+                                <div class="placeholder">Logo do Patrocinador</div>
+                            </div>
+                            <input type="file" id="sponsorLogo" class="image-upload-input" accept="image/*">
+                            <label for="sponsorLogo" class="image-upload-btn">Selecionar Logo</label>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sponsorName">Nome da Empresa *</label>
+                                <input type="text" id="sponsorName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sponsorLevel">Nível de Patrocínio *</label>
+                                <select id="sponsorLevel" class="form-control" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Diamante">Diamante</option>
+                                    <option value="Ouro">Ouro</option>
+                                    <option value="Prata">Prata</option>
+                                    <option value="Bronze">Bronze</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sponsorContact">Contato *</label>
+                                <input type="text" id="sponsorContact" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sponsorWebsite">Website</label>
+                                <input type="url" id="sponsorWebsite" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="sponsorDescription">Descrição *</label>
+                            <textarea id="sponsorDescription" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-sponsor" id="sponsorSubmitBtn">
+                            <span>Cadastrar Patrocinador</span>
+                            <div class="btn-loading">Enviando...</div>
+                        </button>
+                    </form>
+                </div>
+            </div>
         </section>
     </main>
 
     <!-- Footer -->
-    <footer id="contato">
+    <footer>
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
@@ -1142,12 +940,6 @@
                     <h3>Contato</h3>
                     <p>Email: networkinfoco@gmail.com</p>
                     <p>Telefone: (11) 99999-9999</p>
-                    <div class="social-links">
-                        <a href="#" aria-label="Facebook">FB</a>
-                        <a href="https://www.instagram.com/networkinfoco?igsh=NGdzNmU0aXNoMGJt" aria-label="Instagram">IG</a>
-                        <a href="#" aria-label="Twitter">TW</a>
-                        <a href="#" aria-label="LinkedIn">LI</a>
-                    </div>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -1157,633 +949,637 @@
     </footer>
 
     <script>
-    // ========== CONFIGURAÇÃO ==========
-    const APP_VERSION = 'v6.0';
-    
-    // ========== VARIÁVEIS GLOBAIS ==========
-    let members = [];
-    let events = [];
-    let isOnline = true;
-
-    // ========== DOM ELEMENTS ==========
-    const membersList = document.getElementById('members-list');
-    const eventsList = document.getElementById('events-list');
-    const memberForm = document.getElementById('memberRegistrationForm');
-    const eventForm = document.getElementById('eventRegistrationForm');
-    const syncStatus = document.getElementById('syncStatus');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const memberSubmitBtn = document.getElementById('memberSubmitBtn');
-    const eventSubmitBtn = document.getElementById('eventSubmitBtn');
-
-    // ========== SISTEMA DE SINCRONIZAÇÃO ENTRE DISPOSITIVOS ==========
-
-    // Função para gerar ID único
-    function generateId() {
-        return Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-    }
-
-    // Função para salvar dados com timestamp
-    function saveData() {
-        const data = {
-            members: members,
-            events: events,
-            lastUpdate: Date.now(),
-            version: APP_VERSION
-        };
+        // ========== CONFIGURAÇÃO DO SUPABASE (PostgreSQL) ==========
+        const SUPABASE_URL = 'https://jywmvnxurbtziixntuuq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5d212bnh1cmJ0emlpeG50dXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0OTQ4NzMsImV4cCI6MjA3NTA3MDg3M30.XQ_nZV8E-ifNzFmNggRtlhKETIIt-Kw3skjOsE56xFk';
         
-        localStorage.setItem('network_in_foco_data', JSON.stringify(data));
-        
-        // Dispara evento para sincronizar entre abas
-        localStorage.setItem('network_data_updated', Date.now().toString());
-    }
+        // ========== VARIÁVEIS GLOBAIS ==========
+        let members = [];
+        let events = [];
+        let darceiros = [];
+        let sponsors = [];
+        let isOnline = true;
 
-    // Função para carregar dados
-    function loadData() {
-        const saved = localStorage.getItem('network_in_foco_data');
-        if (saved) {
-            try {
-                const data = JSON.parse(saved);
-                members = data.members || [];
-                events = data.events || [];
-                return true;
-            } catch (error) {
-                console.error('Erro ao carregar dados:', error);
-            }
+        // ========== DOM ELEMENTS ==========
+        const membersList = document.getElementById('members-list');
+        const eventsList = document.getElementById('events-list');
+        const darceirosList = document.getElementById('darceiros-list');
+        const sponsorsList = document.getElementById('sponsors-list');
+        const memberForm = document.getElementById('memberRegistrationForm');
+        const eventForm = document.getElementById('eventRegistrationForm');
+        const darceiroForm = document.getElementById('darceiroRegistrationForm');
+        const sponsorForm = document.getElementById('sponsorRegistrationForm');
+        const syncStatus = document.getElementById('syncStatus');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // ========== SISTEMA DE SINCRONIZAÇÃO LOCAL ==========
+
+        function generateId() {
+            return Date.now() + '-' + Math.random().toString(36).substr(2, 9);
         }
-        return false;
-    }
 
-    // Função para verificar atualizações de outras abas/dispositivos
-    function setupCrossTabSync() {
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'network_data_updated') {
-                console.log('Dados atualizados em outra aba, recarregando...');
-                if (loadData()) {
-                    renderMembers();
-                    renderEvents();
-                    showMessage('Dados sincronizados!', 'success');
+        function saveData() {
+            const data = {
+                members: members,
+                events: events,
+                darceiros: darceiros,
+                sponsors: sponsors,
+                lastUpdate: Date.now()
+            };
+            
+            localStorage.setItem('network_in_foco_data', JSON.stringify(data));
+            localStorage.setItem('network_data_updated', Date.now().toString());
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('network_in_foco_data');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    members = data.members || [];
+                    events = data.events || [];
+                    darceiros = data.darceiros || [];
+                    sponsors = data.sponsors || [];
+                    return true;
+                } catch (error) {
+                    console.error('Erro ao carregar dados:', error);
                 }
             }
-        });
-    }
+            return false;
+        }
 
-    // Sistema de backup/restore
-    function exportData() {
-        const data = {
-            members: members,
-            events: events,
-            exportDate: new Date().toISOString()
-        };
-        
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `network-backup-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        
-        showMessage('Backup exportado com sucesso!', 'success');
-    }
-
-    function importData(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                if (data.members && data.events) {
-                    if (confirm('Deseja substituir todos os dados atuais pelos dados do backup?')) {
-                        members = data.members;
-                        events = data.events;
-                        saveData();
+        function setupCrossTabSync() {
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'network_data_updated') {
+                    console.log('Dados atualizados em outra aba, recarregando...');
+                    if (loadData()) {
                         renderMembers();
                         renderEvents();
-                        showMessage('Dados importados com sucesso!', 'success');
+                        renderDarceiros();
+                        renderSponsors();
+                        showMessage('Dados sincronizados!', 'success');
                     }
-                } else {
-                    throw new Error('Formato de arquivo inválido');
                 }
-            } catch (error) {
-                showMessage('Erro ao importar arquivo: ' + error.message, 'error');
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    // ========== FUNÇÕES PRINCIPAIS ==========
-
-    // Função para carregar membros
-    function loadMembers() {
-        if (loadData()) {
-            renderMembers();
-            updateSyncStatus(true);
-        } else {
-            // Dados iniciais de exemplo
-            members = [
-                {
-                    id: generateId(),
-                    name: "Ana Silva",
-                    email: "ana.silva@email.com",
-                    phone: "(11) 99999-1111",
-                    role: "Coordenadora",
-                    bio: "Especialista em marketing digital com 10 anos de experiência.",
-                    photo: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                    timestamp: new Date().toISOString()
-                },
-                {
-                    id: generateId(),
-                    name: "Carlos Oliveira",
-                    email: "carlos.oliveira@email.com",
-                    phone: "(11) 99999-2222",
-                    role: "Desenvolvedor",
-                    bio: "Desenvolvedor full-stack com foco em tecnologias modernas.",
-                    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                    timestamp: new Date().toISOString()
-                }
-            ];
-            saveData();
-            renderMembers();
-        }
-    }
-
-    // Função para carregar eventos
-    function loadEvents() {
-        if (loadData()) {
-            renderEvents();
-            updateSyncStatus(true);
-        } else {
-            events = [
-                {
-                    id: generateId(),
-                    title: "Workshop de Marketing Digital",
-                    date: "2025-10-15",
-                    time: "14:00",
-                    location: "Auditório Principal",
-                    description: "Um workshop completo sobre as melhores estratégias de marketing digital para 2025.",
-                    timestamp: new Date().toISOString()
-                },
-                {
-                    id: generateId(),
-                    title: "Networking para Empreendedores",
-                    date: "2025-10-22",
-                    time: "19:00",
-                    location: "Espaço Coworking",
-                    description: "Encontro para networking entre empreendedores e troca de experiências.",
-                    timestamp: new Date().toISOString()
-                }
-            ];
-            saveData();
-            renderEvents();
-        }
-    }
-
-    // Função para salvar membro
-    async function saveMember(memberData) {
-        try {
-            showButtonLoading(memberSubmitBtn, true);
-            
-            // Adiciona dados necessários
-            memberData.id = generateId();
-            memberData.timestamp = new Date().toISOString();
-            
-            if (!memberData.photo) {
-                memberData.photo = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
-            }
-            
-            // Adiciona à lista
-            members.unshift(memberData);
-            
-            // Salva dados
-            saveData();
-            
-            // Renderiza
-            renderMembers();
-            
-            showMessage('Membro cadastrado com sucesso! Disponível para todos os dispositivos.', 'success');
-            return true;
-            
-        } catch (error) {
-            console.error('Erro ao salvar membro:', error);
-            showMessage('Erro ao cadastrar membro.', 'error');
-            return false;
-        } finally {
-            showButtonLoading(memberSubmitBtn, false);
-        }
-    }
-
-    // Função para salvar evento
-    async function saveEvent(eventData) {
-        try {
-            showButtonLoading(eventSubmitBtn, true);
-            
-            // Adiciona dados necessários
-            eventData.id = generateId();
-            eventData.timestamp = new Date().toISOString();
-            
-            // Adiciona à lista
-            events.unshift(eventData);
-            
-            // Salva dados
-            saveData();
-            
-            // Renderiza
-            renderEvents();
-            
-            showMessage('Evento cadastrado com sucesso! Disponível para todos os dispositivos.', 'success');
-            return true;
-            
-        } catch (error) {
-            console.error('Erro ao salvar evento:', error);
-            showMessage('Erro ao cadastrar evento.', 'error');
-            return false;
-        } finally {
-            showButtonLoading(eventSubmitBtn, false);
-        }
-    }
-
-    // Função para excluir membro
-    function deleteMember(memberId) {
-        if (confirm('Tem certeza que deseja excluir este membro?')) {
-            members = members.filter(member => member.id !== memberId);
-            saveData();
-            renderMembers();
-            showMessage('Membro excluído com sucesso!', 'success');
-        }
-    }
-
-    // Função para excluir evento
-    function deleteEvent(eventId) {
-        if (confirm('Tem certeza que deseja excluir este evento?')) {
-            events = events.filter(event => event.id !== eventId);
-            saveData();
-            renderEvents();
-            showMessage('Evento excluído com sucesso!', 'success');
-        }
-    }
-
-    // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
-
-    function renderMembers() {
-        membersList.innerHTML = '';
-        if (members.length === 0) {
-            membersList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum membro cadastrado ainda.</p>';
-            return;
-        }
-        
-        // Ordena por timestamp (mais recentes primeiro)
-        const sortedMembers = [...members].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        
-        sortedMembers.forEach(member => {
-            const memberCard = document.createElement('div');
-            memberCard.className = 'card';
-            memberCard.innerHTML = `
-                <div class="card-actions">
-                    <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
-                </div>
-                <div class="card-image">
-                    <img src="${member.photo}" alt="${member.name}" loading="lazy">
-                </div>
-                <div class="card-header">
-                    <h3>${member.name}</h3>
-                    <span class="member-role">${member.role}</span>
-                </div>
-                <div class="card-body">
-                    <p><strong>Email:</strong> ${member.email}</p>
-                    ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
-                    <p>${member.bio}</p>
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                        Cadastrado em: ${new Date(member.timestamp).toLocaleDateString('pt-BR')}
-                    </p>
-                </div>
-            `;
-            membersList.appendChild(memberCard);
-        });
-    }
-
-    function renderEvents() {
-        eventsList.innerHTML = '';
-        if (events.length === 0) {
-            eventsList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum evento cadastrado ainda.</p>';
-            return;
-        }
-        
-        // Ordena por data do evento
-        const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
-        
-        sortedEvents.forEach(event => {
-            const eventDate = new Date(event.date);
-            const formattedDate = eventDate.toLocaleDateString('pt-BR');
-            const today = new Date();
-            const isPastEvent = eventDate < today;
-            
-            const eventCard = document.createElement('div');
-            eventCard.className = `card ${isPastEvent ? 'past-event' : ''}`;
-            eventCard.innerHTML = `
-                <div class="card-actions">
-                    <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
-                </div>
-                <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${event.title}" loading="lazy">
-                    ${isPastEvent ? '<div class="event-badge">Evento Passado</div>' : ''}
-                </div>
-                <div class="card-header">
-                    <h3>${event.title}</h3>
-                    <div class="event-date">
-                        <span>${formattedDate}</span> • <span>${event.time}</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <p><strong>Local:</strong> ${event.location}</p>
-                    <p>${event.description}</p>
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                        Cadastrado em: ${new Date(event.timestamp).toLocaleDateString('pt-BR')}
-                    </p>
-                </div>
-                <div class="card-footer">
-                    <button class="btn btn-success btn-participate">Participar</button>
-                </div>
-            `;
-            
-            if (isPastEvent) {
-                eventCard.style.opacity = '0.7';
-            }
-            
-            eventsList.appendChild(eventCard);
-        });
-
-        document.querySelectorAll('.btn-participate').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                showMessage('Inscrição realizada com sucesso!', 'success');
             });
-        });
-    }
-
-    // ========== FUNÇÕES AUXILIARES ==========
-
-    function updateSyncStatus(online) {
-        isOnline = online;
-        if (online) {
-            syncStatus.innerHTML = '<span>🔵</span> Sincronizado (Local)';
-            syncStatus.classList.remove('offline');
-        } else {
-            syncStatus.innerHTML = '<span>🔴</span> Offline';
-            syncStatus.classList.add('offline');
         }
-    }
 
-    function showLoading(message = 'Carregando...') {
-        loadingOverlay.innerHTML = `<div>${message}</div>`;
-        loadingOverlay.style.display = 'flex';
-    }
+        // ========== FUNÇÕES PRINCIPAIS ==========
 
-    function hideLoading() {
-        loadingOverlay.style.display = 'none';
-    }
-
-    function showButtonLoading(button, loading) {
-        const span = button.querySelector('span');
-        const loadingDiv = button.querySelector('.btn-loading');
-        
-        if (loading) {
-            span.style.display = 'none';
-            loadingDiv.style.display = 'block';
-            button.disabled = true;
-        } else {
-            span.style.display = 'block';
-            loadingDiv.style.display = 'none';
-            button.disabled = false;
+        async function loadMembers() {
+            if (loadData()) {
+                renderMembers();
+            } else {
+                members = [];
+                saveData();
+                renderMembers();
+            }
         }
-    }
 
-    function showMessage(message, type = 'success') {
-        // Remove notificação existente
-        const existingNotification = document.querySelector('.global-notification');
-        if (existingNotification) {
-            existingNotification.remove();
+        async function loadEvents() {
+            if (loadData()) {
+                renderEvents();
+            } else {
+                events = [];
+                saveData();
+                renderEvents();
+            }
         }
-        
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `global-notification ${type}`;
-        messageDiv.textContent = message;
-        messageDiv.style.background = type === 'success' ? '#2ecc71' : type === 'warning' ? '#f39c12' : '#e74c3c';
-        
-        document.body.appendChild(messageDiv);
-        
-        setTimeout(() => {
-            messageDiv.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => messageDiv.remove(), 300);
-        }, 5000);
-    }
 
-    // ========== CONFIGURAÇÃO DE EVENTOS ==========
+        async function loadDarceiros() {
+            if (loadData()) {
+                renderDarceiros();
+            } else {
+                darceiros = [];
+                saveData();
+                renderDarceiros();
+            }
+        }
 
-    function setupEventListeners() {
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.getAttribute('data-tab');
+        async function loadSponsors() {
+            if (loadData()) {
+                renderSponsors();
+            } else {
+                sponsors = [];
+                saveData();
+                renderSponsors();
+            }
+        }
+
+        async function saveMember(memberData) {
+            try {
+                showButtonLoading(document.getElementById('memberSubmitBtn'), true);
                 
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
+                memberData.id = generateId();
+                memberData.timestamp = new Date().toISOString();
                 
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                    if (content.id === `${tabId}-form`) {
-                        content.classList.add('active');
+                if (!memberData.photo) {
+                    memberData.photo = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+                }
+                
+                members.unshift(memberData);
+                saveData();
+                renderMembers();
+                
+                showMessage('Membro cadastrado com sucesso!', 'success');
+                return true;
+                
+            } catch (error) {
+                console.error('Erro ao salvar membro:', error);
+                showMessage('Erro ao cadastrar membro.', 'error');
+                return false;
+            } finally {
+                showButtonLoading(document.getElementById('memberSubmitBtn'), false);
+            }
+        }
+
+        async function saveEvent(eventData) {
+            try {
+                showButtonLoading(document.getElementById('eventSubmitBtn'), true);
+                
+                eventData.id = generateId();
+                eventData.timestamp = new Date().toISOString();
+                
+                events.unshift(eventData);
+                saveData();
+                renderEvents();
+                
+                showMessage('Evento cadastrado com sucesso!', 'success');
+                return true;
+                
+            } catch (error) {
+                console.error('Erro ao salvar evento:', error);
+                showMessage('Erro ao cadastrar evento.', 'error');
+                return false;
+            } finally {
+                showButtonLoading(document.getElementById('eventSubmitBtn'), false);
+            }
+        }
+
+        async function saveDarceiro(darceiroData) {
+            try {
+                showButtonLoading(document.getElementById('darceiroSubmitBtn'), true);
+                
+                darceiroData.id = generateId();
+                darceiroData.timestamp = new Date().toISOString();
+                
+                if (!darceiroData.photo) {
+                    darceiroData.photo = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+                }
+                
+                darceiros.unshift(darceiroData);
+                saveData();
+                renderDarceiros();
+                
+                showMessage('Darceiro cadastrado com sucesso!', 'success');
+                return true;
+                
+            } catch (error) {
+                console.error('Erro ao salvar darceiro:', error);
+                showMessage('Erro ao cadastrar darceiro.', 'error');
+                return false;
+            } finally {
+                showButtonLoading(document.getElementById('darceiroSubmitBtn'), false);
+            }
+        }
+
+        async function saveSponsor(sponsorData) {
+            try {
+                showButtonLoading(document.getElementById('sponsorSubmitBtn'), true);
+                
+                sponsorData.id = generateId();
+                sponsorData.timestamp = new Date().toISOString();
+                
+                if (!sponsorData.logo) {
+                    sponsorData.logo = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+                }
+                
+                sponsors.unshift(sponsorData);
+                saveData();
+                renderSponsors();
+                
+                showMessage('Patrocinador cadastrado com sucesso!', 'success');
+                return true;
+                
+            } catch (error) {
+                console.error('Erro ao salvar patrocinador:', error);
+                showMessage('Erro ao cadastrar patrocinador.', 'error');
+                return false;
+            } finally {
+                showButtonLoading(document.getElementById('sponsorSubmitBtn'), false);
+            }
+        }
+
+        function deleteMember(memberId) {
+            if (confirm('Tem certeza que deseja excluir este membro?')) {
+                members = members.filter(member => member.id !== memberId);
+                saveData();
+                renderMembers();
+                showMessage('Membro excluído com sucesso!', 'success');
+            }
+        }
+
+        function deleteEvent(eventId) {
+            if (confirm('Tem certeza que deseja excluir este evento?')) {
+                events = events.filter(event => event.id !== eventId);
+                saveData();
+                renderEvents();
+                showMessage('Evento excluído com sucesso!', 'success');
+            }
+        }
+
+        function deleteDarceiro(darceiroId) {
+            if (confirm('Tem certeza que deseja excluir este darceiro?')) {
+                darceiros = darceiros.filter(darceiro => darceiro.id !== darceiroId);
+                saveData();
+                renderDarceiros();
+                showMessage('Darceiro excluído com sucesso!', 'success');
+            }
+        }
+
+        function deleteSponsor(sponsorId) {
+            if (confirm('Tem certeza que deseja excluir este patrocinador?')) {
+                sponsors = sponsors.filter(sponsor => sponsor.id !== sponsorId);
+                saveData();
+                renderSponsors();
+                showMessage('Patrocinador excluído com sucesso!', 'success');
+            }
+        }
+
+        // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
+
+        function renderMembers() {
+            membersList.innerHTML = '';
+            if (members.length === 0) {
+                membersList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum membro cadastrado ainda.</p>';
+                return;
+            }
+            
+            const sortedMembers = [...members].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            sortedMembers.forEach(member => {
+                const memberCard = document.createElement('div');
+                memberCard.className = 'card';
+                memberCard.innerHTML = `
+                    <div class="card-actions">
+                        <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
+                    </div>
+                    <div class="card-image">
+                        <img src="${member.photo}" alt="${member.name}" loading="lazy">
+                    </div>
+                    <div class="card-header">
+                        <h3>${member.name}</h3>
+                        <span class="member-role">${member.role}</span>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Email:</strong> ${member.email}</p>
+                        ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                        <p>${member.bio}</p>
+                    </div>
+                `;
+                membersList.appendChild(memberCard);
+            });
+        }
+
+        function renderEvents() {
+            eventsList.innerHTML = '';
+            if (events.length === 0) {
+                eventsList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum evento cadastrado ainda.</p>';
+                return;
+            }
+            
+            const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            sortedEvents.forEach(event => {
+                const eventDate = new Date(event.date);
+                const formattedDate = eventDate.toLocaleDateString('pt-BR');
+                
+                const eventCard = document.createElement('div');
+                eventCard.className = 'card';
+                eventCard.innerHTML = `
+                    <div class="card-actions">
+                        <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
+                    </div>
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${event.title}" loading="lazy">
+                    </div>
+                    <div class="card-header">
+                        <h3>${event.title}</h3>
+                        <div class="event-date">
+                            <span>${formattedDate}</span> • <span>${event.time}</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Local:</strong> ${event.location}</p>
+                        <p>${event.description}</p>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-success">Participar</button>
+                    </div>
+                `;
+                eventsList.appendChild(eventCard);
+            });
+        }
+
+        function renderDarceiros() {
+            darceirosList.innerHTML = '';
+            if (darceiros.length === 0) {
+                darceirosList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum darceiro cadastrado ainda.</p>';
+                return;
+            }
+            
+            const sortedDarceiros = [...darceiros].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            sortedDarceiros.forEach(darceiro => {
+                const darceiroCard = document.createElement('div');
+                darceiroCard.className = 'card';
+                darceiroCard.innerHTML = `
+                    <div class="card-actions">
+                        <button class="card-action-btn delete" onclick="deleteDarceiro('${darceiro.id}')" title="Excluir darceiro">🗑️</button>
+                    </div>
+                    <div class="card-image">
+                        <img src="${darceiro.photo}" alt="${darceiro.name}" loading="lazy">
+                    </div>
+                    <div class="card-header darceiro">
+                        <h3>${darceiro.name}</h3>
+                        <span class="darceiro-type">${darceiro.type}</span>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Contato:</strong> ${darceiro.contact}</p>
+                        ${darceiro.website ? `<p><strong>Website:</strong> <a href="${darceiro.website}" target="_blank">${darceiro.website}</a></p>` : ''}
+                        <p>${darceiro.description}</p>
+                    </div>
+                `;
+                darceirosList.appendChild(darceiroCard);
+            });
+        }
+
+        function renderSponsors() {
+            sponsorsList.innerHTML = '';
+            if (sponsors.length === 0) {
+                sponsorsList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum patrocinador cadastrado ainda.</p>';
+                return;
+            }
+            
+            const sortedSponsors = [...sponsors].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            sortedSponsors.forEach(sponsor => {
+                const sponsorCard = document.createElement('div');
+                sponsorCard.className = 'card';
+                sponsorCard.innerHTML = `
+                    <div class="card-actions">
+                        <button class="card-action-btn delete" onclick="deleteSponsor('${sponsor.id}')" title="Excluir patrocinador">🗑️</button>
+                    </div>
+                    <div class="card-image">
+                        <img src="${sponsor.logo}" alt="${sponsor.name}" loading="lazy">
+                    </div>
+                    <div class="card-header sponsor">
+                        <h3>${sponsor.name}</h3>
+                        <span class="sponsor-level">${sponsor.level}</span>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Contato:</strong> ${sponsor.contact}</p>
+                        ${sponsor.website ? `<p><strong>Website:</strong> <a href="${sponsor.website}" target="_blank">${sponsor.website}</a></p>` : ''}
+                        <p>${sponsor.description}</p>
+                    </div>
+                `;
+                sponsorsList.appendChild(sponsorCard);
+            });
+        }
+
+        // ========== FUNÇÕES AUXILIARES ==========
+
+        function updateSyncStatus(online) {
+            isOnline = online;
+            if (online) {
+                syncStatus.innerHTML = '<span>🔵</span> Sincronizado (Local)';
+                syncStatus.classList.remove('offline');
+            } else {
+                syncStatus.innerHTML = '<span>🔴</span> Offline';
+                syncStatus.classList.add('offline');
+            }
+        }
+
+        function showLoading(message = 'Carregando...') {
+            loadingOverlay.innerHTML = `<div>${message}</div>`;
+            loadingOverlay.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+
+        function showButtonLoading(button, loading) {
+            const span = button.querySelector('span');
+            const loadingDiv = button.querySelector('.btn-loading');
+            
+            if (loading) {
+                span.style.display = 'none';
+                loadingDiv.style.display = 'block';
+                button.disabled = true;
+            } else {
+                span.style.display = 'block';
+                loadingDiv.style.display = 'none';
+                button.disabled = false;
+            }
+        }
+
+        function showMessage(message, type = 'success') {
+            const existingNotification = document.querySelector('.global-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `global-notification ${type}`;
+            messageDiv.textContent = message;
+            messageDiv.style.background = type === 'success' ? '#2ecc71' : '#e74c3c';
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => messageDiv.remove(), 300);
+            }, 5000);
+        }
+
+        // ========== CONFIGURAÇÃO DE EVENTOS ==========
+
+        function setupEventListeners() {
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-form`) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+
+            // Image upload handlers
+            setupImageUpload('memberPhoto', 'memberPhotoPreview');
+            setupImageUpload('darceiroPhoto', 'darceiroPhotoPreview');
+            setupImageUpload('sponsorLogo', 'sponsorLogoPreview');
+
+            // Form submissions
+            memberForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const memberData = {
+                    name: document.getElementById('memberName').value,
+                    email: document.getElementById('memberEmail').value,
+                    phone: document.getElementById('memberPhone').value,
+                    role: document.getElementById('memberRole').value,
+                    bio: document.getElementById('memberBio').value
+                };
+                
+                const photoInput = document.getElementById('memberPhoto');
+                if (photoInput.files && photoInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        memberData.photo = e.target.result;
+                        saveMember(memberData);
+                    };
+                    reader.readAsDataURL(photoInput.files[0]);
+                } else {
+                    await saveMember(memberData);
+                }
+                
+                memberForm.reset();
+                document.getElementById('memberPhotoPreview').innerHTML = '<div class="placeholder">Foto do Membro</div>';
+            });
+
+            eventForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const eventData = {
+                    title: document.getElementById('eventTitle').value,
+                    date: document.getElementById('eventDate').value,
+                    time: document.getElementById('eventTime').value,
+                    location: document.getElementById('eventLocation').value,
+                    description: document.getElementById('eventDescription').value
+                };
+                
+                await saveEvent(eventData);
+                eventForm.reset();
+            });
+
+            darceiroForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const darceiroData = {
+                    name: document.getElementById('darceiroName').value,
+                    type: document.getElementById('darceiroType').value,
+                    contact: document.getElementById('darceiroContact').value,
+                    website: document.getElementById('darceiroWebsite').value,
+                    description: document.getElementById('darceiroDescription').value
+                };
+                
+                const photoInput = document.getElementById('darceiroPhoto');
+                if (photoInput.files && photoInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        darceiroData.photo = e.target.result;
+                        saveDarceiro(darceiroData);
+                    };
+                    reader.readAsDataURL(photoInput.files[0]);
+                } else {
+                    await saveDarceiro(darceiroData);
+                }
+                
+                darceiroForm.reset();
+                document.getElementById('darceiroPhotoPreview').innerHTML = '<div class="placeholder">Logo/Foto</div>';
+            });
+
+            sponsorForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const sponsorData = {
+                    name: document.getElementById('sponsorName').value,
+                    level: document.getElementById('sponsorLevel').value,
+                    contact: document.getElementById('sponsorContact').value,
+                    website: document.getElementById('sponsorWebsite').value,
+                    description: document.getElementById('sponsorDescription').value
+                };
+                
+                const logoInput = document.getElementById('sponsorLogo');
+                if (logoInput.files && logoInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        sponsorData.logo = e.target.result;
+                        saveSponsor(sponsorData);
+                    };
+                    reader.readAsDataURL(logoInput.files[0]);
+                } else {
+                    await saveSponsor(sponsorData);
+                }
+                
+                sponsorForm.reset();
+                document.getElementById('sponsorLogoPreview').innerHTML = '<div class="placeholder">Logo do Patrocinador</div>';
+            });
+
+            // Mobile menu
+            document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+                document.querySelector('nav ul').classList.toggle('show');
+            });
+
+            // Smooth scrolling
+            document.querySelectorAll('nav a').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId !== '#') {
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            window.scrollTo({
+                                top: targetElement.offsetTop - 80,
+                                behavior: 'smooth'
+                            });
+                            document.querySelector('nav ul').classList.remove('show');
+                        }
                     }
                 });
             });
-        });
+        }
 
-        // Member photo upload
-        document.getElementById('memberPhoto').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('memberPhotoPreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Member form submission
-        memberForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
+        function setupImageUpload(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
             
-            const memberData = {
-                name: document.getElementById('memberName').value,
-                email: document.getElementById('memberEmail').value,
-                phone: document.getElementById('memberPhone').value,
-                role: document.getElementById('memberRole').value,
-                bio: document.getElementById('memberBio').value
-            };
-            
-            // Processa foto se houver
-            const photoInput = document.getElementById('memberPhoto');
-            if (photoInput.files && photoInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    memberData.photo = e.target.result;
-                    saveMember(memberData);
-                };
-                reader.readAsDataURL(photoInput.files[0]);
-            } else {
-                await saveMember(memberData);
-            }
-            
-            memberForm.reset();
-            document.getElementById('memberPhotoPreview').innerHTML = '<div class="placeholder">Foto do Membro</div>';
-        });
-
-        // Event form submission
-        eventForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const eventData = {
-                title: document.getElementById('eventTitle').value,
-                date: document.getElementById('eventDate').value,
-                time: document.getElementById('eventTime').value,
-                location: document.getElementById('eventLocation').value,
-                description: document.getElementById('eventDescription').value
-            };
-            
-            await saveEvent(eventData);
-            eventForm.reset();
-        });
-
-        // Mobile menu
-        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
-            document.querySelector('nav ul').classList.toggle('show');
-        });
-
-        // Smooth scrolling
-        document.querySelectorAll('nav a').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                if (targetId !== '#') {
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        window.scrollTo({
-                            top: targetElement.offsetTop - 80,
-                            behavior: 'smooth'
-                        });
-                        document.querySelector('nav ul').classList.remove('show');
-                    }
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    };
+                    reader.readAsDataURL(file);
                 }
             });
-        });
-    }
+        }
 
-    // ========== INICIALIZAÇÃO ==========
+        // ========== INICIALIZAÇÃO ==========
 
-    function initializeApp() {
-        setupEventListeners();
-        setupCrossTabSync();
-        loadMembers();
-        loadEvents();
-        
-        // Adiciona botões de backup/restore
-        addAdminTools();
-        
-        updateSyncStatus(true);
-        showMessage('Sistema carregado com sucesso!', 'success');
-    }
+        function initializeApp() {
+            setupEventListeners();
+            setupCrossTabSync();
+            loadMembers();
+            loadEvents();
+            loadDarceiros();
+            loadSponsors();
+            
+            updateSyncStatus(true);
+            showMessage('Sistema carregado com sucesso!', 'success');
+        }
 
-    // Adiciona ferramentas administrativas
-    function addAdminTools() {
-        const adminDiv = document.createElement('div');
-        adminDiv.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 1000;
-        `;
-        
-        const exportBtn = document.createElement('button');
-        exportBtn.className = 'btn btn-small';
-        exportBtn.innerHTML = '📥 Backup';
-        exportBtn.onclick = exportData;
-        
-        const importBtn = document.createElement('button');
-        importBtn.className = 'btn btn-small';
-        importBtn.innerHTML = '📤 Restore';
-        
-        const importInput = document.createElement('input');
-        importInput.type = 'file';
-        importInput.accept = '.json';
-        importInput.style.display = 'none';
-        importInput.onchange = (e) => importData(e.target.files[0]);
-        
-        importBtn.onclick = () => importInput.click();
-        
-        adminDiv.appendChild(exportBtn);
-        adminDiv.appendChild(importBtn);
-        adminDiv.appendChild(importInput);
-        
-        document.body.appendChild(adminDiv);
-    }
-
-    // Adiciona CSS para eventos passados
-    const style = document.createElement('style');
-    style.textContent = `
-        .past-event {
-            opacity: 0.7;
-        }
-        .event-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: #e74c3c;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: bold;
-        }
-        .card-actions {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 10;
-        }
-        .card-action-btn {
-            background: rgba(0,0,0,0.7);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .card-action-btn:hover {
-            background: rgba(0,0,0,0.9);
-        }
-        .card-action-btn.delete {
-            background: rgba(231,76,60,0.8);
-        }
-        .card-action-btn.delete:hover {
-            background: rgba(192,57,43,1);
-        }
-    `;
-    document.head.appendChild(style);
-
-    // Inicia a aplicação
-    document.addEventListener('DOMContentLoaded', initializeApp);
-</script>
+        // Inicia a aplicação
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
 </body>
 </html>
-
-
-
-
-
-
-
