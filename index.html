@@ -396,6 +396,14 @@
             background-color: rgba(192, 57, 43, 1);
         }
 
+        .card-action-btn.edit {
+            background-color: rgba(52, 152, 219, 0.9);
+        }
+
+        .card-action-btn.edit:hover {
+            background-color: rgba(41, 128, 185, 1);
+        }
+
         .card-image {
             width: 100%;
             height: 200px;
@@ -661,108 +669,126 @@
                 left: 10px;
             }
         }
+
         /* Estilos para múltiplas fotos */
-.multiple-photos-container {
-    margin-bottom: 1.5rem;
-}
+        .multiple-photos-container {
+            margin-bottom: 1.5rem;
+        }
 
-.photos-upload-area {
-    border: 2px dashed #ddd;
-    border-radius: 8px;
-    padding: 2rem;
-    text-align: center;
-    margin-top: 1rem;
-    cursor: pointer;
-    transition: var(--transition);
-}
+        .photos-upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
 
-.photos-upload-area:hover {
-    border-color: var(--secondary-color);
-    background-color: rgba(52, 152, 219, 0.05);
-}
+        .photos-upload-area:hover {
+            border-color: var(--secondary-color);
+            background-color: rgba(52, 152, 219, 0.05);
+        }
 
-.photos-preview {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
-    margin-top: 1rem;
-}
+        .photos-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 1rem;
+        }
 
-.photo-preview-item {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: var(--shadow);
-}
+        .photo-preview-item {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
 
-.photo-preview-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+        .photo-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-.remove-photo {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background-color: rgba(231, 76, 60, 0.8);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 0.8rem;
-}
+        .remove-photo {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(231, 76, 60, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
 
-/* Navegação de imagens */
-.image-counter {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 0.3rem 0.6rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    z-index: 5;
-}
+        /* Navegação de imagens */
+        .image-counter {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 5;
+        }
 
-.image-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 0;
-    transition: var(--transition);
-    z-index: 5;
-}
+        .image-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 5;
+        }
 
-.card:hover .image-nav {
-    opacity: 1;
-}
+        .card:hover .image-nav {
+            opacity: 1;
+        }
 
-.image-nav.prev {
-    left: 10px;
-}
+        .image-nav.prev {
+            left: 10px;
+        }
 
-.image-nav.next {
-    right: 10px;
-}
+        .image-nav.next {
+            right: 10px;
+        }
+
+        /* Botão de alterar foto */
+        .change-photo-btn {
+            margin-top: 0.5rem;
+            background-color: var(--warning-color);
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+
+        .change-photo-btn:hover {
+            background-color: #e67e22;
+        }
     </style>
 </head>
 <body>
@@ -781,7 +807,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1>NETWORK <span>IN FOCO EVENTOS v1</span></h1>
+                    <h1>NETWORK <span>IN FOCO EVENTOS v2</span></h1>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
                 <nav>
@@ -923,6 +949,20 @@
                             <label for="eventDescription">Descrição do Evento *</label>
                             <textarea id="eventDescription" class="form-control" rows="4" required></textarea>
                         </div>
+                        
+                        <!-- Área para múltiplas fotos do evento -->
+                        <div class="multiple-photos-container">
+                            <label>Fotos do Evento (Múltiplas)</label>
+                            <div class="photos-upload-area" id="eventPhotosUploadArea">
+                                <p>📷 Clique aqui ou arraste fotos para adicionar</p>
+                                <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos</p>
+                            </div>
+                            <input type="file" id="eventPhotos" class="image-upload-input" accept="image/*" multiple style="display: none;">
+                            <div class="photos-preview" id="eventPhotosPreview">
+                                <!-- Preview das fotos será adicionado aqui -->
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn" id="eventSubmitBtn">
                             <span>Cadastrar Evento</span>
                             <div class="btn-loading">Enviando...</div>
@@ -1051,10 +1091,8 @@
         </div>
     </footer>
 
-              
-   
-  <script>
-    // ========== CONFIGURAÇÃO DO SUPABASE (POSTGRESQL) ==========
+<script>
+    // ========== CONFIGURAÇÃO DO SUPABASE ==========
     const SUPABASE_URL = 'https://jywmvnxurbtziixntuuq.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5d212bnh1cmJ0emlpeG50dXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0OTQ4NzMsImV4cCI6MjA3NTA3MDg3M30.XQ_nZV8E-ifNzFmNggRtlhKETIIt-Kw3skjOsE56xFk';
     
@@ -1072,6 +1110,7 @@
     let darceiros = [];
     let sponsors = [];
     let isOnline = true;
+    let currentEditingMemberId = null;
 
     // ========== DOM ELEMENTS ==========
     const membersList = document.getElementById('members-list');
@@ -1092,7 +1131,6 @@
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 console.log('Supabase inicializado com sucesso!');
                 
-                // Testa a conexão
                 const { data, error } = await supabase.from('members').select('count').limit(1);
                 if (error) throw error;
                 
@@ -1111,7 +1149,6 @@
     async function uploadImage(file, bucket, fileName) {
         try {
             if (!isOnline) {
-                // Modo offline - retorna uma URL local
                 return new Promise((resolve) => {
                     const reader = new FileReader();
                     reader.onload = (e) => resolve(e.target.result);
@@ -1119,7 +1156,6 @@
                 });
             }
 
-            // Gera um nome único para o arquivo
             const fileExt = file.name.split('.').pop();
             const uniqueFileName = `${fileName}_${Date.now()}.${fileExt}`;
             
@@ -1132,7 +1168,6 @@
 
             if (error) throw error;
 
-            // Obtém a URL pública da imagem
             const { data: { publicUrl } } = supabase.storage
                 .from(bucket)
                 .getPublicUrl(uniqueFileName);
@@ -1145,16 +1180,31 @@
         }
     }
 
+    // ========== FUNÇÃO PARA UPLOAD DE MÚLTIPLAS IMAGENS ==========
+    async function uploadMultipleImages(files, bucket, baseName) {
+        try {
+            const uploadPromises = Array.from(files).map((file, index) => {
+                const fileName = `${baseName}_${Date.now()}_${index}`;
+                return uploadImage(file, bucket, fileName);
+            });
+            
+            const urls = await Promise.all(uploadPromises);
+            return urls.filter(url => url !== null);
+        } catch (error) {
+            console.error('Erro no upload múltiplo de imagens:', error);
+            throw error;
+        }
+    }
+
     // ========== FUNÇÃO PARA EXCLUIR IMAGEM DO STORAGE ==========
     async function deleteImageFromStorage(imageUrl, bucket) {
         try {
             if (!isOnline || !imageUrl) return true;
             
-            // Extrai o nome do arquivo da URL
             const fileName = imageUrl.split('/').pop();
             
             if (!fileName || fileName.includes('unsplash.com') || fileName.includes('data:')) {
-                return true; // Não tenta excluir imagens do Unsplash ou base64
+                return true;
             }
             
             const { error } = await supabase.storage
@@ -1163,7 +1213,6 @@
             
             if (error) {
                 console.warn('Aviso ao excluir imagem do storage:', error);
-                // Continua mesmo se falhar a exclusão da imagem
             }
             
             return true;
@@ -1173,12 +1222,11 @@
         }
     }
 
-    // ========== MODO OFFLINE (FALLBACK) ==========
+    // ========== MODO OFFLINE ==========
     function setupOfflineMode() {
         isOnline = false;
         updateSyncStatus(false);
         
-        // Sistema com localStorage
         window.supabase = {
             from: (table) => ({
                 select: () => ({
@@ -1198,6 +1246,17 @@
                         localData.unshift(newItem);
                         saveToLocalStorage(table, localData);
                         return Promise.resolve({ data: [newItem], error: null });
+                    }
+                }),
+                update: (data) => ({
+                    eq: (field, value) => {
+                        const localData = loadFromLocalStorage(table) || [];
+                        const index = localData.findIndex(item => item[field] === value);
+                        if (index !== -1) {
+                            localData[index] = { ...localData[index], ...data };
+                            saveToLocalStorage(table, localData);
+                        }
+                        return Promise.resolve({ error: null });
                     }
                 }),
                 delete: () => ({
@@ -1239,30 +1298,8 @@
         }
     }
 
-    // ========== FUNÇÃO PARA LIMPAR LOCALSTORAGE ==========
-    function clearLocalStorage() {
-        try {
-            const keysToRemove = [
-                'network_members',
-                'network_events', 
-                'network_darceiros',
-                'network_sponsors'
-            ];
-            
-            keysToRemove.forEach(key => {
-                localStorage.removeItem(key);
-            });
-            
-            console.log('LocalStorage limpo com sucesso!');
-            return true;
-        } catch (error) {
-            console.error('Erro ao limpar localStorage:', error);
-            return false;
-        }
-    }
-
     // ========== FUNÇÕES DO BANCO DE DADOS ==========
-    async function loadData(table, renderFunction) {
+    async function loadData(table) {
         try {
             showLoading(`Carregando ${table}...`);
             
@@ -1309,69 +1346,107 @@
         renderSponsors();
     }
 
-    async function saveData(table, formData, imageFile, bucket, buttonId) {
+    async function saveData(table, formData, imageFiles, bucket, buttonId) {
         try {
             showButtonLoading(document.getElementById(buttonId), true);
             
-            let imageUrl = '';
+            let imageUrls = [];
             
-            // Faz upload da imagem se existir
-            if (imageFile) {
-                const fileName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 'image';
-                imageUrl = await uploadImage(imageFile, bucket, fileName);
+            // Faz upload das imagens se existirem
+            if (imageFiles && imageFiles.length > 0) {
+                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 'image';
+                
+                if (Array.isArray(imageFiles)) {
+                    // Múltiplas imagens (para eventos)
+                    imageUrls = await uploadMultipleImages(imageFiles, bucket, baseName);
+                } else {
+                    // Uma imagem (para membros, darceiros, sponsors)
+                    const imageUrl = await uploadImage(imageFiles, bucket, baseName);
+                    imageUrls = [imageUrl];
+                }
             }
             
-            // Adiciona a URL da imagem aos dados
+            // Adiciona as URLs das imagens aos dados
             const dataToSave = {
                 ...formData,
-                ...(imageUrl && { 
+                ...(imageUrls.length > 0 && { 
                     [bucket === STORAGE_BUCKETS.MEMBERS ? 'photo' : 
-                     bucket === STORAGE_BUCKETS.SPONSORS ? 'logo' : 'photo']: imageUrl 
+                     bucket === STORAGE_BUCKETS.SPONSORS ? 'logo' : 
+                     bucket === STORAGE_BUCKETS.EVENTS ? 'photos' : 'photo']: 
+                     Array.isArray(imageFiles) ? imageUrls : imageUrls[0] 
                 })
             };
             
             if (isOnline) {
-                const { data, error } = await supabase
-                    .from(table)
-                    .insert([dataToSave])
-                    .select();
-                
-                if (error) throw error;
+                let result;
+                if (currentEditingMemberId && table === 'members') {
+                    // Atualização de membro existente
+                    const { data, error } = await supabase
+                        .from(table)
+                        .update(dataToSave)
+                        .eq('id', currentEditingMemberId)
+                        .select();
+                    
+                    if (error) throw error;
+                    result = data;
+                    currentEditingMemberId = null;
+                } else {
+                    // Inserção normal
+                    const { data, error } = await supabase
+                        .from(table)
+                        .insert([dataToSave])
+                        .select();
+                    
+                    if (error) throw error;
+                    result = data;
+                }
                 
                 // Recarrega os dados atualizados
                 await loadData(table);
-                showMessage(`${getEntityName(table)} cadastrado com sucesso!`, 'success');
+                showMessage(`${getEntityName(table)} ${currentEditingMemberId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
                 return true;
             } else {
                 // Modo offline
-                dataToSave.id = Date.now().toString();
-                dataToSave.created_at = new Date().toISOString();
-                
-                const localData = loadFromLocalStorage(table) || [];
-                localData.unshift(dataToSave);
-                saveToLocalStorage(table, localData);
+                if (currentEditingMemberId && table === 'members') {
+                    // Atualização no modo offline
+                    const localData = loadFromLocalStorage(table) || [];
+                    const index = localData.findIndex(item => item.id === currentEditingMemberId);
+                    if (index !== -1) {
+                        localData[index] = { ...localData[index], ...dataToSave };
+                        saveToLocalStorage(table, localData);
+                    }
+                    currentEditingMemberId = null;
+                } else {
+                    // Inserção no modo offline
+                    dataToSave.id = Date.now().toString();
+                    dataToSave.created_at = new Date().toISOString();
+                    
+                    const localData = loadFromLocalStorage(table) || [];
+                    localData.unshift(dataToSave);
+                    saveToLocalStorage(table, localData);
+                }
                 
                 // Atualiza a interface
                 switch(table) {
                     case 'members': 
-                        members = localData; 
+                        members = loadFromLocalStorage('members'); 
                         renderMembers(); 
                         break;
                     case 'events': 
-                        events = localData; 
+                        events = loadFromLocalStorage('events'); 
                         renderEvents(); 
                         break;
                     case 'darceiros': 
-                        darceiros = localData; 
+                        darceiros = loadFromLocalStorage('darceiros'); 
                         renderDarceiros(); 
                         break;
                     case 'sponsors': 
-                        sponsors = localData; 
+                        sponsors = loadFromLocalStorage('sponsors'); 
                         renderSponsors(); 
                         break;
                 }
                 
-                showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
+                showMessage(`${getEntityName(table)} ${currentEditingMemberId ? 'atualizado' : 'salvo'} localmente!`, 'success');
                 return true;
             }
             
@@ -1404,226 +1479,130 @@
         return buckets[table] || STORAGE_BUCKETS.MEMBERS;
     }
 
-    function getImageFieldForTable(table) {
-        const fields = {
-            'members': 'photo',
-            'darceiros': 'photo',
-            'sponsors': 'logo',
-            'events': 'photo'
-        };
-        return fields[table] || 'photo';
-    }
-
-// ========== FUNÇÃO COMPLETAMENTE CORRIGIDA DE EXCLUSÃO ==========
-async function deleteItem(table, itemId) {
-    if (!confirm(`Tem certeza que deseja excluir este ${getEntityName(table).toLowerCase()}?`)) {
-        return;
-    }
-
-    try {
-        showLoading(`Excluindo ${getEntityName(table).toLowerCase()}...`);
-        
-        console.log(`🗑️ Iniciando exclusão: ${table} ID ${itemId}`);
-        
-        // Encontra o item antes de excluir
-        let currentData;
-        switch(table) {
-            case 'members': currentData = members; break;
-            case 'events': currentData = events; break;
-            case 'darceiros': currentData = darceiros; break;
-            case 'sponsors': currentData = sponsors; break;
-            default: throw new Error('Tabela não encontrada');
-        }
-        
-        const itemToDelete = currentData.find(item => item.id == itemId);
-        if (!itemToDelete) {
-            throw new Error('Item não encontrado localmente');
-        }
-
-        // CORREÇÃO: Exclusão do banco de dados (se online)
-        if (isOnline) {
-            console.log(`🌐 Tentando excluir do banco: ${table} ID ${itemId}`);
-            
-            const { error: dbError } = await supabase
-                .from(table)
-                .delete()
-                .eq('id', itemId);
-            
-            if (dbError) {
-                console.error(`❌ Erro ao excluir do banco:`, dbError);
-                throw new Error(`Falha na exclusão do banco: ${dbError.message}`);
-            }
-            
-            console.log(`✅ Sucesso ao excluir do banco PostgreSQL`);
-            
-            // Exclui a imagem do storage se existir
-            const imageField = getImageFieldForTable(table);
-            const imageUrl = itemToDelete[imageField];
-            const bucket = getBucketForTable(table);
-            
-            if (imageUrl && !imageUrl.includes('unsplash.com') && !imageUrl.includes('data:')) {
-                await deleteImageFromStorage(imageUrl, bucket);
-            }
-        } else {
-            console.log(`📴 Modo offline - exclusão apenas local`);
-        }
-        
-        // CORREÇÃO: Atualização LOCAL (SEMPRE faz isso, online ou offline)
-        console.log(`📝 Atualizando dados locais...`);
-        
-        // Remove do array local
-        const updatedData = currentData.filter(item => item.id != itemId);
-        
-        // Atualiza a variável global
-        switch(table) {
-            case 'members': members = updatedData; break;
-            case 'events': events = updatedData; break;
-            case 'darceiros': darceiros = updatedData; break;
-            case 'sponsors': sponsors = updatedData; break;
-        }
-        
-        // CORREÇÃO: Salva no localStorage (SEMPRE)
-        saveToLocalStorage(table, updatedData);
-        console.log(`💾 Dados salvos no localStorage`);
-        
-        // Atualiza a interface
-        console.log(`🔄 Atualizando interface...`);
-        switch(table) {
-            case 'members': renderMembers(); break;
-            case 'events': renderEvents(); break;
-            case 'darceiros': renderDarceiros(); break;
-            case 'sponsors': renderSponsors(); break;
-        }
-        
-        showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
-        console.log(`🎉 Exclusão concluída com sucesso!`);
-        
-    } catch (error) {
-        console.error(`💥 ERRO CRÍTICO ao excluir ${table}:`, error);
-        showMessage(`Erro ao excluir ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
-    } finally {
-        hideLoading();
-    }
-}
-// Adicione esta função para debug
-function debugData() {
-    console.log('=== DEBUG DOS DADOS ===');
-    console.log('Membros:', members.length, members);
-    console.log('Eventos:', events.length, events);
-    console.log('Darceiros:', darceiros.length, darceiros);
-    console.log('Patrocinadores:', sponsors.length, sponsors);
-    console.log('isOnline:', isOnline);
-    console.log('========================');
-}
-
-// Função para verificar permissões do Supabase
-async function checkSupabasePermissions() {
-    try {
-        console.log('🔐 Verificando permissões do Supabase...');
-        
-        // Testa SELECT
-        const { data: selectData, error: selectError } = await supabase
-            .from('members')
-            .select('*')
-            .limit(1);
-        
-        if (selectError) {
-            console.error('❌ Erro no SELECT:', selectError);
-        } else {
-            console.log('✅ SELECT funcionando');
-        }
-        
-        // Testa INSERT
-        const testData = {
-            name: 'TESTE_PERMISSAO',
-            email: 'teste@teste.com',
-            role: 'Teste',
-            bio: 'Dado temporário para teste'
-        };
-        
-        const { data: insertData, error: insertError } = await supabase
-            .from('members')
-            .insert([testData])
-            .select();
-            
-        if (insertError) {
-            console.error('❌ Erro no INSERT:', insertError);
-        } else {
-            console.log('✅ INSERT funcionando, ID:', insertData[0].id);
-            
-            // Testa DELETE com o dado inserido
-            const testId = insertData[0].id;
-            const { error: deleteError } = await supabase
-                .from('members')
-                .delete()
-                .eq('id', testId);
-                
-            if (deleteError) {
-                console.error('❌ Erro no DELETE:', deleteError);
-            } else {
-                console.log('✅ DELETE funcionando');
-            }
-        }
-        
-    } catch (error) {
-        console.error('❌ Erro no teste de permissões:', error);
-    }
-}
-    // Funções de exclusão específicas
-    async function deleteMember(memberId) {
-        await deleteItem('members', memberId);
-    }
-
-    async function deleteEvent(eventId) {
-        await deleteItem('events', eventId);
-    }
-
-    async function deleteDarceiro(darceiroId) {
-        await deleteItem('darceiros', darceiroId);
-    }
-
-    async function deleteSponsor(sponsorId) {
-        await deleteItem('sponsors', sponsorId);
-    }
-
-    // ========== FUNÇÃO PARA LIMPAR TODOS OS DADOS ==========
-    async function clearAllData() {
-        if (!confirm('Tem certeza que deseja limpar TODOS os dados? Esta ação não pode ser desfeita!')) {
+    // ========== FUNÇÃO DE EXCLUSÃO ==========
+    async function deleteItem(table, itemId) {
+        if (!confirm(`Tem certeza que deseja excluir este ${getEntityName(table).toLowerCase()}?`)) {
             return;
         }
 
         try {
-            showLoading('Limpando todos os dados...');
+            showLoading(`Excluindo ${getEntityName(table).toLowerCase()}...`);
             
-            // Limpa localStorage
-            clearLocalStorage();
+            let currentData;
+            switch(table) {
+                case 'members': currentData = members; break;
+                case 'events': currentData = events; break;
+                case 'darceiros': currentData = darceiros; break;
+                case 'sponsors': currentData = sponsors; break;
+                default: throw new Error('Tabela não encontrada');
+            }
             
-            // Reseta arrays locais
-            members = [];
-            events = [];
-            darceiros = [];
-            sponsors = [];
+            const itemToDelete = currentData.find(item => item.id == itemId);
+            if (!itemToDelete) {
+                throw new Error('Item não encontrado localmente');
+            }
+
+            if (isOnline) {
+                const { error: dbError } = await supabase
+                    .from(table)
+                    .delete()
+                    .eq('id', itemId);
+                
+                if (dbError) {
+                    console.error(`Erro ao excluir do banco:`, dbError);
+                    throw new Error(`Falha na exclusão do banco: ${dbError.message}`);
+                }
+                
+                // Exclui imagens do storage se existirem
+                const bucket = getBucketForTable(table);
+                if (table === 'events' && itemToDelete.photos) {
+                    // Exclui múltiplas fotos de eventos
+                    for (const photoUrl of itemToDelete.photos) {
+                        await deleteImageFromStorage(photoUrl, bucket);
+                    }
+                } else {
+                    // Exclui uma única imagem
+                    const imageField = table === 'sponsors' ? 'logo' : 'photo';
+                    const imageUrl = itemToDelete[imageField];
+                    if (imageUrl) {
+                        await deleteImageFromStorage(imageUrl, bucket);
+                    }
+                }
+            }
+            
+            // Atualização local
+            const updatedData = currentData.filter(item => item.id != itemId);
+            
+            switch(table) {
+                case 'members': members = updatedData; break;
+                case 'events': events = updatedData; break;
+                case 'darceiros': darceiros = updatedData; break;
+                case 'sponsors': sponsors = updatedData; break;
+            }
+            
+            saveToLocalStorage(table, updatedData);
             
             // Atualiza a interface
-            renderMembers();
-            renderEvents();
-            renderDarceiros();
-            renderSponsors();
+            switch(table) {
+                case 'members': renderMembers(); break;
+                case 'events': renderEvents(); break;
+                case 'darceiros': renderDarceiros(); break;
+                case 'sponsors': renderSponsors(); break;
+            }
             
-            showMessage('Todos os dados foram limpos com sucesso!', 'success');
+            showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
             
         } catch (error) {
-            console.error('Erro ao limpar dados:', error);
-            showMessage('Erro ao limpar dados.', 'error');
+            console.error(`Erro ao excluir ${table}:`, error);
+            showMessage(`Erro ao excluir ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
         } finally {
             hideLoading();
         }
+    }
+
+    // ========== FUNÇÃO PARA EDITAR MEMBRO ==========
+    async function editMember(memberId) {
+        const member = members.find(m => m.id == memberId);
+        if (!member) return;
+
+        // Preenche o formulário com os dados do membro
+        document.getElementById('memberName').value = member.name || '';
+        document.getElementById('memberEmail').value = member.email || '';
+        document.getElementById('memberPhone').value = member.phone || '';
+        document.getElementById('memberRole').value = member.role || '';
+        document.getElementById('memberBio').value = member.bio || '';
+
+        // Atualiza o preview da foto
+        const preview = document.getElementById('memberPhotoPreview');
+        if (member.photo) {
+            preview.innerHTML = `<img src="${member.photo}" alt="Preview">`;
+        } else {
+            preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
+        }
+
+        // Altera o texto do botão
+        const submitBtn = document.getElementById('memberSubmitBtn');
+        submitBtn.querySelector('span').textContent = 'Atualizar Membro';
+
+        // Armazena o ID do membro sendo editado
+        currentEditingMemberId = memberId;
+
+        // Rola até o formulário
+        document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
+        
+        // Ativa a tab de membros
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelector('.tab[data-tab="member"]').classList.add('active');
+        
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        document.getElementById('member-form').classList.add('active');
     }
 
     // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
     function renderMembers() {
         renderList(membersList, members, 'members', (member) => `
             <div class="card-actions">
+                <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
                 <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
             </div>
             <div class="card-image">
@@ -1648,13 +1627,16 @@ async function checkSupabasePermissions() {
         renderList(eventsList, events, 'events', (event) => {
             const eventDate = new Date(event.event_date);
             const formattedDate = eventDate.toLocaleDateString('pt-BR');
+            const photos = event.photos || [];
+            const mainPhoto = photos.length > 0 ? photos[0] : 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
             
             return `
                 <div class="card-actions">
                     <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
                 </div>
                 <div class="card-image">
-                    <img src="${event.photo || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${event.title}" loading="lazy">
+                    <img src="${mainPhoto}" alt="${event.title}" loading="lazy">
+                    ${photos.length > 1 ? `<div class="image-counter">+${photos.length - 1}</div>` : ''}
                 </div>
                 <div class="card-header">
                     <h3>${event.title}</h3>
@@ -1665,6 +1647,7 @@ async function checkSupabasePermissions() {
                 <div class="card-body">
                     <p><strong>Local:</strong> ${event.location}</p>
                     <p>${event.description || 'Sem descrição'}</p>
+                    ${photos.length > 0 ? `<p><small><strong>${photos.length} foto(s)</strong></small></p>` : ''}
                 </div>
                 <div class="card-footer">
                     <button class="btn btn-success">Participar</button>
@@ -1779,7 +1762,6 @@ async function checkSupabasePermissions() {
     }
 
     function showMessage(message, type = 'success') {
-        // Remove notificação existente
         const existingNotification = document.querySelector('.global-notification');
         if (existingNotification) {
             existingNotification.remove();
@@ -1799,13 +1781,11 @@ async function checkSupabasePermissions() {
         
         document.body.appendChild(messageDiv);
         
-        // Animação de entrada
         setTimeout(() => {
             messageDiv.style.opacity = '1';
             messageDiv.style.transform = 'translateY(0)';
         }, 100);
         
-        // Remove após 5 segundos
         setTimeout(() => {
             messageDiv.style.opacity = '0';
             messageDiv.style.transform = 'translateY(-100%)';
@@ -1836,6 +1816,7 @@ async function checkSupabasePermissions() {
         setupImageUpload('memberPhoto', 'memberPhotoPreview');
         setupImageUpload('darceiroPhoto', 'darceiroPhotoPreview');
         setupImageUpload('sponsorLogo', 'sponsorLogoPreview');
+        setupMultiplePhotosUpload('eventPhotos', 'eventPhotosPreview', 'eventPhotosUploadArea');
 
         // Form submissions
         if (memberForm) {
@@ -1854,16 +1835,26 @@ async function checkSupabasePermissions() {
                 };
                 
                 await saveData('members', memberData, memberPhotoFile, STORAGE_BUCKETS.MEMBERS, 'memberSubmitBtn');
+                
+                // Reseta o formulário
                 memberForm.reset();
                 const preview = document.getElementById('memberPhotoPreview');
                 if (preview) preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
                 memberPhotoInput.value = '';
+                
+                // Reseta o botão para cadastrar
+                const submitBtn = document.getElementById('memberSubmitBtn');
+                submitBtn.querySelector('span').textContent = 'Cadastrar Membro';
+                currentEditingMemberId = null;
             });
         }
 
         if (eventForm) {
             eventForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
+                
+                const eventPhotosInput = document.getElementById('eventPhotos');
+                const eventPhotosFiles = Array.from(eventPhotosInput.files);
                 
                 const eventData = {
                     title: document.getElementById('eventTitle')?.value || '',
@@ -1873,8 +1864,12 @@ async function checkSupabasePermissions() {
                     description: document.getElementById('eventDescription')?.value || ''
                 };
                 
-                await saveData('events', eventData, null, STORAGE_BUCKETS.EVENTS, 'eventSubmitBtn');
+                await saveData('events', eventData, eventPhotosFiles, STORAGE_BUCKETS.EVENTS, 'eventSubmitBtn');
                 eventForm.reset();
+                
+                // Limpa o preview das fotos
+                const preview = document.getElementById('eventPhotosPreview');
+                if (preview) preview.innerHTML = '';
             });
         }
 
@@ -1951,18 +1946,6 @@ async function checkSupabasePermissions() {
                 }
             });
         });
-
-        // Adiciona botão para limpar todos os dados (opcional)
-        const clearDataBtn = document.createElement('button');
-       // clearDataBtn.textContent = '🧹 Limpar Todos os Dados';
-        //clearDataBtn.className = 'btn btn-danger';
-       // clearDataBtn.style.marginTop = '20px';
-      //  clearDataBtn.onclick = clearAllData;
-        
-        const cadastroSection = document.getElementById('cadastro');
-        if (cadastroSection) {
-            cadastroSection.appendChild(clearDataBtn);
-        }
     }
 
     function setupImageUpload(inputId, previewId) {
@@ -1974,13 +1957,12 @@ async function checkSupabasePermissions() {
         input.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Validação básica do arquivo
                 if (!file.type.startsWith('image/')) {
                     showMessage('Por favor, selecione um arquivo de imagem.', 'error');
                     return;
                 }
                 
-                if (file.size > 5 * 1024 * 1024) { // 5MB
+                if (file.size > 5 * 1024 * 1024) {
                     showMessage('A imagem deve ter menos de 5MB.', 'error');
                     return;
                 }
@@ -1997,16 +1979,101 @@ async function checkSupabasePermissions() {
         });
     }
 
+    function setupMultiplePhotosUpload(inputId, previewId, uploadAreaId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        const uploadArea = document.getElementById(uploadAreaId);
+        
+        if (!input || !preview || !uploadArea) return;
+        
+        // Clique na área de upload
+        uploadArea.addEventListener('click', () => {
+            input.click();
+        });
+        
+        // Arrastar e soltar
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#3498db';
+            uploadArea.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.backgroundColor = '';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.backgroundColor = '';
+            
+            const files = e.dataTransfer.files;
+            handleMultiplePhotos(files);
+        });
+        
+        // Mudança no input de arquivo
+        input.addEventListener('change', (e) => {
+            handleMultiplePhotos(e.target.files);
+        });
+        
+        function handleMultiplePhotos(files) {
+            const validFiles = Array.from(files).filter(file => 
+                file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024
+            );
+            
+            if (validFiles.length === 0) {
+                showMessage('Por favor, selecione apenas imagens válidas (máx. 5MB cada).', 'error');
+                return;
+            }
+            
+            // Limita a 10 fotos
+            const filesToProcess = validFiles.slice(0, 10);
+            
+            filesToProcess.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoItem = document.createElement('div');
+                    photoItem.className = 'photo-preview-item';
+                    photoItem.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview">
+                        <button type="button" class="remove-photo" onclick="this.parentElement.remove()">×</button>
+                    `;
+                    preview.appendChild(photoItem);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            if (validFiles.length > 10) {
+                showMessage('Apenas as primeiras 10 fotos serão processadas.', 'warning');
+            }
+        }
+    }
+
+    // Funções de exclusão específicas
+    async function deleteMember(memberId) {
+        await deleteItem('members', memberId);
+    }
+
+    async function deleteEvent(eventId) {
+        await deleteItem('events', eventId);
+    }
+
+    async function deleteDarceiro(darceiroId) {
+        await deleteItem('darceiros', darceiroId);
+    }
+
+    async function deleteSponsor(sponsorId) {
+        await deleteItem('sponsors', sponsorId);
+    }
+
     // ========== INICIALIZAÇÃO ==========
     async function initializeApp() {
         try {
-            // Inicializar Supabase
             const supabaseInitialized = await initializeSupabase();
             
-            // Configurar event listeners
             setupEventListeners();
             
-            // Carregar dados iniciais
             await Promise.all([
                 loadMembers(),
                 loadEvents(),
@@ -2020,7 +2087,6 @@ async function checkSupabasePermissions() {
                 showMessage('Sistema em modo offline. Dados salvos localmente.', 'warning');
             }
             
-            // Atualizar dados periodicamente (apenas online)
             setInterval(async () => {
                 if (isOnline && navigator.onLine) {
                     await loadMembers();
@@ -2030,13 +2096,11 @@ async function checkSupabasePermissions() {
                 }
             }, 30000);
             
-            // Monitorar status da conexão
             window.addEventListener('online', async () => {
                 if (!isOnline) {
                     isOnline = true;
                     updateSyncStatus(true);
                     showMessage('Conexão restaurada!', 'success');
-                    // Sincronizar dados quando voltar online
                     await initializeSupabase();
                 }
             });
@@ -2059,45 +2123,7 @@ async function checkSupabasePermissions() {
     } else {
         initializeApp();
     }
-      // Teste rápido - adicione isto temporariamente
-setTimeout(() => {
-    console.log('🔧 Iniciando teste automático...');
-    debugData();
-    
-    // Adiciona botão de teste no footer
-    const testBtn = document.createElement('button');
-    testBtn.textContent = '🧪 Testar Sistema';
-    testBtn.className = 'btn btn-warning';
-    testBtn.style.margin = '10px';
-    testBtn.onclick = () => {
-        checkSupabasePermissions();
-        debugData();
-    };
-    
-    const footer = document.querySelector('footer .container');
-    if (footer) {
-        footer.appendChild(testBtn);
-    }
-}, 2000);
 </script>
     
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
