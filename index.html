@@ -802,7 +802,7 @@
     <section class="hero">
         <div class="container">
             <h2>Conecte-se. Compartilhe. Cresça.</h2>
-            <p>Uma plataforma completa para gerenciar membros, eventos, darceiros e patrocinadores.</p>
+            <p>Uma plataforma completa para gerenciar membros, eventos, parceiros e patrocinadores.</p>
             <a href="#cadastro" class="btn">Começar Agora</a>
             <a href="#eventos" class="btn btn-secondary">Ver Eventos</a>
         </div>
@@ -828,9 +828,9 @@
 
         <!-- Darceiros Section -->
         <section id="darceiros">
-            <h2 class="section-title darceiro">Nossos Darceiros</h2>
+            <h2 class="section-title darceiro">Nossos Parceiros</h2>
             <div class="cards-grid" id="darceiros-list">
-                <!-- Darceiros will be dynamically added here -->
+                <!-- Parceiros will be dynamically added here -->
             </div>
         </section>
 
@@ -973,7 +973,7 @@
                             <textarea id="darceiroDescription" class="form-control" rows="4" required></textarea>
                         </div>
                         <button type="submit" class="btn btn-darceiro" id="darceiroSubmitBtn">
-                            <span>Cadastrar Darceiro</span>
+                            <span>Cadastrar Parceiro</span>
                             <div class="btn-loading">Enviando...</div>
                         </button>
                     </form>
@@ -1145,6 +1145,34 @@
         }
     }
 
+    // ========== FUNÇÃO PARA EXCLUIR IMAGEM DO STORAGE ==========
+    async function deleteImageFromStorage(imageUrl, bucket) {
+        try {
+            if (!isOnline || !imageUrl) return true;
+            
+            // Extrai o nome do arquivo da URL
+            const fileName = imageUrl.split('/').pop();
+            
+            if (!fileName || fileName.includes('unsplash.com') || fileName.includes('data:')) {
+                return true; // Não tenta excluir imagens do Unsplash ou base64
+            }
+            
+            const { error } = await supabase.storage
+                .from(bucket)
+                .remove([fileName]);
+            
+            if (error) {
+                console.warn('Aviso ao excluir imagem do storage:', error);
+                // Continua mesmo se falhar a exclusão da imagem
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Erro ao excluir imagem do storage:', error);
+            return false;
+        }
+    }
+
     // ========== MODO OFFLINE (FALLBACK) ==========
     function setupOfflineMode() {
         isOnline = false;
@@ -1175,16 +1203,18 @@
                 delete: () => ({
                     eq: (field, value) => {
                         const localData = loadFromLocalStorage(table) || [];
+                        const itemToDelete = localData.find(item => item[field] === value);
                         const filteredData = localData.filter(item => item[field] !== value);
                         saveToLocalStorage(table, filteredData);
-                        return Promise.resolve({ error: null });
+                        return Promise.resolve({ data: itemToDelete, error: null });
                     }
                 })
             }),
             storage: {
                 from: () => ({
                     upload: () => Promise.resolve({ data: null, error: null }),
-                    getPublicUrl: () => ({ data: { publicUrl: '' } })
+                    getPublicUrl: () => ({ data: { publicUrl: '' } }),
+                    remove: () => Promise.resolve({ error: null })
                 })
             }
         };
@@ -1343,20 +1373,75 @@
         return names[table] || 'Item';
     }
 
+    function getBucketForTable(table) {
+        const buckets = {
+            'members': STORAGE_BUCKETS.MEMBERS,
+            'darceiros': STORAGE_BUCKETS.DARCEIROS,
+            'sponsors': STORAGE_BUCKETS.SPONSORS,
+            'events': STORAGE_BUCKETS.EVENTS
+        };
+        return buckets[table] || STORAGE_BUCKETS.MEMBERS;
+    }
+
+    function getImageFieldForTable(table) {
+        const fields = {
+            'members': 'photo',
+            'darceiros': 'photo',
+            'sponsors': 'logo',
+            'events': 'photo'
+        };
+        return fields[table] || 'photo';
+    }
+
     // Funções de exclusão
-    async function deleteItem(table, itemId, dataArray, renderFunction) {
+    async function deleteItem(table, itemId) {
         if (!confirm(`Tem certeza que deseja excluir este ${getEntityName(table).toLowerCase()}?`)) {
             return;
         }
 
         try {
+            // Encontra o item antes de excluir para obter a URL da imagem
+            let itemToDelete;
+            let dataArray;
+            
+            switch(table) {
+                case 'members': 
+                    dataArray = members;
+                    break;
+                case 'events': 
+                    dataArray = events;
+                    break;
+                case 'darceiros': 
+                    dataArray = darceiros;
+                    break;
+                case 'sponsors': 
+                    dataArray = sponsors;
+                    break;
+            }
+            
+            itemToDelete = dataArray.find(item => item.id === itemId);
+            
+            if (!itemToDelete) {
+                throw new Error('Item não encontrado');
+            }
+
             if (isOnline) {
+                // Exclui do banco de dados
                 const { error } = await supabase
                     .from(table)
                     .delete()
                     .eq('id', itemId);
                 
                 if (error) throw error;
+                
+                // Exclui a imagem do storage se existir
+                const imageField = getImageFieldForTable(table);
+                const imageUrl = itemToDelete[imageField];
+                const bucket = getBucketForTable(table);
+                
+                if (imageUrl && !imageUrl.includes('unsplash.com') && !imageUrl.includes('data:')) {
+                    await deleteImageFromStorage(imageUrl, bucket);
+                }
             }
             
             // Atualiza localmente
@@ -1392,19 +1477,19 @@
     }
 
     async function deleteMember(memberId) {
-        await deleteItem('members', memberId, members, renderMembers);
+        await deleteItem('members', memberId);
     }
 
     async function deleteEvent(eventId) {
-        await deleteItem('events', eventId, events, renderEvents);
+        await deleteItem('events', eventId);
     }
 
     async function deleteDarceiro(darceiroId) {
-        await deleteItem('darceiros', darceiroId, darceiros, renderDarceiros);
+        await deleteItem('darceiros', darceiroId);
     }
 
     async function deleteSponsor(sponsorId) {
-        await deleteItem('sponsors', sponsorId, sponsors, renderSponsors);
+        await deleteItem('sponsors', sponsorId);
     }
 
     // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
@@ -1838,6 +1923,7 @@
     
 </body>
 </html>
+
 
 
 
