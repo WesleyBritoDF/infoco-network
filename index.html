@@ -1107,6 +1107,44 @@
         }
     }
 
+    // ========== FUNÇÃO DE UPLOAD DE IMAGENS ==========
+    async function uploadImage(file, bucket, fileName) {
+        try {
+            if (!isOnline) {
+                // Modo offline - retorna uma URL local
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Gera um nome único para o arquivo
+            const fileExt = file.name.split('.').pop();
+            const uniqueFileName = `${fileName}_${Date.now()}.${fileExt}`;
+            
+            const { data, error } = await supabase.storage
+                .from(bucket)
+                .upload(uniqueFileName, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
+
+            if (error) throw error;
+
+            // Obtém a URL pública da imagem
+            const { data: { publicUrl } } = supabase.storage
+                .from(bucket)
+                .getPublicUrl(uniqueFileName);
+
+            return publicUrl;
+            
+        } catch (error) {
+            console.error('Erro no upload da imagem:', error);
+            throw new Error('Falha no upload da imagem');
+        }
+    }
+
     // ========== MODO OFFLINE (FALLBACK) ==========
     function setupOfflineMode() {
         isOnline = false;
@@ -1142,7 +1180,13 @@
                         return Promise.resolve({ error: null });
                     }
                 })
-            })
+            }),
+            storage: {
+                from: () => ({
+                    upload: () => Promise.resolve({ data: null, error: null }),
+                    getPublicUrl: () => ({ data: { publicUrl: '' } })
+                })
+            }
         };
         
         supabase = window.supabase;
@@ -1214,14 +1258,31 @@
         renderSponsors();
     }
 
-    async function saveData(table, formData, buttonId) {
+    async function saveData(table, formData, imageFile, bucket, buttonId) {
         try {
             showButtonLoading(document.getElementById(buttonId), true);
+            
+            let imageUrl = '';
+            
+            // Faz upload da imagem se existir
+            if (imageFile) {
+                const fileName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 'image';
+                imageUrl = await uploadImage(imageFile, bucket, fileName);
+            }
+            
+            // Adiciona a URL da imagem aos dados
+            const dataToSave = {
+                ...formData,
+                ...(imageUrl && { 
+                    [bucket === STORAGE_BUCKETS.MEMBERS ? 'photo' : 
+                     bucket === STORAGE_BUCKETS.SPONSORS ? 'logo' : 'photo']: imageUrl 
+                })
+            };
             
             if (isOnline) {
                 const { data, error } = await supabase
                     .from(table)
-                    .insert([formData])
+                    .insert([dataToSave])
                     .select();
                 
                 if (error) throw error;
@@ -1232,11 +1293,11 @@
                 return true;
             } else {
                 // Modo offline
-                formData.id = Date.now().toString();
-                formData.created_at = new Date().toISOString();
+                dataToSave.id = Date.now().toString();
+                dataToSave.created_at = new Date().toISOString();
                 
                 const localData = loadFromLocalStorage(table) || [];
-                localData.unshift(formData);
+                localData.unshift(dataToSave);
                 saveToLocalStorage(table, localData);
                 
                 // Atualiza a interface
@@ -1380,7 +1441,7 @@
                     <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
                 </div>
                 <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${event.title}" loading="lazy">
+                    <img src="${event.photo || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${event.title}" loading="lazy">
                 </div>
                 <div class="card-header">
                     <h3>${event.title}</h3>
@@ -1568,19 +1629,22 @@
             memberForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
+                const memberPhotoInput = document.getElementById('memberPhoto');
+                const memberPhotoFile = memberPhotoInput.files[0];
+                
                 const memberData = {
                     name: document.getElementById('memberName')?.value || '',
                     email: document.getElementById('memberEmail')?.value || '',
                     phone: document.getElementById('memberPhone')?.value || '',
                     role: document.getElementById('memberRole')?.value || '',
-                    bio: document.getElementById('memberBio')?.value || '',
-                    photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+                    bio: document.getElementById('memberBio')?.value || ''
                 };
                 
-                await saveData('members', memberData, 'memberSubmitBtn');
+                await saveData('members', memberData, memberPhotoFile, STORAGE_BUCKETS.MEMBERS, 'memberSubmitBtn');
                 memberForm.reset();
                 const preview = document.getElementById('memberPhotoPreview');
                 if (preview) preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
+                memberPhotoInput.value = '';
             });
         }
 
@@ -1596,7 +1660,7 @@
                     description: document.getElementById('eventDescription')?.value || ''
                 };
                 
-                await saveData('events', eventData, 'eventSubmitBtn');
+                await saveData('events', eventData, null, STORAGE_BUCKETS.EVENTS, 'eventSubmitBtn');
                 eventForm.reset();
             });
         }
@@ -1605,19 +1669,22 @@
             darceiroForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
+                const darceiroPhotoInput = document.getElementById('darceiroPhoto');
+                const darceiroPhotoFile = darceiroPhotoInput.files[0];
+                
                 const darceiroData = {
                     name: document.getElementById('darceiroName')?.value || '',
                     type: document.getElementById('darceiroType')?.value || '',
                     contact: document.getElementById('darceiroContact')?.value || '',
                     website: document.getElementById('darceiroWebsite')?.value || '',
-                    description: document.getElementById('darceiroDescription')?.value || '',
-                    photo: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+                    description: document.getElementById('darceiroDescription')?.value || ''
                 };
                 
-                await saveData('darceiros', darceiroData, 'darceiroSubmitBtn');
+                await saveData('darceiros', darceiroData, darceiroPhotoFile, STORAGE_BUCKETS.DARCEIROS, 'darceiroSubmitBtn');
                 darceiroForm.reset();
                 const preview = document.getElementById('darceiroPhotoPreview');
                 if (preview) preview.innerHTML = '<div class="placeholder">Logo/Foto</div>';
+                darceiroPhotoInput.value = '';
             });
         }
 
@@ -1625,19 +1692,22 @@
             sponsorForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
+                const sponsorLogoInput = document.getElementById('sponsorLogo');
+                const sponsorLogoFile = sponsorLogoInput.files[0];
+                
                 const sponsorData = {
                     name: document.getElementById('sponsorName')?.value || '',
                     level: document.getElementById('sponsorLevel')?.value || '',
                     contact: document.getElementById('sponsorContact')?.value || '',
                     website: document.getElementById('sponsorWebsite')?.value || '',
-                    description: document.getElementById('sponsorDescription')?.value || '',
-                    logo: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+                    description: document.getElementById('sponsorDescription')?.value || ''
                 };
                 
-                await saveData('sponsors', sponsorData, 'sponsorSubmitBtn');
+                await saveData('sponsors', sponsorData, sponsorLogoFile, STORAGE_BUCKETS.SPONSORS, 'sponsorSubmitBtn');
                 sponsorForm.reset();
                 const preview = document.getElementById('sponsorLogoPreview');
                 if (preview) preview.innerHTML = '<div class="placeholder">Logo do Patrocinador</div>';
+                sponsorLogoInput.value = '';
             });
         }
 
@@ -1768,6 +1838,7 @@
     
 </body>
 </html>
+
 
 
 
