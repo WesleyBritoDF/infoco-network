@@ -781,7 +781,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1>NETWORK <span>IN FOCO EVENTOS v9</span></h1>
+                    <h1>NETWORK <span>IN FOCO EVENTOS v1</span></h1>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
                 <nav>
@@ -1414,7 +1414,7 @@
         return fields[table] || 'photo';
     }
 
- // ========== FUNÇÃO CORRIGIDA DE EXCLUSÃO ==========
+// ========== FUNÇÃO COMPLETAMENTE CORRIGIDA DE EXCLUSÃO ==========
 async function deleteItem(table, itemId) {
     if (!confirm(`Tem certeza que deseja excluir este ${getEntityName(table).toLowerCase()}?`)) {
         return;
@@ -1423,48 +1423,38 @@ async function deleteItem(table, itemId) {
     try {
         showLoading(`Excluindo ${getEntityName(table).toLowerCase()}...`);
         
-        // Encontra o item antes de excluir para obter a URL da imagem
-        let itemToDelete;
-        let currentData;
+        console.log(`🗑️ Iniciando exclusão: ${table} ID ${itemId}`);
         
+        // Encontra o item antes de excluir
+        let currentData;
         switch(table) {
-            case 'members': 
-                currentData = members;
-                break;
-            case 'events': 
-                currentData = events;
-                break;
-            case 'darceiros': 
-                currentData = darceiros;
-                break;
-            case 'sponsors': 
-                currentData = sponsors;
-                break;
-            default:
-                throw new Error('Tabela não encontrada');
+            case 'members': currentData = members; break;
+            case 'events': currentData = events; break;
+            case 'darceiros': currentData = darceiros; break;
+            case 'sponsors': currentData = sponsors; break;
+            default: throw new Error('Tabela não encontrada');
         }
         
-        itemToDelete = currentData.find(item => item.id == itemId);
-        
+        const itemToDelete = currentData.find(item => item.id == itemId);
         if (!itemToDelete) {
-            throw new Error('Item não encontrado');
+            throw new Error('Item não encontrado localmente');
         }
 
-        console.log(`Tentando excluir ${table} com ID:`, itemId);
-        
+        // CORREÇÃO: Exclusão do banco de dados (se online)
         if (isOnline) {
-            // CORREÇÃO: Exclui primeiro do banco de dados
+            console.log(`🌐 Tentando excluir do banco: ${table} ID ${itemId}`);
+            
             const { error: dbError } = await supabase
                 .from(table)
                 .delete()
                 .eq('id', itemId);
             
             if (dbError) {
-                console.error(`Erro ao excluir do banco ${table}:`, dbError);
+                console.error(`❌ Erro ao excluir do banco:`, dbError);
                 throw new Error(`Falha na exclusão do banco: ${dbError.message}`);
             }
             
-            console.log(`✅ Sucesso ao excluir ${table} do banco`);
+            console.log(`✅ Sucesso ao excluir do banco PostgreSQL`);
             
             // Exclui a imagem do storage se existir
             const imageField = getImageFieldForTable(table);
@@ -1474,55 +1464,111 @@ async function deleteItem(table, itemId) {
             if (imageUrl && !imageUrl.includes('unsplash.com') && !imageUrl.includes('data:')) {
                 await deleteImageFromStorage(imageUrl, bucket);
             }
+        } else {
+            console.log(`📴 Modo offline - exclusão apenas local`);
         }
         
-        // ATUALIZA LOCALMENTE (funciona tanto online quanto offline)
+        // CORREÇÃO: Atualização LOCAL (SEMPRE faz isso, online ou offline)
+        console.log(`📝 Atualizando dados locais...`);
+        
+        // Remove do array local
         const updatedData = currentData.filter(item => item.id != itemId);
         
+        // Atualiza a variável global
         switch(table) {
-            case 'members': 
-                members = updatedData;
-                break;
-            case 'events': 
-                events = updatedData;
-                break;
-            case 'darceiros': 
-                darceiros = updatedData;
-                break;
-            case 'sponsors': 
-                sponsors = updatedData;
-                break;
+            case 'members': members = updatedData; break;
+            case 'events': events = updatedData; break;
+            case 'darceiros': darceiros = updatedData; break;
+            case 'sponsors': sponsors = updatedData; break;
         }
         
-        // Salva no localStorage
+        // CORREÇÃO: Salva no localStorage (SEMPRE)
         saveToLocalStorage(table, updatedData);
+        console.log(`💾 Dados salvos no localStorage`);
         
         // Atualiza a interface
+        console.log(`🔄 Atualizando interface...`);
         switch(table) {
-            case 'members': 
-                renderMembers(); 
-                break;
-            case 'events': 
-                renderEvents(); 
-                break;
-            case 'darceiros': 
-                renderDarceiros(); 
-                break;
-            case 'sponsors': 
-                renderSponsors(); 
-                break;
+            case 'members': renderMembers(); break;
+            case 'events': renderEvents(); break;
+            case 'darceiros': renderDarceiros(); break;
+            case 'sponsors': renderSponsors(); break;
         }
         
         showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
+        console.log(`🎉 Exclusão concluída com sucesso!`);
         
     } catch (error) {
-        console.error(`❌ Erro ao excluir ${table}:`, error);
+        console.error(`💥 ERRO CRÍTICO ao excluir ${table}:`, error);
         showMessage(`Erro ao excluir ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
     } finally {
         hideLoading();
     }
 }
+// Adicione esta função para debug
+function debugData() {
+    console.log('=== DEBUG DOS DADOS ===');
+    console.log('Membros:', members.length, members);
+    console.log('Eventos:', events.length, events);
+    console.log('Darceiros:', darceiros.length, darceiros);
+    console.log('Patrocinadores:', sponsors.length, sponsors);
+    console.log('isOnline:', isOnline);
+    console.log('========================');
+}
 
+// Função para verificar permissões do Supabase
+async function checkSupabasePermissions() {
+    try {
+        console.log('🔐 Verificando permissões do Supabase...');
+        
+        // Testa SELECT
+        const { data: selectData, error: selectError } = await supabase
+            .from('members')
+            .select('*')
+            .limit(1);
+        
+        if (selectError) {
+            console.error('❌ Erro no SELECT:', selectError);
+        } else {
+            console.log('✅ SELECT funcionando');
+        }
+        
+        // Testa INSERT
+        const testData = {
+            name: 'TESTE_PERMISSAO',
+            email: 'teste@teste.com',
+            role: 'Teste',
+            bio: 'Dado temporário para teste'
+        };
+        
+        const { data: insertData, error: insertError } = await supabase
+            .from('members')
+            .insert([testData])
+            .select();
+            
+        if (insertError) {
+            console.error('❌ Erro no INSERT:', insertError);
+        } else {
+            console.log('✅ INSERT funcionando, ID:', insertData[0].id);
+            
+            // Testa DELETE com o dado inserido
+            const testId = insertData[0].id;
+            const { error: deleteError } = await supabase
+                .from('members')
+                .delete()
+                .eq('id', testId);
+                
+            if (deleteError) {
+                console.error('❌ Erro no DELETE:', deleteError);
+            } else {
+                console.log('✅ DELETE funcionando');
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro no teste de permissões:', error);
+    }
+}
     // Funções de exclusão específicas
     async function deleteMember(memberId) {
         await deleteItem('members', memberId);
@@ -2013,10 +2059,31 @@ async function deleteItem(table, itemId) {
     } else {
         initializeApp();
     }
+      // Teste rápido - adicione isto temporariamente
+setTimeout(() => {
+    console.log('🔧 Iniciando teste automático...');
+    debugData();
+    
+    // Adiciona botão de teste no footer
+    const testBtn = document.createElement('button');
+    testBtn.textContent = '🧪 Testar Sistema';
+    testBtn.className = 'btn btn-warning';
+    testBtn.style.margin = '10px';
+    testBtn.onclick = () => {
+        checkSupabasePermissions();
+        debugData();
+    };
+    
+    const footer = document.querySelector('footer .container');
+    if (footer) {
+        footer.appendChild(testBtn);
+    }
+}, 2000);
 </script>
     
 </body>
 </html>
+
 
 
 
