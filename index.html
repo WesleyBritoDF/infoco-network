@@ -1053,12 +1053,18 @@
 
               
    
-    <script>
+   <script>
     // ========== CONFIGURAÇÃO DO SUPABASE (POSTGRESQL) ==========
-    // SUBSTITUA COM SUAS CREDENCIAIS REAIS DO SUPABASE!
     const SUPABASE_URL = 'https://jywmvnxurbtziixntuuq.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5d212bnh1cmJ0emlpeG50dXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0OTQ4NzMsImV4cCI6MjA3NTA3MDg3M30.XQ_nZV8E-ifNzFmNggRtlhKETIIt-Kw3skjOsE56xFk';
-     
+    
+    const STORAGE_BUCKETS = {
+        MEMBERS: 'members-photos',
+        DARCEIROS: 'darceiros-photos',
+        SPONSORS: 'sponsors-logos',
+        EVENTS: 'events-photos'
+    };
+
     // Variáveis globais
     let supabase;
     let members = [];
@@ -1080,44 +1086,61 @@
     const loadingOverlay = document.getElementById('loadingOverlay');
 
     // ========== INICIALIZAÇÃO DO SUPABASE ==========
-
     async function initializeSupabase() {
         try {
-            // Verifica se o Supabase está disponível
             if (typeof window.supabase !== 'undefined') {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 console.log('Supabase inicializado com sucesso!');
+                
+                // Testa a conexão
+                const { data, error } = await supabase.from('members').select('count').limit(1);
+                if (error) throw error;
+                
                 return true;
             } else {
                 throw new Error('Biblioteca Supabase não carregada');
             }
         } catch (error) {
             console.error('Erro ao inicializar Supabase:', error);
-            
-            // Modo offline - usa localStorage como fallback
-            showMessage('Modo offline ativado. Dados salvos localmente.', 'warning');
             setupOfflineMode();
             return false;
         }
     }
 
     // ========== MODO OFFLINE (FALLBACK) ==========
-
     function setupOfflineMode() {
         isOnline = false;
         updateSyncStatus(false);
         
-        // Sistema simples com localStorage
+        // Sistema com localStorage
         window.supabase = {
-            from: () => ({
+            from: (table) => ({
                 select: () => ({
-                    order: () => Promise.resolve({ data: [], error: null })
+                    order: () => Promise.resolve({ 
+                        data: loadFromLocalStorage(table) || [], 
+                        error: null 
+                    })
                 }),
-                insert: () => ({
-                    select: () => Promise.resolve({ data: [], error: null })
+                insert: (data) => ({
+                    select: () => {
+                        const localData = loadFromLocalStorage(table) || [];
+                        const newItem = {
+                            ...data[0],
+                            id: Date.now().toString(),
+                            created_at: new Date().toISOString()
+                        };
+                        localData.unshift(newItem);
+                        saveToLocalStorage(table, localData);
+                        return Promise.resolve({ data: [newItem], error: null });
+                    }
                 }),
                 delete: () => ({
-                    eq: () => Promise.resolve({ error: null })
+                    eq: (field, value) => {
+                        const localData = loadFromLocalStorage(table) || [];
+                        const filteredData = localData.filter(item => item[field] !== value);
+                        saveToLocalStorage(table, filteredData);
+                        return Promise.resolve({ error: null });
+                    }
                 })
             })
         };
@@ -1126,377 +1149,233 @@
     }
 
     function saveToLocalStorage(key, data) {
-        localStorage.setItem(`network_${key}`, JSON.stringify(data));
+        try {
+            localStorage.setItem(`network_${key}`, JSON.stringify(data));
+        } catch (error) {
+            console.error('Erro ao salvar no localStorage:', error);
+        }
     }
 
     function loadFromLocalStorage(key) {
-        const data = localStorage.getItem(`network_${key}`);
-        return data ? JSON.parse(data) : [];
+        try {
+            const data = localStorage.getItem(`network_${key}`);
+            return data ? JSON.parse(data) : [];
+        } catch (error) {
+            console.error('Erro ao carregar do localStorage:', error);
+            return [];
+        }
     }
 
     // ========== FUNÇÕES DO BANCO DE DADOS ==========
-
-    async function loadMembers() {
+    async function loadData(table, renderFunction) {
         try {
-            showLoading('Carregando membros...');
+            showLoading(`Carregando ${table}...`);
             
             if (isOnline) {
                 const { data, error } = await supabase
-                    .from('members')
+                    .from(table)
                     .select('*')
                     .order('created_at', { ascending: false });
                 
                 if (error) throw error;
-                members = data || [];
-                saveToLocalStorage('members', members);
+                
+                const result = data || [];
+                saveToLocalStorage(table, result);
+                return result;
             } else {
-                members = loadFromLocalStorage('members');
+                return loadFromLocalStorage(table);
             }
             
-            renderMembers();
-            updateSyncStatus(isOnline);
-            
         } catch (error) {
-            console.error('Erro ao carregar membros:', error);
-            members = loadFromLocalStorage('members');
-            renderMembers();
-            updateSyncStatus(false);
+            console.error(`Erro ao carregar ${table}:`, error);
+            return loadFromLocalStorage(table);
         } finally {
             hideLoading();
         }
+    }
+
+    async function loadMembers() {
+        members = await loadData('members');
+        renderMembers();
     }
 
     async function loadEvents() {
-        try {
-            showLoading('Carregando eventos...');
-            
-            if (isOnline) {
-                const { data, error } = await supabase
-                    .from('events')
-                    .select('*')
-                    .order('event_date', { ascending: true });
-                
-                if (error) throw error;
-                events = data || [];
-                saveToLocalStorage('events', events);
-            } else {
-                events = loadFromLocalStorage('events');
-            }
-            
-            renderEvents();
-            updateSyncStatus(isOnline);
-            
-        } catch (error) {
-            console.error('Erro ao carregar eventos:', error);
-            events = loadFromLocalStorage('events');
-            renderEvents();
-            updateSyncStatus(false);
-        } finally {
-            hideLoading();
-        }
+        events = await loadData('events');
+        renderEvents();
     }
 
     async function loadDarceiros() {
-        try {
-            showLoading('Carregando darceiros...');
-            
-            if (isOnline) {
-                const { data, error } = await supabase
-                    .from('darceiros')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-                
-                if (error) throw error;
-                darceiros = data || [];
-                saveToLocalStorage('darceiros', darceiros);
-            } else {
-                darceiros = loadFromLocalStorage('darceiros');
-            }
-            
-            renderDarceiros();
-            updateSyncStatus(isOnline);
-            
-        } catch (error) {
-            console.error('Erro ao carregar darceiros:', error);
-            darceiros = loadFromLocalStorage('darceiros');
-            renderDarceiros();
-            updateSyncStatus(false);
-        } finally {
-            hideLoading();
-        }
+        darceiros = await loadData('darceiros');
+        renderDarceiros();
     }
 
     async function loadSponsors() {
-        try {
-            showLoading('Carregando patrocinadores...');
-            
-            if (isOnline) {
-                const { data, error } = await supabase
-                    .from('sponsors')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-                
-                if (error) throw error;
-                sponsors = data || [];
-                saveToLocalStorage('sponsors', sponsors);
-            } else {
-                sponsors = loadFromLocalStorage('sponsors');
-            }
-            
-            renderSponsors();
-            updateSyncStatus(isOnline);
-            
-        } catch (error) {
-            console.error('Erro ao carregar patrocinadores:', error);
-            sponsors = loadFromLocalStorage('sponsors');
-            renderSponsors();
-            updateSyncStatus(false);
-        } finally {
-            hideLoading();
-        }
+        sponsors = await loadData('sponsors');
+        renderSponsors();
     }
 
-    async function saveMember(memberData) {
+    async function saveData(table, formData, buttonId) {
         try {
-            showButtonLoading(document.getElementById('memberSubmitBtn'), true);
+            showButtonLoading(document.getElementById(buttonId), true);
             
             if (isOnline) {
                 const { data, error } = await supabase
-                    .from('members')
-                    .insert([memberData])
+                    .from(table)
+                    .insert([formData])
                     .select();
                 
                 if (error) throw error;
                 
-                await loadMembers();
-                showMessage('Membro cadastrado com sucesso no banco de dados!', 'success');
+                // Recarrega os dados atualizados
+                await loadData(table);
+                showMessage(`${getEntityName(table)} cadastrado com sucesso!`, 'success');
+                return true;
             } else {
                 // Modo offline
-                memberData.id = Date.now().toString();
-                memberData.created_at = new Date().toISOString();
-                members.unshift(memberData);
-                saveToLocalStorage('members', members);
-                renderMembers();
-                showMessage('Membro salvo localmente!', 'success');
+                formData.id = Date.now().toString();
+                formData.created_at = new Date().toISOString();
+                
+                const localData = loadFromLocalStorage(table) || [];
+                localData.unshift(formData);
+                saveToLocalStorage(table, localData);
+                
+                // Atualiza a interface
+                switch(table) {
+                    case 'members': 
+                        members = localData; 
+                        renderMembers(); 
+                        break;
+                    case 'events': 
+                        events = localData; 
+                        renderEvents(); 
+                        break;
+                    case 'darceiros': 
+                        darceiros = localData; 
+                        renderDarceiros(); 
+                        break;
+                    case 'sponsors': 
+                        sponsors = localData; 
+                        renderSponsors(); 
+                        break;
+                }
+                
+                showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
+                return true;
             }
             
-            return true;
-            
         } catch (error) {
-            console.error('Erro ao salvar membro:', error);
-            showMessage('Erro ao salvar membro. Dados salvos localmente.', 'warning');
-            
-            // Fallback offline
-            memberData.id = Date.now().toString();
-            memberData.created_at = new Date().toISOString();
-            members.unshift(memberData);
-            saveToLocalStorage('members', members);
-            renderMembers();
-            
+            console.error(`Erro ao salvar ${table}:`, error);
+            showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}.`, 'error');
             return false;
         } finally {
-            showButtonLoading(document.getElementById('memberSubmitBtn'), false);
+            showButtonLoading(document.getElementById(buttonId), false);
         }
     }
 
-    async function saveEvent(eventData) {
-        try {
-            showButtonLoading(document.getElementById('eventSubmitBtn'), true);
-            
-            if (isOnline) {
-                const { data, error } = await supabase
-                    .from('events')
-                    .insert([eventData])
-                    .select();
-                
-                if (error) throw error;
-                
-                await loadEvents();
-                showMessage('Evento cadastrado com sucesso no banco de dados!', 'success');
-            } else {
-                eventData.id = Date.now().toString();
-                eventData.created_at = new Date().toISOString();
-                events.unshift(eventData);
-                saveToLocalStorage('events', events);
-                renderEvents();
-                showMessage('Evento salvo localmente!', 'success');
-            }
-            
-            return true;
-            
-        } catch (error) {
-            console.error('Erro ao salvar evento:', error);
-            showMessage('Erro ao salvar evento. Dados salvos localmente.', 'warning');
-            
-            eventData.id = Date.now().toString();
-            eventData.created_at = new Date().toISOString();
-            events.unshift(eventData);
-            saveToLocalStorage('events', events);
-            renderEvents();
-            
-            return false;
-        } finally {
-            showButtonLoading(document.getElementById('eventSubmitBtn'), false);
-        }
-    }
-
-    async function saveDarceiro(darceiroData) {
-        try {
-            showButtonLoading(document.getElementById('darceiroSubmitBtn'), true);
-            
-            if (isOnline) {
-                const { data, error } = await supabase
-                    .from('darceiros')
-                    .insert([darceiroData])
-                    .select();
-                
-                if (error) throw error;
-                
-                await loadDarceiros();
-                showMessage('Darceiro cadastrado com sucesso no banco de dados!', 'success');
-            } else {
-                darceiroData.id = Date.now().toString();
-                darceiroData.created_at = new Date().toISOString();
-                darceiros.unshift(darceiroData);
-                saveToLocalStorage('darceiros', darceiros);
-                renderDarceiros();
-                showMessage('Darceiro salvo localmente!', 'success');
-            }
-            
-            return true;
-            
-        } catch (error) {
-            console.error('Erro ao salvar darceiro:', error);
-            showMessage('Erro ao salvar darceiro. Dados salvos localmente.', 'warning');
-            
-            darceiroData.id = Date.now().toString();
-            darceiroData.created_at = new Date().toISOString();
-            darceiros.unshift(darceiroData);
-            saveToLocalStorage('darceiros', darceiros);
-            renderDarceiros();
-            
-            return false;
-        } finally {
-            showButtonLoading(document.getElementById('darceiroSubmitBtn'), false);
-        }
-    }
-
-    async function saveSponsor(sponsorData) {
-        try {
-            showButtonLoading(document.getElementById('sponsorSubmitBtn'), true);
-            
-            if (isOnline) {
-                const { data, error } = await supabase
-                    .from('sponsors')
-                    .insert([sponsorData])
-                    .select();
-                
-                if (error) throw error;
-                
-                await loadSponsors();
-                showMessage('Patrocinador cadastrado com sucesso no banco de dados!', 'success');
-            } else {
-                sponsorData.id = Date.now().toString();
-                sponsorData.created_at = new Date().toISOString();
-                sponsors.unshift(sponsorData);
-                saveToLocalStorage('sponsors', sponsors);
-                renderSponsors();
-                showMessage('Patrocinador salvo localmente!', 'success');
-            }
-            
-            return true;
-            
-        } catch (error) {
-            console.error('Erro ao salvar patrocinador:', error);
-            showMessage('Erro ao salvar patrocinador. Dados salvos localmente.', 'warning');
-            
-            sponsorData.id = Date.now().toString();
-            sponsorData.created_at = new Date().toISOString();
-            sponsors.unshift(sponsorData);
-            saveToLocalStorage('sponsors', sponsors);
-            renderSponsors();
-            
-            return false;
-        } finally {
-            showButtonLoading(document.getElementById('sponsorSubmitBtn'), false);
-        }
+    function getEntityName(table) {
+        const names = {
+            'members': 'Membro',
+            'events': 'Evento',
+            'darceiros': 'Darceiro',
+            'sponsors': 'Patrocinador'
+        };
+        return names[table] || 'Item';
     }
 
     // Funções de exclusão
-    async function deleteMember(memberId) {
-        if (confirm('Tem certeza que deseja excluir este membro?')) {
-            try {
-                if (isOnline) {
-                    const { error } = await supabase
-                        .from('members')
-                        .delete()
-                        .eq('id', memberId);
-                    
-                    if (error) throw error;
-                }
-                
-                members = members.filter(m => m.id !== memberId);
-                saveToLocalStorage('members', members);
-                renderMembers();
-                showMessage('Membro excluído com sucesso!', 'success');
-                
-            } catch (error) {
-                console.error('Erro ao excluir membro:', error);
-                showMessage('Erro ao excluir membro.', 'error');
-            }
+    async function deleteItem(table, itemId, dataArray, renderFunction) {
+        if (!confirm(`Tem certeza que deseja excluir este ${getEntityName(table).toLowerCase()}?`)) {
+            return;
         }
+
+        try {
+            if (isOnline) {
+                const { error } = await supabase
+                    .from(table)
+                    .delete()
+                    .eq('id', itemId);
+                
+                if (error) throw error;
+            }
+            
+            // Atualiza localmente
+            const updatedData = dataArray.filter(item => item.id !== itemId);
+            saveToLocalStorage(table, updatedData);
+            
+            // Atualiza a interface
+            switch(table) {
+                case 'members': 
+                    members = updatedData; 
+                    renderMembers(); 
+                    break;
+                case 'events': 
+                    events = updatedData; 
+                    renderEvents(); 
+                    break;
+                case 'darceiros': 
+                    darceiros = updatedData; 
+                    renderDarceiros(); 
+                    break;
+                case 'sponsors': 
+                    sponsors = updatedData; 
+                    renderSponsors(); 
+                    break;
+            }
+            
+            showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
+            
+        } catch (error) {
+            console.error(`Erro ao excluir ${table}:`, error);
+            showMessage(`Erro ao excluir ${getEntityName(table).toLowerCase()}.`, 'error');
+        }
+    }
+
+    async function deleteMember(memberId) {
+        await deleteItem('members', memberId, members, renderMembers);
+    }
+
+    async function deleteEvent(eventId) {
+        await deleteItem('events', eventId, events, renderEvents);
+    }
+
+    async function deleteDarceiro(darceiroId) {
+        await deleteItem('darceiros', darceiroId, darceiros, renderDarceiros);
+    }
+
+    async function deleteSponsor(sponsorId) {
+        await deleteItem('sponsors', sponsorId, sponsors, renderSponsors);
     }
 
     // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
-
     function renderMembers() {
-        membersList.innerHTML = '';
-        if (members.length === 0) {
-            membersList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum membro cadastrado ainda.</p>';
-            return;
-        }
-        
-        members.forEach(member => {
-            const memberCard = document.createElement('div');
-            memberCard.className = 'card';
-            memberCard.innerHTML = `
-                <div class="card-actions">
-                    <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
-                </div>
-                <div class="card-image">
-                    <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
-                </div>
-                <div class="card-header">
-                    <h3>${member.name}</h3>
-                    <span class="member-role">${member.role}</span>
-                </div>
-                <div class="card-body">
-                    <p><strong>Email:</strong> ${member.email}</p>
-                    ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
-                    <p>${member.bio}</p>
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                        Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
-                    </p>
-                </div>
-            `;
-            membersList.appendChild(memberCard);
-        });
+        renderList(membersList, members, 'members', (member) => `
+            <div class="card-actions">
+                <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
+            </div>
+            <div class="card-image">
+                <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
+            </div>
+            <div class="card-header">
+                <h3>${member.name}</h3>
+                <span class="member-role">${member.role}</span>
+            </div>
+            <div class="card-body">
+                <p><strong>Email:</strong> ${member.email}</p>
+                ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                <p>${member.bio || 'Sem descrição'}</p>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                    Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
+                </p>
+            </div>
+        `);
     }
 
     function renderEvents() {
-        eventsList.innerHTML = '';
-        if (events.length === 0) {
-            eventsList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum evento cadastrado ainda.</p>';
-            return;
-        }
-        
-        events.forEach(event => {
+        renderList(eventsList, events, 'events', (event) => {
             const eventDate = new Date(event.event_date);
             const formattedDate = eventDate.toLocaleDateString('pt-BR');
             
-            const eventCard = document.createElement('div');
-            eventCard.className = 'card';
-            eventCard.innerHTML = `
+            return `
                 <div class="card-actions">
                     <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
                 </div>
@@ -1511,116 +1390,122 @@
                 </div>
                 <div class="card-body">
                     <p><strong>Local:</strong> ${event.location}</p>
-                    <p>${event.description}</p>
+                    <p>${event.description || 'Sem descrição'}</p>
                 </div>
                 <div class="card-footer">
                     <button class="btn btn-success">Participar</button>
                 </div>
             `;
-            eventsList.appendChild(eventCard);
         });
     }
 
     function renderDarceiros() {
-        darceirosList.innerHTML = '';
-        if (darceiros.length === 0) {
-            darceirosList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum darceiro cadastrado ainda.</p>';
-            return;
-        }
-        
-        darceiros.forEach(darceiro => {
-            const darceiroCard = document.createElement('div');
-            darceiroCard.className = 'card';
-            darceiroCard.innerHTML = `
-                <div class="card-actions">
-                    <button class="card-action-btn delete" onclick="deleteDarceiro('${darceiro.id}')" title="Excluir darceiro">🗑️</button>
-                </div>
-                <div class="card-image">
-                    <img src="${darceiro.photo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${darceiro.name}" loading="lazy">
-                </div>
-                <div class="card-header darceiro">
-                    <h3>${darceiro.name}</h3>
-                    <span class="darceiro-type">${darceiro.type}</span>
-                </div>
-                <div class="card-body">
-                    <p><strong>Contato:</strong> ${darceiro.contact}</p>
-                    ${darceiro.website ? `<p><strong>Website:</strong> <a href="${darceiro.website}" target="_blank">${darceiro.website}</a></p>` : ''}
-                    <p>${darceiro.description}</p>
-                </div>
-            `;
-            darceirosList.appendChild(darceiroCard);
-        });
+        renderList(darceirosList, darceiros, 'darceiros', (darceiro) => `
+            <div class="card-actions">
+                <button class="card-action-btn delete" onclick="deleteDarceiro('${darceiro.id}')" title="Excluir darceiro">🗑️</button>
+            </div>
+            <div class="card-image">
+                <img src="${darceiro.photo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${darceiro.name}" loading="lazy">
+            </div>
+            <div class="card-header darceiro">
+                <h3>${darceiro.name}</h3>
+                <span class="darceiro-type">${darceiro.type}</span>
+            </div>
+            <div class="card-body">
+                <p><strong>Contato:</strong> ${darceiro.contact}</p>
+                ${darceiro.website ? `<p><strong>Website:</strong> <a href="${darceiro.website}" target="_blank">${darceiro.website}</a></p>` : ''}
+                <p>${darceiro.description || 'Sem descrição'}</p>
+            </div>
+        `);
     }
 
     function renderSponsors() {
-        sponsorsList.innerHTML = '';
-        if (sponsors.length === 0) {
-            sponsorsList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum patrocinador cadastrado ainda.</p>';
+        renderList(sponsorsList, sponsors, 'sponsors', (sponsor) => `
+            <div class="card-actions">
+                <button class="card-action-btn delete" onclick="deleteSponsor('${sponsor.id}')" title="Excluir patrocinador">🗑️</button>
+            </div>
+            <div class="card-image">
+                <img src="${sponsor.logo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${sponsor.name}" loading="lazy">
+            </div>
+            <div class="card-header sponsor">
+                <h3>${sponsor.name}</h3>
+                <span class="sponsor-level">${sponsor.level}</span>
+            </div>
+            <div class="card-body">
+                <p><strong>Contato:</strong> ${sponsor.contact}</p>
+                ${sponsor.website ? `<p><strong>Website:</strong> <a href="${sponsor.website}" target="_blank">${sponsor.website}</a></p>` : ''}
+                <p>${sponsor.description || 'Sem descrição'}</p>
+            </div>
+        `);
+    }
+
+    function renderList(container, data, type, templateFunction) {
+        if (!container) {
+            console.error(`Container não encontrado para: ${type}`);
             return;
         }
         
-        sponsors.forEach(sponsor => {
-            const sponsorCard = document.createElement('div');
-            sponsorCard.className = 'card';
-            sponsorCard.innerHTML = `
-                <div class="card-actions">
-                    <button class="card-action-btn delete" onclick="deleteSponsor('${sponsor.id}')" title="Excluir patrocinador">🗑️</button>
-                </div>
-                <div class="card-image">
-                    <img src="${sponsor.logo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${sponsor.name}" loading="lazy">
-                </div>
-                <div class="card-header sponsor">
-                    <h3>${sponsor.name}</h3>
-                    <span class="sponsor-level">${sponsor.level}</span>
-                </div>
-                <div class="card-body">
-                    <p><strong>Contato:</strong> ${sponsor.contact}</p>
-                    ${sponsor.website ? `<p><strong>Website:</strong> <a href="${sponsor.website}" target="_blank">${sponsor.website}</a></p>` : ''}
-                    <p>${sponsor.description}</p>
-                </div>
-            `;
-            sponsorsList.appendChild(sponsorCard);
+        container.innerHTML = '';
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = `<p style="text-align: center; grid-column: 1/-1;">Nenhum ${getEntityName(type).toLowerCase()} cadastrado ainda.</p>`;
+            return;
+        }
+        
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = templateFunction(item);
+            container.appendChild(card);
         });
     }
 
     // ========== FUNÇÕES AUXILIARES ==========
-
     function updateSyncStatus(online) {
         isOnline = online;
-        if (online) {
-            syncStatus.innerHTML = '<span>🔵</span> Conectado ao PostgreSQL';
-            syncStatus.classList.remove('offline');
-        } else {
-            syncStatus.innerHTML = '<span>🔴</span> Modo Offline (Local)';
-            syncStatus.classList.add('offline');
+        if (syncStatus) {
+            if (online) {
+                syncStatus.innerHTML = '<span>🔵</span> Conectado ao PostgreSQL';
+                syncStatus.classList.remove('offline');
+            } else {
+                syncStatus.innerHTML = '<span>🔴</span> Modo Offline (Local)';
+                syncStatus.classList.add('offline');
+            }
         }
     }
 
     function showLoading(message = 'Carregando...') {
-        loadingOverlay.innerHTML = `<div>${message}</div>`;
-        loadingOverlay.style.display = 'flex';
+        if (loadingOverlay) {
+            loadingOverlay.innerHTML = `<div>${message}</div>`;
+            loadingOverlay.style.display = 'flex';
+        }
     }
 
     function hideLoading() {
-        loadingOverlay.style.display = 'none';
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
+        }
     }
 
     function showButtonLoading(button, loading) {
+        if (!button) return;
+        
         const span = button.querySelector('span');
         const loadingDiv = button.querySelector('.btn-loading');
         
         if (loading) {
-            span.style.display = 'none';
-            loadingDiv.style.display = 'block';
+            if (span) span.style.display = 'none';
+            if (loadingDiv) loadingDiv.style.display = 'block';
             button.disabled = true;
         } else {
-            span.style.display = 'block';
-            loadingDiv.style.display = 'none';
+            if (span) span.style.display = 'block';
+            if (loadingDiv) loadingDiv.style.display = 'none';
             button.disabled = false;
         }
     }
 
     function showMessage(message, type = 'success') {
+        // Remove notificação existente
         const existingNotification = document.querySelector('.global-notification');
         if (existingNotification) {
             existingNotification.remove();
@@ -1629,19 +1514,32 @@
         const messageDiv = document.createElement('div');
         messageDiv.className = `global-notification ${type}`;
         messageDiv.textContent = message;
-        messageDiv.style.background = type === 'success' ? '#2ecc71' : 
-                                    type === 'warning' ? '#f39c12' : '#e74c3c';
+        
+        const colors = {
+            success: '#2ecc71',
+            warning: '#f39c12',
+            error: '#e74c3c'
+        };
+        
+        messageDiv.style.background = colors[type] || colors.success;
         
         document.body.appendChild(messageDiv);
         
+        // Animação de entrada
         setTimeout(() => {
-            messageDiv.style.animation = 'slideOut 0.3s ease';
+            messageDiv.style.opacity = '1';
+            messageDiv.style.transform = 'translateY(0)';
+        }, 100);
+        
+        // Remove após 5 segundos
+        setTimeout(() => {
+            messageDiv.style.opacity = '0';
+            messageDiv.style.transform = 'translateY(-100%)';
             setTimeout(() => messageDiv.remove(), 300);
         }, 5000);
     }
 
     // ========== CONFIGURAÇÃO DE EVENTOS ==========
-
     function setupEventListeners() {
         // Tab switching
         document.querySelectorAll('.tab').forEach(tab => {
@@ -1666,90 +1564,106 @@
         setupImageUpload('sponsorLogo', 'sponsorLogoPreview');
 
         // Form submissions
-        memberForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const memberData = {
-                name: document.getElementById('memberName').value,
-                email: document.getElementById('memberEmail').value,
-                phone: document.getElementById('memberPhone').value,
-                role: document.getElementById('memberRole').value,
-                bio: document.getElementById('memberBio').value,
-                photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
-            };
-            
-            await saveMember(memberData);
-            memberForm.reset();
-            document.getElementById('memberPhotoPreview').innerHTML = '<div class="placeholder">Foto do Membro</div>';
-        });
+        if (memberForm) {
+            memberForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const memberData = {
+                    name: document.getElementById('memberName')?.value || '',
+                    email: document.getElementById('memberEmail')?.value || '',
+                    phone: document.getElementById('memberPhone')?.value || '',
+                    role: document.getElementById('memberRole')?.value || '',
+                    bio: document.getElementById('memberBio')?.value || '',
+                    photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+                };
+                
+                await saveData('members', memberData, 'memberSubmitBtn');
+                memberForm.reset();
+                const preview = document.getElementById('memberPhotoPreview');
+                if (preview) preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
+            });
+        }
 
-        eventForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const eventData = {
-                title: document.getElementById('eventTitle').value,
-                event_date: document.getElementById('eventDate').value,
-                event_time: document.getElementById('eventTime').value,
-                location: document.getElementById('eventLocation').value,
-                description: document.getElementById('eventDescription').value
-            };
-            
-            await saveEvent(eventData);
-            eventForm.reset();
-        });
+        if (eventForm) {
+            eventForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const eventData = {
+                    title: document.getElementById('eventTitle')?.value || '',
+                    event_date: document.getElementById('eventDate')?.value || '',
+                    event_time: document.getElementById('eventTime')?.value || '',
+                    location: document.getElementById('eventLocation')?.value || '',
+                    description: document.getElementById('eventDescription')?.value || ''
+                };
+                
+                await saveData('events', eventData, 'eventSubmitBtn');
+                eventForm.reset();
+            });
+        }
 
-        darceiroForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const darceiroData = {
-                name: document.getElementById('darceiroName').value,
-                type: document.getElementById('darceiroType').value,
-                contact: document.getElementById('darceiroContact').value,
-                website: document.getElementById('darceiroWebsite').value,
-                description: document.getElementById('darceiroDescription').value,
-                photo: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
-            };
-            
-            await saveDarceiro(darceiroData);
-            darceiroForm.reset();
-            document.getElementById('darceiroPhotoPreview').innerHTML = '<div class="placeholder">Logo/Foto</div>';
-        });
+        if (darceiroForm) {
+            darceiroForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const darceiroData = {
+                    name: document.getElementById('darceiroName')?.value || '',
+                    type: document.getElementById('darceiroType')?.value || '',
+                    contact: document.getElementById('darceiroContact')?.value || '',
+                    website: document.getElementById('darceiroWebsite')?.value || '',
+                    description: document.getElementById('darceiroDescription')?.value || '',
+                    photo: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+                };
+                
+                await saveData('darceiros', darceiroData, 'darceiroSubmitBtn');
+                darceiroForm.reset();
+                const preview = document.getElementById('darceiroPhotoPreview');
+                if (preview) preview.innerHTML = '<div class="placeholder">Logo/Foto</div>';
+            });
+        }
 
-        sponsorForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const sponsorData = {
-                name: document.getElementById('sponsorName').value,
-                level: document.getElementById('sponsorLevel').value,
-                contact: document.getElementById('sponsorContact').value,
-                website: document.getElementById('sponsorWebsite').value,
-                description: document.getElementById('sponsorDescription').value,
-                logo: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
-            };
-            
-            await saveSponsor(sponsorData);
-            sponsorForm.reset();
-            document.getElementById('sponsorLogoPreview').innerHTML = '<div class="placeholder">Logo do Patrocinador</div>';
-        });
+        if (sponsorForm) {
+            sponsorForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const sponsorData = {
+                    name: document.getElementById('sponsorName')?.value || '',
+                    level: document.getElementById('sponsorLevel')?.value || '',
+                    contact: document.getElementById('sponsorContact')?.value || '',
+                    website: document.getElementById('sponsorWebsite')?.value || '',
+                    description: document.getElementById('sponsorDescription')?.value || '',
+                    logo: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+                };
+                
+                await saveData('sponsors', sponsorData, 'sponsorSubmitBtn');
+                sponsorForm.reset();
+                const preview = document.getElementById('sponsorLogoPreview');
+                if (preview) preview.innerHTML = '<div class="placeholder">Logo do Patrocinador</div>';
+            });
+        }
 
         // Mobile menu
-        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
-            document.querySelector('nav ul').classList.toggle('show');
-        });
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', function() {
+                const navUl = document.querySelector('nav ul');
+                if (navUl) navUl.classList.toggle('show');
+            });
+        }
 
         // Smooth scrolling
         document.querySelectorAll('nav a').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
-                e.preventDefault();
                 const targetId = this.getAttribute('href');
-                if (targetId !== '#') {
+                if (targetId && targetId !== '#') {
+                    e.preventDefault();
                     const targetElement = document.querySelector(targetId);
                     if (targetElement) {
                         window.scrollTo({
                             top: targetElement.offsetTop - 80,
                             behavior: 'smooth'
                         });
-                        document.querySelector('nav ul').classList.remove('show');
+                        const navUl = document.querySelector('nav ul');
+                        if (navUl) navUl.classList.remove('show');
                     }
                 }
             });
@@ -1760,12 +1674,28 @@
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
         
+        if (!input || !preview) return;
+        
         input.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                // Validação básica do arquivo
+                if (!file.type.startsWith('image/')) {
+                    showMessage('Por favor, selecione um arquivo de imagem.', 'error');
+                    return;
+                }
+                
+                if (file.size > 5 * 1024 * 1024) { // 5MB
+                    showMessage('A imagem deve ter menos de 5MB.', 'error');
+                    return;
+                }
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.onerror = function() {
+                    showMessage('Erro ao carregar a imagem.', 'error');
                 };
                 reader.readAsDataURL(file);
             }
@@ -1773,40 +1703,72 @@
     }
 
     // ========== INICIALIZAÇÃO ==========
-
     async function initializeApp() {
-        // Inicializar Supabase
-        const supabaseInitialized = await initializeSupabase();
-        
-        setupEventListeners();
-        await loadMembers();
-        await loadEvents();
-        await loadDarceiros();
-        await loadSponsors();
-        
-        if (supabaseInitialized) {
-            showMessage('Sistema conectado ao PostgreSQL!', 'success');
-        } else {
-            showMessage('Sistema em modo offline. Dados salvos localmente.', 'warning');
-        }
-        
-        // Atualizar dados a cada 30 segundos
-        setInterval(async () => {
-            if (isOnline) {
-                await loadMembers();
-                await loadEvents();
-                await loadDarceiros();
-                await loadSponsors();
+        try {
+            // Inicializar Supabase
+            const supabaseInitialized = await initializeSupabase();
+            
+            // Configurar event listeners
+            setupEventListeners();
+            
+            // Carregar dados iniciais
+            await Promise.all([
+                loadMembers(),
+                loadEvents(),
+                loadDarceiros(),
+                loadSponsors()
+            ]);
+            
+            if (supabaseInitialized) {
+                showMessage('Sistema conectado ao PostgreSQL!', 'success');
+            } else {
+                showMessage('Sistema em modo offline. Dados salvos localmente.', 'warning');
             }
-        }, 30000);
+            
+            // Atualizar dados periodicamente (apenas online)
+            setInterval(async () => {
+                if (isOnline && navigator.onLine) {
+                    await loadMembers();
+                    await loadEvents();
+                    await loadDarceiros();
+                    await loadSponsors();
+                }
+            }, 30000);
+            
+            // Monitorar status da conexão
+            window.addEventListener('online', async () => {
+                if (!isOnline) {
+                    isOnline = true;
+                    updateSyncStatus(true);
+                    showMessage('Conexão restaurada!', 'success');
+                    // Sincronizar dados quando voltar online
+                    await initializeSupabase();
+                }
+            });
+            
+            window.addEventListener('offline', () => {
+                isOnline = false;
+                updateSyncStatus(false);
+                showMessage('Conexão perdida. Modo offline ativado.', 'warning');
+            });
+            
+        } catch (error) {
+            console.error('Erro na inicialização do app:', error);
+            showMessage('Erro ao inicializar o sistema.', 'error');
+        }
     }
 
-    // Inicia a aplicação
-    document.addEventListener('DOMContentLoaded', initializeApp);
+    // Inicia a aplicação quando o DOM estiver pronto
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+        initializeApp();
+    }
 </script>
     
 </body>
 </html>
+
 
 
 
