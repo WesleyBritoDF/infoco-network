@@ -678,7 +678,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1>NETWORK <span>IN FOCO EVENTOS</span></h1>
+                    <h1>NETWORK <span>IN FOCO EVENTOS v1</span></h1>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
                 <nav>
@@ -948,638 +948,616 @@
         </div>
     </footer>
 
-    <script>
-        // ========== CONFIGURAÇÃO DO SUPABASE (PostgreSQL) ==========
-        const SUPABASE_URL = 'https://jywmvnxurbtziixntuuq.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5d212bnh1cmJ0emlpeG50dXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0OTQ4NzMsImV4cCI6MjA3NTA3MDg3M30.XQ_nZV8E-ifNzFmNggRtlhKETIIt-Kw3skjOsE56xFk';
+          <script>
+    // ========== CONFIGURAÇÃO DO SUPABASE (POSTGRESQL) ==========
+    // SUBSTITUA COM SUAS CREDENCIAIS REAIS DO SUPABASE!
+    const SUPABASE_URL = 'https://jywmvnxurbtziixntuuq.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5d212bnh1cmJ0emlpeG50dXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0OTQ4NzMsImV4cCI6MjA3NTA3MDg3M30.XQ_nZV8E-ifNzFmNggRtlhKETIIt-Kw3skjOsE56xFk';
         
-        // ========== VARIÁVEIS GLOBAIS ==========
-        let members = [];
-        let events = [];
-        let darceiros = [];
-        let sponsors = [];
-        let isOnline = true;
+    // Inicializar Supabase
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // ========== DOM ELEMENTS ==========
-        const membersList = document.getElementById('members-list');
-        const eventsList = document.getElementById('events-list');
-        const darceirosList = document.getElementById('darceiros-list');
-        const sponsorsList = document.getElementById('sponsors-list');
-        const memberForm = document.getElementById('memberRegistrationForm');
-        const eventForm = document.getElementById('eventRegistrationForm');
-        const darceiroForm = document.getElementById('darceiroRegistrationForm');
-        const sponsorForm = document.getElementById('sponsorRegistrationForm');
-        const syncStatus = document.getElementById('syncStatus');
-        const loadingOverlay = document.getElementById('loadingOverlay');
+    // ========== VARIÁVEIS GLOBAIS ==========
+    let members = [];
+    let events = [];
+    let darceiros = [];
+    let sponsors = [];
+    let isOnline = true;
 
-        // ========== SISTEMA DE SINCRONIZAÇÃO LOCAL ==========
+    // ========== DOM ELEMENTS ==========
+    const membersList = document.getElementById('members-list');
+    const eventsList = document.getElementById('events-list');
+    const darceirosList = document.getElementById('darceiros-list');
+    const sponsorsList = document.getElementById('sponsors-list');
+    const memberForm = document.getElementById('memberRegistrationForm');
+    const eventForm = document.getElementById('eventRegistrationForm');
+    const darceiroForm = document.getElementById('darceiroRegistrationForm');
+    const sponsorForm = document.getElementById('sponsorRegistrationForm');
+    const syncStatus = document.getElementById('syncStatus');
+    const loadingOverlay = document.getElementById('loadingOverlay');
 
-        function generateId() {
-            return Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    // ========== FUNÇÕES DO POSTGRESQL ==========
+
+    // Função para carregar membros do PostgreSQL
+    async function loadMembers() {
+        try {
+            showLoading('Carregando membros...');
+            
+            const { data, error } = await supabase
+                .from('members')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            if (error) throw error;
+            
+            members = data || [];
+            renderMembers();
+            updateSyncStatus(true);
+            
+        } catch (error) {
+            console.error('Erro ao carregar membros:', error);
+            updateSyncStatus(false);
+            showMessage('Erro ao carregar membros do banco de dados.', 'error');
+        } finally {
+            hideLoading();
         }
+    }
 
-        function saveData() {
-            const data = {
-                members: members,
-                events: events,
-                darceiros: darceiros,
-                sponsors: sponsors,
-                lastUpdate: Date.now()
+    // Função para carregar eventos do PostgreSQL
+    async function loadEvents() {
+        try {
+            showLoading('Carregando eventos...');
+            
+            const { data, error } = await supabase
+                .from('events')
+                .select('*')
+                .order('event_date', { ascending: true });
+            
+            if (error) throw error;
+            
+            events = data || [];
+            renderEvents();
+            updateSyncStatus(true);
+            
+        } catch (error) {
+            console.error('Erro ao carregar eventos:', error);
+            updateSyncStatus(false);
+            showMessage('Erro ao carregar eventos do banco de dados.', 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Função para carregar darceiros do PostgreSQL
+    async function loadDarceiros() {
+        try {
+            showLoading('Carregando darceiros...');
+            
+            const { data, error } = await supabase
+                .from('darceiros')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            if (error) throw error;
+            
+            darceiros = data || [];
+            renderDarceiros();
+            updateSyncStatus(true);
+            
+        } catch (error) {
+            console.error('Erro ao carregar darceiros:', error);
+            updateSyncStatus(false);
+            showMessage('Erro ao carregar darceiros do banco de dados.', 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Função para carregar patrocinadores do PostgreSQL
+    async function loadSponsors() {
+        try {
+            showLoading('Carregando patrocinadores...');
+            
+            const { data, error } = await supabase
+                .from('sponsors')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            if (error) throw error;
+            
+            sponsors = data || [];
+            renderSponsors();
+            updateSyncStatus(true);
+            
+        } catch (error) {
+            console.error('Erro ao carregar patrocinadores:', error);
+            updateSyncStatus(false);
+            showMessage('Erro ao carregar patrocinadores do banco de dados.', 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Função para salvar membro no PostgreSQL
+    async function saveMember(memberData) {
+        try {
+            showButtonLoading(document.getElementById('memberSubmitBtn'), true);
+            
+            const { data, error } = await supabase
+                .from('members')
+                .insert([memberData])
+                .select();
+            
+            if (error) throw error;
+            
+            // Recarrega a lista atualizada
+            await loadMembers();
+            showMessage('Membro cadastrado com sucesso no banco de dados!', 'success');
+            return true;
+            
+        } catch (error) {
+            console.error('Erro ao salvar membro:', error);
+            showMessage('Erro ao cadastrar membro no banco de dados.', 'error');
+            return false;
+        } finally {
+            showButtonLoading(document.getElementById('memberSubmitBtn'), false);
+        }
+    }
+
+    // Função para salvar evento no PostgreSQL
+    async function saveEvent(eventData) {
+        try {
+            showButtonLoading(document.getElementById('eventSubmitBtn'), true);
+            
+            const { data, error } = await supabase
+                .from('events')
+                .insert([eventData])
+                .select();
+            
+            if (error) throw error;
+            
+            await loadEvents();
+            showMessage('Evento cadastrado com sucesso no banco de dados!', 'success');
+            return true;
+            
+        } catch (error) {
+            console.error('Erro ao salvar evento:', error);
+            showMessage('Erro ao cadastrar evento no banco de dados.', 'error');
+            return false;
+        } finally {
+            showButtonLoading(document.getElementById('eventSubmitBtn'), false);
+        }
+    }
+
+    // Função para salvar darceiro no PostgreSQL
+    async function saveDarceiro(darceiroData) {
+        try {
+            showButtonLoading(document.getElementById('darceiroSubmitBtn'), true);
+            
+            const { data, error } = await supabase
+                .from('darceiros')
+                .insert([darceiroData])
+                .select();
+            
+            if (error) throw error;
+            
+            await loadDarceiros();
+            showMessage('Darceiro cadastrado com sucesso no banco de dados!', 'success');
+            return true;
+            
+        } catch (error) {
+            console.error('Erro ao salvar darceiro:', error);
+            showMessage('Erro ao cadastrar darceiro no banco de dados.', 'error');
+            return false;
+        } finally {
+            showButtonLoading(document.getElementById('darceiroSubmitBtn'), false);
+        }
+    }
+
+    // Função para salvar patrocinador no PostgreSQL
+    async function saveSponsor(sponsorData) {
+        try {
+            showButtonLoading(document.getElementById('sponsorSubmitBtn'), true);
+            
+            const { data, error } = await supabase
+                .from('sponsors')
+                .insert([sponsorData])
+                .select();
+            
+            if (error) throw error;
+            
+            await loadSponsors();
+            showMessage('Patrocinador cadastrado com sucesso no banco de dados!', 'success');
+            return true;
+            
+        } catch (error) {
+            console.error('Erro ao salvar patrocinador:', error);
+            showMessage('Erro ao cadastrar patrocinador no banco de dados.', 'error');
+            return false;
+        } finally {
+            showButtonLoading(document.getElementById('sponsorSubmitBtn'), false);
+        }
+    }
+
+    // Funções para excluir (opcional)
+    async function deleteMember(memberId) {
+        if (confirm('Tem certeza que deseja excluir este membro?')) {
+            try {
+                const { error } = await supabase
+                    .from('members')
+                    .delete()
+                    .eq('id', memberId);
+                
+                if (error) throw error;
+                
+                await loadMembers();
+                showMessage('Membro excluído com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao excluir membro:', error);
+                showMessage('Erro ao excluir membro.', 'error');
+            }
+        }
+    }
+
+    // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
+
+    function renderMembers() {
+        membersList.innerHTML = '';
+        if (members.length === 0) {
+            membersList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum membro cadastrado ainda.</p>';
+            return;
+        }
+        
+        members.forEach(member => {
+            const memberCard = document.createElement('div');
+            memberCard.className = 'card';
+            memberCard.innerHTML = `
+                <div class="card-actions">
+                    <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
+                </div>
+                <div class="card-image">
+                    <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
+                </div>
+                <div class="card-header">
+                    <h3>${member.name}</h3>
+                    <span class="member-role">${member.role}</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Email:</strong> ${member.email}</p>
+                    ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                    <p>${member.bio}</p>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                        Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
+                    </p>
+                </div>
+            `;
+            membersList.appendChild(memberCard);
+        });
+    }
+
+    function renderEvents() {
+        eventsList.innerHTML = '';
+        if (events.length === 0) {
+            eventsList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum evento cadastrado ainda.</p>';
+            return;
+        }
+        
+        events.forEach(event => {
+            const eventDate = new Date(event.event_date);
+            const formattedDate = eventDate.toLocaleDateString('pt-BR');
+            
+            const eventCard = document.createElement('div');
+            eventCard.className = 'card';
+            eventCard.innerHTML = `
+                <div class="card-actions">
+                    <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
+                </div>
+                <div class="card-image">
+                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${event.title}" loading="lazy">
+                </div>
+                <div class="card-header">
+                    <h3>${event.title}</h3>
+                    <div class="event-date">
+                        <span>${formattedDate}</span> • <span>${event.event_time}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p><strong>Local:</strong> ${event.location}</p>
+                    <p>${event.description}</p>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-success">Participar</button>
+                </div>
+            `;
+            eventsList.appendChild(eventCard);
+        });
+    }
+
+    function renderDarceiros() {
+        darceirosList.innerHTML = '';
+        if (darceiros.length === 0) {
+            darceirosList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum darceiro cadastrado ainda.</p>';
+            return;
+        }
+        
+        darceiros.forEach(darceiro => {
+            const darceiroCard = document.createElement('div');
+            darceiroCard.className = 'card';
+            darceiroCard.innerHTML = `
+                <div class="card-actions">
+                    <button class="card-action-btn delete" onclick="deleteDarceiro('${darceiro.id}')" title="Excluir darceiro">🗑️</button>
+                </div>
+                <div class="card-image">
+                    <img src="${darceiro.photo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${darceiro.name}" loading="lazy">
+                </div>
+                <div class="card-header darceiro">
+                    <h3>${darceiro.name}</h3>
+                    <span class="darceiro-type">${darceiro.type}</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Contato:</strong> ${darceiro.contact}</p>
+                    ${darceiro.website ? `<p><strong>Website:</strong> <a href="${darceiro.website}" target="_blank">${darceiro.website}</a></p>` : ''}
+                    <p>${darceiro.description}</p>
+                </div>
+            `;
+            darceirosList.appendChild(darceiroCard);
+        });
+    }
+
+    function renderSponsors() {
+        sponsorsList.innerHTML = '';
+        if (sponsors.length === 0) {
+            sponsorsList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum patrocinador cadastrado ainda.</p>';
+            return;
+        }
+        
+        sponsors.forEach(sponsor => {
+            const sponsorCard = document.createElement('div');
+            sponsorCard.className = 'card';
+            sponsorCard.innerHTML = `
+                <div class="card-actions">
+                    <button class="card-action-btn delete" onclick="deleteSponsor('${sponsor.id}')" title="Excluir patrocinador">🗑️</button>
+                </div>
+                <div class="card-image">
+                    <img src="${sponsor.logo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${sponsor.name}" loading="lazy">
+                </div>
+                <div class="card-header sponsor">
+                    <h3>${sponsor.name}</h3>
+                    <span class="sponsor-level">${sponsor.level}</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Contato:</strong> ${sponsor.contact}</p>
+                    ${sponsor.website ? `<p><strong>Website:</strong> <a href="${sponsor.website}" target="_blank">${sponsor.website}</a></p>` : ''}
+                    <p>${sponsor.description}</p>
+                </div>
+            `;
+            sponsorsList.appendChild(sponsorCard);
+        });
+    }
+
+    // ========== FUNÇÕES AUXILIARES ==========
+
+    function updateSyncStatus(online) {
+        isOnline = online;
+        if (online) {
+            syncStatus.innerHTML = '<span>🔵</span> Conectado ao PostgreSQL';
+            syncStatus.classList.remove('offline');
+        } else {
+            syncStatus.innerHTML = '<span>🔴</span> Offline';
+            syncStatus.classList.add('offline');
+        }
+    }
+
+    function showLoading(message = 'Carregando...') {
+        loadingOverlay.innerHTML = `<div>${message}</div>`;
+        loadingOverlay.style.display = 'flex';
+    }
+
+    function hideLoading() {
+        loadingOverlay.style.display = 'none';
+    }
+
+    function showButtonLoading(button, loading) {
+        const span = button.querySelector('span');
+        const loadingDiv = button.querySelector('.btn-loading');
+        
+        if (loading) {
+            span.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            button.disabled = true;
+        } else {
+            span.style.display = 'block';
+            loadingDiv.style.display = 'none';
+            button.disabled = false;
+        }
+    }
+
+    function showMessage(message, type = 'success') {
+        const existingNotification = document.querySelector('.global-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `global-notification ${type}`;
+        messageDiv.textContent = message;
+        messageDiv.style.background = type === 'success' ? '#2ecc71' : '#e74c3c';
+        
+        document.body.appendChild(messageDiv);
+        
+        setTimeout(() => {
+            messageDiv.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => messageDiv.remove(), 300);
+        }, 5000);
+    }
+
+    // ========== CONFIGURAÇÃO DE EVENTOS ==========
+
+    function setupEventListeners() {
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === `${tabId}-form`) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // Image upload handlers
+        setupImageUpload('memberPhoto', 'memberPhotoPreview');
+        setupImageUpload('darceiroPhoto', 'darceiroPhotoPreview');
+        setupImageUpload('sponsorLogo', 'sponsorLogoPreview');
+
+        // Form submissions
+        memberForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const memberData = {
+                name: document.getElementById('memberName').value,
+                email: document.getElementById('memberEmail').value,
+                phone: document.getElementById('memberPhone').value,
+                role: document.getElementById('memberRole').value,
+                bio: document.getElementById('memberBio').value,
+                photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
             };
             
-            localStorage.setItem('network_in_foco_data', JSON.stringify(data));
-            localStorage.setItem('network_data_updated', Date.now().toString());
-        }
+            await saveMember(memberData);
+            memberForm.reset();
+            document.getElementById('memberPhotoPreview').innerHTML = '<div class="placeholder">Foto do Membro</div>';
+        });
 
-        function loadData() {
-            const saved = localStorage.getItem('network_in_foco_data');
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    members = data.members || [];
-                    events = data.events || [];
-                    darceiros = data.darceiros || [];
-                    sponsors = data.sponsors || [];
-                    return true;
-                } catch (error) {
-                    console.error('Erro ao carregar dados:', error);
-                }
-            }
-            return false;
-        }
+        eventForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const eventData = {
+                title: document.getElementById('eventTitle').value,
+                event_date: document.getElementById('eventDate').value,
+                event_time: document.getElementById('eventTime').value,
+                location: document.getElementById('eventLocation').value,
+                description: document.getElementById('eventDescription').value
+            };
+            
+            await saveEvent(eventData);
+            eventForm.reset();
+        });
 
-        function setupCrossTabSync() {
-            window.addEventListener('storage', function(e) {
-                if (e.key === 'network_data_updated') {
-                    console.log('Dados atualizados em outra aba, recarregando...');
-                    if (loadData()) {
-                        renderMembers();
-                        renderEvents();
-                        renderDarceiros();
-                        renderSponsors();
-                        showMessage('Dados sincronizados!', 'success');
+        darceiroForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const darceiroData = {
+                name: document.getElementById('darceiroName').value,
+                type: document.getElementById('darceiroType').value,
+                contact: document.getElementById('darceiroContact').value,
+                website: document.getElementById('darceiroWebsite').value,
+                description: document.getElementById('darceiroDescription').value,
+                photo: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+            };
+            
+            await saveDarceiro(darceiroData);
+            darceiroForm.reset();
+            document.getElementById('darceiroPhotoPreview').innerHTML = '<div class="placeholder">Logo/Foto</div>';
+        });
+
+        sponsorForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const sponsorData = {
+                name: document.getElementById('sponsorName').value,
+                level: document.getElementById('sponsorLevel').value,
+                contact: document.getElementById('sponsorContact').value,
+                website: document.getElementById('sponsorWebsite').value,
+                description: document.getElementById('sponsorDescription').value,
+                logo: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+            };
+            
+            await saveSponsor(sponsorData);
+            sponsorForm.reset();
+            document.getElementById('sponsorLogoPreview').innerHTML = '<div class="placeholder">Logo do Patrocinador</div>';
+        });
+
+        // Mobile menu
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            document.querySelector('nav ul').classList.toggle('show');
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId !== '#') {
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                        document.querySelector('nav ul').classList.remove('show');
                     }
                 }
             });
-        }
+        });
+    }
 
-        // ========== FUNÇÕES PRINCIPAIS ==========
-
-        async function loadMembers() {
-            if (loadData()) {
-                renderMembers();
-            } else {
-                members = [];
-                saveData();
-                renderMembers();
-            }
-        }
-
-        async function loadEvents() {
-            if (loadData()) {
-                renderEvents();
-            } else {
-                events = [];
-                saveData();
-                renderEvents();
-            }
-        }
-
-        async function loadDarceiros() {
-            if (loadData()) {
-                renderDarceiros();
-            } else {
-                darceiros = [];
-                saveData();
-                renderDarceiros();
-            }
-        }
-
-        async function loadSponsors() {
-            if (loadData()) {
-                renderSponsors();
-            } else {
-                sponsors = [];
-                saveData();
-                renderSponsors();
-            }
-        }
-
-        async function saveMember(memberData) {
-            try {
-                showButtonLoading(document.getElementById('memberSubmitBtn'), true);
-                
-                memberData.id = generateId();
-                memberData.timestamp = new Date().toISOString();
-                
-                if (!memberData.photo) {
-                    memberData.photo = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
-                }
-                
-                members.unshift(memberData);
-                saveData();
-                renderMembers();
-                
-                showMessage('Membro cadastrado com sucesso!', 'success');
-                return true;
-                
-            } catch (error) {
-                console.error('Erro ao salvar membro:', error);
-                showMessage('Erro ao cadastrar membro.', 'error');
-                return false;
-            } finally {
-                showButtonLoading(document.getElementById('memberSubmitBtn'), false);
-            }
-        }
-
-        async function saveEvent(eventData) {
-            try {
-                showButtonLoading(document.getElementById('eventSubmitBtn'), true);
-                
-                eventData.id = generateId();
-                eventData.timestamp = new Date().toISOString();
-                
-                events.unshift(eventData);
-                saveData();
-                renderEvents();
-                
-                showMessage('Evento cadastrado com sucesso!', 'success');
-                return true;
-                
-            } catch (error) {
-                console.error('Erro ao salvar evento:', error);
-                showMessage('Erro ao cadastrar evento.', 'error');
-                return false;
-            } finally {
-                showButtonLoading(document.getElementById('eventSubmitBtn'), false);
-            }
-        }
-
-        async function saveDarceiro(darceiroData) {
-            try {
-                showButtonLoading(document.getElementById('darceiroSubmitBtn'), true);
-                
-                darceiroData.id = generateId();
-                darceiroData.timestamp = new Date().toISOString();
-                
-                if (!darceiroData.photo) {
-                    darceiroData.photo = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
-                }
-                
-                darceiros.unshift(darceiroData);
-                saveData();
-                renderDarceiros();
-                
-                showMessage('Darceiro cadastrado com sucesso!', 'success');
-                return true;
-                
-            } catch (error) {
-                console.error('Erro ao salvar darceiro:', error);
-                showMessage('Erro ao cadastrar darceiro.', 'error');
-                return false;
-            } finally {
-                showButtonLoading(document.getElementById('darceiroSubmitBtn'), false);
-            }
-        }
-
-        async function saveSponsor(sponsorData) {
-            try {
-                showButtonLoading(document.getElementById('sponsorSubmitBtn'), true);
-                
-                sponsorData.id = generateId();
-                sponsorData.timestamp = new Date().toISOString();
-                
-                if (!sponsorData.logo) {
-                    sponsorData.logo = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
-                }
-                
-                sponsors.unshift(sponsorData);
-                saveData();
-                renderSponsors();
-                
-                showMessage('Patrocinador cadastrado com sucesso!', 'success');
-                return true;
-                
-            } catch (error) {
-                console.error('Erro ao salvar patrocinador:', error);
-                showMessage('Erro ao cadastrar patrocinador.', 'error');
-                return false;
-            } finally {
-                showButtonLoading(document.getElementById('sponsorSubmitBtn'), false);
-            }
-        }
-
-        function deleteMember(memberId) {
-            if (confirm('Tem certeza que deseja excluir este membro?')) {
-                members = members.filter(member => member.id !== memberId);
-                saveData();
-                renderMembers();
-                showMessage('Membro excluído com sucesso!', 'success');
-            }
-        }
-
-        function deleteEvent(eventId) {
-            if (confirm('Tem certeza que deseja excluir este evento?')) {
-                events = events.filter(event => event.id !== eventId);
-                saveData();
-                renderEvents();
-                showMessage('Evento excluído com sucesso!', 'success');
-            }
-        }
-
-        function deleteDarceiro(darceiroId) {
-            if (confirm('Tem certeza que deseja excluir este darceiro?')) {
-                darceiros = darceiros.filter(darceiro => darceiro.id !== darceiroId);
-                saveData();
-                renderDarceiros();
-                showMessage('Darceiro excluído com sucesso!', 'success');
-            }
-        }
-
-        function deleteSponsor(sponsorId) {
-            if (confirm('Tem certeza que deseja excluir este patrocinador?')) {
-                sponsors = sponsors.filter(sponsor => sponsor.id !== sponsorId);
-                saveData();
-                renderSponsors();
-                showMessage('Patrocinador excluído com sucesso!', 'success');
-            }
-        }
-
-        // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
-
-        function renderMembers() {
-            membersList.innerHTML = '';
-            if (members.length === 0) {
-                membersList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum membro cadastrado ainda.</p>';
-                return;
-            }
-            
-            const sortedMembers = [...members].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            sortedMembers.forEach(member => {
-                const memberCard = document.createElement('div');
-                memberCard.className = 'card';
-                memberCard.innerHTML = `
-                    <div class="card-actions">
-                        <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
-                    </div>
-                    <div class="card-image">
-                        <img src="${member.photo}" alt="${member.name}" loading="lazy">
-                    </div>
-                    <div class="card-header">
-                        <h3>${member.name}</h3>
-                        <span class="member-role">${member.role}</span>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Email:</strong> ${member.email}</p>
-                        ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
-                        <p>${member.bio}</p>
-                    </div>
-                `;
-                membersList.appendChild(memberCard);
-            });
-        }
-
-        function renderEvents() {
-            eventsList.innerHTML = '';
-            if (events.length === 0) {
-                eventsList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum evento cadastrado ainda.</p>';
-                return;
-            }
-            
-            const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
-            
-            sortedEvents.forEach(event => {
-                const eventDate = new Date(event.date);
-                const formattedDate = eventDate.toLocaleDateString('pt-BR');
-                
-                const eventCard = document.createElement('div');
-                eventCard.className = 'card';
-                eventCard.innerHTML = `
-                    <div class="card-actions">
-                        <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
-                    </div>
-                    <div class="card-image">
-                        <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${event.title}" loading="lazy">
-                    </div>
-                    <div class="card-header">
-                        <h3>${event.title}</h3>
-                        <div class="event-date">
-                            <span>${formattedDate}</span> • <span>${event.time}</span>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Local:</strong> ${event.location}</p>
-                        <p>${event.description}</p>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-success">Participar</button>
-                    </div>
-                `;
-                eventsList.appendChild(eventCard);
-            });
-        }
-
-        function renderDarceiros() {
-            darceirosList.innerHTML = '';
-            if (darceiros.length === 0) {
-                darceirosList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum darceiro cadastrado ainda.</p>';
-                return;
-            }
-            
-            const sortedDarceiros = [...darceiros].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            sortedDarceiros.forEach(darceiro => {
-                const darceiroCard = document.createElement('div');
-                darceiroCard.className = 'card';
-                darceiroCard.innerHTML = `
-                    <div class="card-actions">
-                        <button class="card-action-btn delete" onclick="deleteDarceiro('${darceiro.id}')" title="Excluir darceiro">🗑️</button>
-                    </div>
-                    <div class="card-image">
-                        <img src="${darceiro.photo}" alt="${darceiro.name}" loading="lazy">
-                    </div>
-                    <div class="card-header darceiro">
-                        <h3>${darceiro.name}</h3>
-                        <span class="darceiro-type">${darceiro.type}</span>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Contato:</strong> ${darceiro.contact}</p>
-                        ${darceiro.website ? `<p><strong>Website:</strong> <a href="${darceiro.website}" target="_blank">${darceiro.website}</a></p>` : ''}
-                        <p>${darceiro.description}</p>
-                    </div>
-                `;
-                darceirosList.appendChild(darceiroCard);
-            });
-        }
-
-        function renderSponsors() {
-            sponsorsList.innerHTML = '';
-            if (sponsors.length === 0) {
-                sponsorsList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum patrocinador cadastrado ainda.</p>';
-                return;
-            }
-            
-            const sortedSponsors = [...sponsors].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            sortedSponsors.forEach(sponsor => {
-                const sponsorCard = document.createElement('div');
-                sponsorCard.className = 'card';
-                sponsorCard.innerHTML = `
-                    <div class="card-actions">
-                        <button class="card-action-btn delete" onclick="deleteSponsor('${sponsor.id}')" title="Excluir patrocinador">🗑️</button>
-                    </div>
-                    <div class="card-image">
-                        <img src="${sponsor.logo}" alt="${sponsor.name}" loading="lazy">
-                    </div>
-                    <div class="card-header sponsor">
-                        <h3>${sponsor.name}</h3>
-                        <span class="sponsor-level">${sponsor.level}</span>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Contato:</strong> ${sponsor.contact}</p>
-                        ${sponsor.website ? `<p><strong>Website:</strong> <a href="${sponsor.website}" target="_blank">${sponsor.website}</a></p>` : ''}
-                        <p>${sponsor.description}</p>
-                    </div>
-                `;
-                sponsorsList.appendChild(sponsorCard);
-            });
-        }
-
-        // ========== FUNÇÕES AUXILIARES ==========
-
-        function updateSyncStatus(online) {
-            isOnline = online;
-            if (online) {
-                syncStatus.innerHTML = '<span>🔵</span> Sincronizado (Local)';
-                syncStatus.classList.remove('offline');
-            } else {
-                syncStatus.innerHTML = '<span>🔴</span> Offline';
-                syncStatus.classList.add('offline');
-            }
-        }
-
-        function showLoading(message = 'Carregando...') {
-            loadingOverlay.innerHTML = `<div>${message}</div>`;
-            loadingOverlay.style.display = 'flex';
-        }
-
-        function hideLoading() {
-            loadingOverlay.style.display = 'none';
-        }
-
-        function showButtonLoading(button, loading) {
-            const span = button.querySelector('span');
-            const loadingDiv = button.querySelector('.btn-loading');
-            
-            if (loading) {
-                span.style.display = 'none';
-                loadingDiv.style.display = 'block';
-                button.disabled = true;
-            } else {
-                span.style.display = 'block';
-                loadingDiv.style.display = 'none';
-                button.disabled = false;
-            }
-        }
-
-        function showMessage(message, type = 'success') {
-            const existingNotification = document.querySelector('.global-notification');
-            if (existingNotification) {
-                existingNotification.remove();
-            }
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `global-notification ${type}`;
-            messageDiv.textContent = message;
-            messageDiv.style.background = type === 'success' ? '#2ecc71' : '#e74c3c';
-            
-            document.body.appendChild(messageDiv);
-            
-            setTimeout(() => {
-                messageDiv.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => messageDiv.remove(), 300);
-            }, 5000);
-        }
-
-        // ========== CONFIGURAÇÃO DE EVENTOS ==========
-
-        function setupEventListeners() {
-            // Tab switching
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const tabId = tab.getAttribute('data-tab');
-                    
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.classList.remove('active');
-                        if (content.id === `${tabId}-form`) {
-                            content.classList.add('active');
-                        }
-                    });
-                });
-            });
-
-            // Image upload handlers
-            setupImageUpload('memberPhoto', 'memberPhotoPreview');
-            setupImageUpload('darceiroPhoto', 'darceiroPhotoPreview');
-            setupImageUpload('sponsorLogo', 'sponsorLogoPreview');
-
-            // Form submissions
-            memberForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const memberData = {
-                    name: document.getElementById('memberName').value,
-                    email: document.getElementById('memberEmail').value,
-                    phone: document.getElementById('memberPhone').value,
-                    role: document.getElementById('memberRole').value,
-                    bio: document.getElementById('memberBio').value
+    function setupImageUpload(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
                 };
-                
-                const photoInput = document.getElementById('memberPhoto');
-                if (photoInput.files && photoInput.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        memberData.photo = e.target.result;
-                        saveMember(memberData);
-                    };
-                    reader.readAsDataURL(photoInput.files[0]);
-                } else {
-                    await saveMember(memberData);
-                }
-                
-                memberForm.reset();
-                document.getElementById('memberPhotoPreview').innerHTML = '<div class="placeholder">Foto do Membro</div>';
-            });
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 
-            eventForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const eventData = {
-                    title: document.getElementById('eventTitle').value,
-                    date: document.getElementById('eventDate').value,
-                    time: document.getElementById('eventTime').value,
-                    location: document.getElementById('eventLocation').value,
-                    description: document.getElementById('eventDescription').value
-                };
-                
-                await saveEvent(eventData);
-                eventForm.reset();
-            });
+    // ========== INICIALIZAÇÃO ==========
 
-            darceiroForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const darceiroData = {
-                    name: document.getElementById('darceiroName').value,
-                    type: document.getElementById('darceiroType').value,
-                    contact: document.getElementById('darceiroContact').value,
-                    website: document.getElementById('darceiroWebsite').value,
-                    description: document.getElementById('darceiroDescription').value
-                };
-                
-                const photoInput = document.getElementById('darceiroPhoto');
-                if (photoInput.files && photoInput.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        darceiroData.photo = e.target.result;
-                        saveDarceiro(darceiroData);
-                    };
-                    reader.readAsDataURL(photoInput.files[0]);
-                } else {
-                    await saveDarceiro(darceiroData);
-                }
-                
-                darceiroForm.reset();
-                document.getElementById('darceiroPhotoPreview').innerHTML = '<div class="placeholder">Logo/Foto</div>';
-            });
-
-            sponsorForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const sponsorData = {
-                    name: document.getElementById('sponsorName').value,
-                    level: document.getElementById('sponsorLevel').value,
-                    contact: document.getElementById('sponsorContact').value,
-                    website: document.getElementById('sponsorWebsite').value,
-                    description: document.getElementById('sponsorDescription').value
-                };
-                
-                const logoInput = document.getElementById('sponsorLogo');
-                if (logoInput.files && logoInput.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        sponsorData.logo = e.target.result;
-                        saveSponsor(sponsorData);
-                    };
-                    reader.readAsDataURL(logoInput.files[0]);
-                } else {
-                    await saveSponsor(sponsorData);
-                }
-                
-                sponsorForm.reset();
-                document.getElementById('sponsorLogoPreview').innerHTML = '<div class="placeholder">Logo do Patrocinador</div>';
-            });
-
-            // Mobile menu
-            document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
-                document.querySelector('nav ul').classList.toggle('show');
-            });
-
-            // Smooth scrolling
-            document.querySelectorAll('nav a').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    if (targetId !== '#') {
-                        const targetElement = document.querySelector(targetId);
-                        if (targetElement) {
-                            window.scrollTo({
-                                top: targetElement.offsetTop - 80,
-                                behavior: 'smooth'
-                            });
-                            document.querySelector('nav ul').classList.remove('show');
-                        }
-                    }
-                });
-            });
-        }
-
-        function setupImageUpload(inputId, previewId) {
-            const input = document.getElementById(inputId);
-            const preview = document.getElementById(previewId);
+    async function initializeApp() {
+        // Adicionar Supabase CDN se não estiver disponível
+        if (typeof window.supabase === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+            document.head.appendChild(script);
             
-            input.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
+            // Esperar o Supabase carregar
+            await new Promise(resolve => setTimeout(resolve, 2000));
         }
+        
+        setupEventListeners();
+        await loadMembers();
+        await loadEvents();
+        await loadDarceiros();
+        await loadSponsors();
+        
+        updateSyncStatus(true);
+        showMessage('Sistema conectado ao PostgreSQL!', 'success');
+        
+        // Atualizar dados a cada 30 segundos
+        setInterval(async () => {
+            await loadMembers();
+            await loadEvents();
+            await loadDarceiros();
+            await loadSponsors();
+        }, 30000);
+    }
 
-        // ========== INICIALIZAÇÃO ==========
-
-        function initializeApp() {
-            setupEventListeners();
-            setupCrossTabSync();
-            loadMembers();
-            loadEvents();
-            loadDarceiros();
-            loadSponsors();
-            
-            updateSyncStatus(true);
-            showMessage('Sistema carregado com sucesso!', 'success');
-        }
-
-        // Inicia a aplicação
-        document.addEventListener('DOMContentLoaded', initializeApp);
-    </script>
+    // Inicia a aplicação
+    document.addEventListener('DOMContentLoaded', initializeApp);
+</script>
+    
 </body>
 </html>
+
