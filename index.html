@@ -6,7 +6,6 @@
     <meta name="description" content="IN FOCO NETWORK - Conecte-se, compartilhe e cresça com nossa comunidade de membros e eventos">
     <meta name="keywords" content="rede, membros, eventos, networking, comunidade, IN FOCO">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0/dist/umd/supabase.min.js"></script>
-    <title>NETWORK IN FOCO EVENTOS - Rede de Membros e Eventos</title>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -807,7 +806,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1>NETWORK <span>IN FOCO EVENTOS v1</span></h1>
+                    <h1>NETWORK <span>IN FOCO EVENTOS v2</span></h1>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
                 <nav>
@@ -1111,7 +1110,7 @@
     let sponsors = [];
     let isOnline = true;
     let currentEditingMemberId = null;
-    let eventPhotosFiles = []; // Array para armazenar as fotos do evento
+    let eventPhotosFiles = [];
 
     // ========== DOM ELEMENTS ==========
     const membersList = document.getElementById('members-list');
@@ -1146,7 +1145,7 @@
         }
     }
 
-    // ========== FUNÇÃO DE UPLOAD DE IMAGENS CORRIGIDA ==========
+    // ========== FUNÇÃO DE UPLOAD DE IMAGENS ==========
     async function uploadImage(file, bucket, fileName) {
         try {
             console.log(`📤 Iniciando upload para bucket: ${bucket}, arquivo: ${fileName}`);
@@ -1163,7 +1162,6 @@
                 });
             }
 
-            // Gera um nome único para o arquivo
             const fileExt = file.name.split('.').pop();
             const uniqueFileName = `${fileName}_${Date.now()}.${fileExt}`;
             
@@ -1183,7 +1181,6 @@
 
             console.log('✅ Upload concluído, obtendo URL pública...');
 
-            // Obtém a URL pública da imagem
             const { data: { publicUrl } } = supabase.storage
                 .from(bucket)
                 .getPublicUrl(uniqueFileName);
@@ -1219,28 +1216,277 @@
         }
     }
 
-    // ========== FUNÇÃO PARA EXCLUIR IMAGEM DO STORAGE ==========
-    async function deleteImageFromStorage(imageUrl, bucket) {
+    // ========== FUNÇÃO SALVAR DADOS CORRIGIDA PARA EVENTOS ==========
+    async function saveData(table, formData, imageFiles, bucket, buttonId) {
         try {
-            if (!isOnline || !imageUrl) return true;
+            showButtonLoading(document.getElementById(buttonId), true);
+            console.log(`💾 Iniciando salvamento de ${table}`, formData);
             
-            const fileName = imageUrl.split('/').pop();
+            let imageUrls = [];
             
-            if (!fileName || fileName.includes('unsplash.com') || fileName.includes('data:')) {
+            // Faz upload das imagens se existirem
+            if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
+                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
+                                formData.title?.replace(/\s+/g, '_').toLowerCase() || 
+                                'image';
+                
+                console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'}`);
+                
+                if (Array.isArray(imageFiles)) {
+                    // Múltiplas imagens (para eventos)
+                    imageUrls = await uploadMultipleImages(imageFiles, bucket, baseName);
+                } else {
+                    // Uma imagem (para membros, darceiros, sponsors)
+                    const imageUrl = await uploadImage(imageFiles, bucket, baseName);
+                    imageUrls = [imageUrl];
+                }
+                
+                console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
+            }
+            
+            // Prepara os dados para salvar
+            const dataToSave = { ...formData };
+            
+            // Adiciona as URLs das imagens aos dados
+            if (imageUrls.length > 0) {
+                if (table === 'events') {
+                    // Para eventos, salva array de fotos - MAS VERIFICA SE A COLUNA EXISTE
+                    dataToSave.photos = imageUrls;
+                } else if (table === 'sponsors') {
+                    // Para sponsors, salva logo
+                    dataToSave.logo = imageUrls[0];
+                } else {
+                    // Para membros e darceiros, salva photo
+                    dataToSave.photo = imageUrls[0];
+                }
+            }
+            
+            console.log(`📝 Dados preparados para salvar:`, dataToSave);
+            
+            if (isOnline) {
+                let result;
+                
+                // TENTA SALVAR NO BANCO
+                try {
+                    if (currentEditingMemberId && table === 'members') {
+                        // Atualização de membro existente
+                        const { data, error } = await supabase
+                            .from(table)
+                            .update(dataToSave)
+                            .eq('id', currentEditingMemberId)
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data;
+                        currentEditingMemberId = null;
+                    } else {
+                        // Inserção normal
+                        const { data, error } = await supabase
+                            .from(table)
+                            .insert([dataToSave])
+                            .select();
+                        
+                        if (error) {
+                            // SE DER ERRO POR FALTA DA COLUNA PHOTOS, TENTA SEM AS FOTOS
+                            if (error.message.includes("photos") && table === 'events') {
+                                console.log('⚠️ Coluna photos não encontrada, tentando salvar sem fotos...');
+                                
+                                // Remove as fotos dos dados
+                                const { photos, ...dataWithoutPhotos } = dataToSave;
+                                
+                                const { data: retryData, error: retryError } = await supabase
+                                    .from(table)
+                                    .insert([dataWithoutPhotos])
+                                    .select();
+                                
+                                if (retryError) throw retryError;
+                                result = retryData;
+                                
+                                showMessage('Evento salvo, mas fotos não foram salvas (coluna photos não existe). Configure a coluna no Supabase.', 'warning');
+                            } else {
+                                throw error;
+                            }
+                        } else {
+                            result = data;
+                        }
+                    }
+                } catch (dbError) {
+                    console.error(`❌ Erro no banco de dados:`, dbError);
+                    
+                    // SE DER ERRO, SALVA APENAS LOCALMENTE
+                    console.log('💾 Salvando localmente devido ao erro...');
+                    await saveDataLocally(table, dataToSave);
+                    showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
+                    return true;
+                }
+                
+                // Recarrega os dados atualizados
+                await loadData(table);
+                showMessage(`${getEntityName(table)} ${currentEditingMemberId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
+                return true;
+            } else {
+                // Modo offline - salva localmente
+                await saveDataLocally(table, dataToSave);
                 return true;
             }
             
-            const { error } = await supabase.storage
-                .from(bucket)
-                .remove([fileName]);
+        } catch (error) {
+            console.error(`❌ Erro ao salvar ${table}:`, error);
+            showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
+            return false;
+        } finally {
+            showButtonLoading(document.getElementById(buttonId), false);
+        }
+    }
+
+    // ========== FUNÇÃO PARA SALVAR LOCALMENTE ==========
+    async function saveDataLocally(table, dataToSave) {
+        if (currentEditingMemberId && table === 'members') {
+            // Atualização no modo offline
+            const localData = loadFromLocalStorage(table) || [];
+            const index = localData.findIndex(item => item.id === currentEditingMemberId);
+            if (index !== -1) {
+                localData[index] = { ...localData[index], ...dataToSave };
+                saveToLocalStorage(table, localData);
+            }
+            currentEditingMemberId = null;
+        } else {
+            // Inserção no modo offline
+            dataToSave.id = Date.now().toString();
+            dataToSave.created_at = new Date().toISOString();
+            
+            const localData = loadFromLocalStorage(table) || [];
+            localData.unshift(dataToSave);
+            saveToLocalStorage(table, localData);
+        }
+        
+        // Atualiza a interface
+        switch(table) {
+            case 'members': 
+                members = loadFromLocalStorage('members'); 
+                renderMembers(); 
+                break;
+            case 'events': 
+                events = loadFromLocalStorage('events'); 
+                renderEvents(); 
+                break;
+            case 'darceiros': 
+                darceiros = loadFromLocalStorage('darceiros'); 
+                renderDarceiros(); 
+                break;
+            case 'sponsors': 
+                sponsors = loadFromLocalStorage('sponsors'); 
+                renderSponsors(); 
+                break;
+        }
+        
+        showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
+    }
+
+    // ========== INSTRUÇÕES PARA CRIAR A COLUNA PHOTOS ==========
+    function showColumnInstructions() {
+        const instructions = `
+🎯 PARA RESOLVER O ERRO DA COLUNA "photos":
+
+1️⃣ ACESSE O SUPABASE:
+   • Vá em: https://supabase.com/dashboard
+   • Selecione seu projeto
+
+2️⃣ VÁ PARA O EDITOR SQL:
+   • Clique em "SQL Editor" no menu lateral
+
+3️⃣ EXECUTE ESTE COMANDO SQL:
+
+   ALTER TABLE events 
+   ADD COLUMN IF NOT EXISTS photos TEXT[];
+
+4️⃣ OU PELO EDITOR DE TABELAS:
+   • Vá em "Table Editor" > "events"
+   • Clique em "Add Column"
+   • Nome: "photos"
+   • Tipo: "Array"
+   • Array Type: "text"
+
+5️⃣ CONFIGURE AS POLÍTICAS (se necessário):
+   • Vá em "Authentication" > "Policies"
+   • Garanta que há políticas para INSERT em events
+
+🔧 ISSO RESOLVERÁ O ERRO E PERMITIRÁ SALVAR FOTOS!
+        `;
+        
+        console.log(instructions);
+        
+        // Mostra as instruções também na interface
+        const instructionDiv = document.createElement('div');
+        instructionDiv.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 10001;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-line;
+            line-height: 1.4;
+        `;
+        instructionDiv.innerHTML = `
+            <h3 style="color: #e74c3c; margin-bottom: 1rem;">🔧 Correção Necessária</h3>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                ${instructions.replace(/\n/g, '<br>')}
+            </div>
+            <button onclick="this.parentElement.remove()" style="
+                background: #3498db;
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                cursor: pointer;
+            ">Fechar</button>
+        `;
+        
+        document.body.appendChild(instructionDiv);
+    }
+
+    // ========== FUNÇÃO PARA VERIFICAR ESTRUTURA DA TABELA ==========
+    async function checkTableStructure() {
+        try {
+            console.log('🔍 Verificando estrutura da tabela events...');
+            
+            const { data, error } = await supabase
+                .from('events')
+                .select('*')
+                .limit(1);
             
             if (error) {
-                console.warn('Aviso ao excluir imagem do storage:', error);
+                console.error('❌ Erro ao verificar estrutura:', error);
+                return false;
             }
             
-            return true;
+            if (data && data.length > 0) {
+                const firstEvent = data[0];
+                const hasPhotosColumn = 'photos' in firstEvent;
+                
+                console.log('📊 Estrutura da tabela events:', Object.keys(firstEvent));
+                console.log('✅ Coluna photos existe?', hasPhotosColumn);
+                
+                if (!hasPhotosColumn) {
+                    console.log('⚠️ Coluna photos não encontrada!');
+                    showColumnInstructions();
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            return false;
         } catch (error) {
-            console.error('Erro ao excluir imagem do storage:', error);
+            console.error('Erro na verificação da estrutura:', error);
             return false;
         }
     }
@@ -1369,135 +1615,6 @@
         renderSponsors();
     }
 
-    // ========== FUNÇÃO SALVAR DADOS CORRIGIDA ==========
-    async function saveData(table, formData, imageFiles, bucket, buttonId) {
-        try {
-            showButtonLoading(document.getElementById(buttonId), true);
-            console.log(`💾 Iniciando salvamento de ${table}`, formData);
-            
-            let imageUrls = [];
-            
-            // Faz upload das imagens se existirem
-            if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
-                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
-                                formData.title?.replace(/\s+/g, '_').toLowerCase() || 
-                                'image';
-                
-                console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'}`);
-                
-                if (Array.isArray(imageFiles)) {
-                    // Múltiplas imagens (para eventos)
-                    imageUrls = await uploadMultipleImages(imageFiles, bucket, baseName);
-                } else {
-                    // Uma imagem (para membros, darceiros, sponsors)
-                    const imageUrl = await uploadImage(imageFiles, bucket, baseName);
-                    imageUrls = [imageUrl];
-                }
-                
-                console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
-            }
-            
-            // Prepara os dados para salvar
-            const dataToSave = { ...formData };
-            
-            // Adiciona as URLs das imagens aos dados
-            if (imageUrls.length > 0) {
-                if (table === 'events') {
-                    // Para eventos, salva array de fotos
-                    dataToSave.photos = imageUrls;
-                } else if (table === 'sponsors') {
-                    // Para sponsors, salva logo
-                    dataToSave.logo = imageUrls[0];
-                } else {
-                    // Para membros e darceiros, salva photo
-                    dataToSave.photo = imageUrls[0];
-                }
-            }
-            
-            console.log(`📝 Dados preparados para salvar:`, dataToSave);
-            
-            if (isOnline) {
-                let result;
-                if (currentEditingMemberId && table === 'members') {
-                    // Atualização de membro existente
-                    const { data, error } = await supabase
-                        .from(table)
-                        .update(dataToSave)
-                        .eq('id', currentEditingMemberId)
-                        .select();
-                    
-                    if (error) throw error;
-                    result = data;
-                    currentEditingMemberId = null;
-                } else {
-                    // Inserção normal
-                    const { data, error } = await supabase
-                        .from(table)
-                        .insert([dataToSave])
-                        .select();
-                    
-                    if (error) throw error;
-                    result = data;
-                }
-                
-                // Recarrega os dados atualizados
-                await loadData(table);
-                showMessage(`${getEntityName(table)} ${currentEditingMemberId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
-                return true;
-            } else {
-                // Modo offline
-                if (currentEditingMemberId && table === 'members') {
-                    // Atualização no modo offline
-                    const localData = loadFromLocalStorage(table) || [];
-                    const index = localData.findIndex(item => item.id === currentEditingMemberId);
-                    if (index !== -1) {
-                        localData[index] = { ...localData[index], ...dataToSave };
-                        saveToLocalStorage(table, localData);
-                    }
-                    currentEditingMemberId = null;
-                } else {
-                    // Inserção no modo offline
-                    dataToSave.id = Date.now().toString();
-                    dataToSave.created_at = new Date().toISOString();
-                    
-                    const localData = loadFromLocalStorage(table) || [];
-                    localData.unshift(dataToSave);
-                    saveToLocalStorage(table, localData);
-                }
-                
-                // Atualiza a interface
-                switch(table) {
-                    case 'members': 
-                        members = loadFromLocalStorage('members'); 
-                        renderMembers(); 
-                        break;
-                    case 'events': 
-                        events = loadFromLocalStorage('events'); 
-                        renderEvents(); 
-                        break;
-                    case 'darceiros': 
-                        darceiros = loadFromLocalStorage('darceiros'); 
-                        renderDarceiros(); 
-                        break;
-                    case 'sponsors': 
-                        sponsors = loadFromLocalStorage('sponsors'); 
-                        renderSponsors(); 
-                        break;
-                }
-                
-                showMessage(`${getEntityName(table)} ${currentEditingMemberId ? 'atualizado' : 'salvo'} localmente!`, 'success');
-                return true;
-            }
-            
-        } catch (error) {
-            console.error(`❌ Erro ao salvar ${table}:`, error);
-            showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
-            return false;
-        } finally {
-            showButtonLoading(document.getElementById(buttonId), false);
-        }
-    }
-
     function getEntityName(table) {
         const names = {
             'members': 'Membro',
@@ -1551,22 +1668,6 @@
                     console.error(`Erro ao excluir do banco:`, dbError);
                     throw new Error(`Falha na exclusão do banco: ${dbError.message}`);
                 }
-                
-                // Exclui imagens do storage se existirem
-                const bucket = getBucketForTable(table);
-                if (table === 'events' && itemToDelete.photos) {
-                    // Exclui múltiplas fotos de eventos
-                    for (const photoUrl of itemToDelete.photos) {
-                        await deleteImageFromStorage(photoUrl, bucket);
-                    }
-                } else {
-                    // Exclui uma única imagem
-                    const imageField = table === 'sponsors' ? 'logo' : 'photo';
-                    const imageUrl = itemToDelete[imageField];
-                    if (imageUrl) {
-                        await deleteImageFromStorage(imageUrl, bucket);
-                    }
-                }
             }
             
             // Atualização local
@@ -1604,14 +1705,12 @@
         const member = members.find(m => m.id == memberId);
         if (!member) return;
 
-        // Preenche o formulário com os dados do membro
         document.getElementById('memberName').value = member.name || '';
         document.getElementById('memberEmail').value = member.email || '';
         document.getElementById('memberPhone').value = member.phone || '';
         document.getElementById('memberRole').value = member.role || '';
         document.getElementById('memberBio').value = member.bio || '';
 
-        // Atualiza o preview da foto
         const preview = document.getElementById('memberPhotoPreview');
         if (member.photo) {
             preview.innerHTML = `<img src="${member.photo}" alt="Preview">`;
@@ -1619,17 +1718,13 @@
             preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
         }
 
-        // Altera o texto do botão
         const submitBtn = document.getElementById('memberSubmitBtn');
         submitBtn.querySelector('span').textContent = 'Atualizar Membro';
 
-        // Armazena o ID do membro sendo editado
         currentEditingMemberId = memberId;
 
-        // Rola até o formulário
         document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
         
-        // Ativa a tab de membros
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelector('.tab[data-tab="member"]').classList.add('active');
         
@@ -1875,13 +1970,11 @@
                 
                 await saveData('members', memberData, memberPhotoFile, STORAGE_BUCKETS.MEMBERS, 'memberSubmitBtn');
                 
-                // Reseta o formulário
                 memberForm.reset();
                 const preview = document.getElementById('memberPhotoPreview');
                 if (preview) preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
                 memberPhotoInput.value = '';
                 
-                // Reseta o botão para cadastrar
                 const submitBtn = document.getElementById('memberSubmitBtn');
                 submitBtn.querySelector('span').textContent = 'Cadastrar Membro';
                 currentEditingMemberId = null;
@@ -1900,11 +1993,9 @@
                     description: document.getElementById('eventDescription')?.value || ''
                 };
                 
-                // Usa o array global de fotos do evento
                 await saveData('events', eventData, eventPhotosFiles, STORAGE_BUCKETS.EVENTS, 'eventSubmitBtn');
                 eventForm.reset();
                 
-                // Limpa o preview das fotos e o array
                 const preview = document.getElementById('eventPhotosPreview');
                 if (preview) preview.innerHTML = '';
                 eventPhotosFiles = [];
@@ -2024,12 +2115,10 @@
         
         if (!input || !preview || !uploadArea) return;
         
-        // Clique na área de upload
         uploadArea.addEventListener('click', () => {
             input.click();
         });
         
-        // Arrastar e soltar
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadArea.style.borderColor = '#3498db';
@@ -2050,7 +2139,6 @@
             handleMultiplePhotos(files);
         });
         
-        // Mudança no input de arquivo
         input.addEventListener('change', (e) => {
             handleMultiplePhotos(e.target.files);
         });
@@ -2065,13 +2153,9 @@
                 return;
             }
             
-            // Limita a 10 fotos
             const filesToProcess = validFiles.slice(0, 10);
-            
-            // Adiciona ao array global
             eventPhotosFiles = [...eventPhotosFiles, ...filesToProcess].slice(0, 10);
             
-            // Atualiza o preview
             preview.innerHTML = '';
             eventPhotosFiles.forEach((file, index) => {
                 const reader = new FileReader();
@@ -2099,7 +2183,6 @@
     function removeEventPhoto(index) {
         eventPhotosFiles.splice(index, 1);
         
-        // Atualiza o preview
         const preview = document.getElementById('eventPhotosPreview');
         preview.innerHTML = '';
         eventPhotosFiles.forEach((file, newIndex) => {
@@ -2150,6 +2233,8 @@
             
             if (supabaseInitialized) {
                 showMessage('Sistema conectado ao PostgreSQL!', 'success');
+                // Verifica a estrutura da tabela events
+                await checkTableStructure();
             } else {
                 showMessage('Sistema em modo offline. Dados salvos localmente.', 'warning');
             }
@@ -2194,4 +2279,5 @@
     
 </body>
 </html>
+
 
