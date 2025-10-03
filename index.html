@@ -781,7 +781,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1>NETWORK <span>IN FOCO EVENTOS v7</span></h1>
+                    <h1>NETWORK <span>IN FOCO EVENTOS v8</span></h1>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
                 <nav>
@@ -1414,120 +1414,114 @@
         return fields[table] || 'photo';
     }
 
-    // ========== FUNÇÃO CORRIGIDA DE EXCLUSÃO ==========
-    async function deleteItem(table, itemId) {
-        if (!confirm(`Tem certeza que deseja excluir este ${getEntityName(table).toLowerCase()}?`)) {
-            return;
-        }
-
-        try {
-            showLoading(`Excluindo ${getEntityName(table).toLowerCase()}...`);
-            
-            // Encontra o item antes de excluir para obter a URL da imagem
-            let itemToDelete;
-            let currentData;
-            
-            switch(table) {
-                case 'members': 
-                    currentData = members;
-                    break;
-                case 'events': 
-                    currentData = events;
-                    break;
-                case 'darceiros': 
-                    currentData = darceiros;
-                    break;
-                case 'sponsors': 
-                    currentData = sponsors;
-                    break;
-                default:
-                    throw new Error('Tabela não encontrada');
-            }
-            
-            itemToDelete = currentData.find(item => item.id == itemId);
-            
-            if (!itemToDelete) {
-                throw new Error('Item não encontrado');
-            }
-
-            console.log(`Tentando excluir ${table} com ID:`, itemId);
-            
-            if (isOnline) {
-                // Tenta excluir do banco de dados
-                try {
-                    const { error: dbError } = await supabase
-                        .from(table)
-                        .delete()
-                        .eq('id', itemId);
-                    
-                    if (dbError) {
-                        console.error(`Erro ao excluir do banco ${table}:`, dbError);
-                        throw new Error(`Falha na exclusão do banco: ${dbError.message}`);
-                    }
-                    
-                    console.log(`✅ Sucesso ao excluir ${table} do banco`);
-                    
-                    // Exclui a imagem do storage se existir
-                    const imageField = getImageFieldForTable(table);
-                    const imageUrl = itemToDelete[imageField];
-                    const bucket = getBucketForTable(table);
-                    
-                    if (imageUrl && !imageUrl.includes('unsplash.com') && !imageUrl.includes('data:')) {
-                        await deleteImageFromStorage(imageUrl, bucket);
-                    }
-                    
-                } catch (dbError) {
-                    console.error(`Erro crítico ao excluir do banco:`, dbError);
-                    throw dbError;
-                }
-            }
-            
-            // ATUALIZA LOCALMENTE (funciona tanto online quanto offline)
-            const updatedData = currentData.filter(item => item.id != itemId);
-            
-            switch(table) {
-                case 'members': 
-                    members = updatedData;
-                    break;
-                case 'events': 
-                    events = updatedData;
-                    break;
-                case 'darceiros': 
-                    darceiros = updatedData;
-                    break;
-                case 'sponsors': 
-                    sponsors = updatedData;
-                    break;
-            }
-            
-            // Salva no localStorage
-            saveToLocalStorage(table, updatedData);
-            
-            // Atualiza a interface
-            switch(table) {
-                case 'members': 
-                    renderMembers(); 
-                    break;
-                case 'events': 
-                    renderEvents(); 
-                    break;
-                case 'darceiros': 
-                    renderDarceiros(); 
-                    break;
-                case 'sponsors': 
-                    renderSponsors(); 
-                    break;
-            }
-            
-            showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
-            
-        } catch (error) {
-            console.error(`❌ Erro ao excluir ${table}:`, error);
-            showMessage(`Erro ao excluir ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
-        } finally {
-            hideLoading();
-        }
+   // ========== FUNÇÃO CORRIGIDA DE EXCLUSÃO ==========
+async function deleteItem(table, itemId) {
+    if (!confirm(`Tem certeza que deseja excluir este ${getEntityName(table).toLowerCase()}?`)) {
+        return;
     }
+
+    try {
+        showLoading(`Excluindo ${getEntityName(table).toLowerCase()}...`);
+        
+        // Encontra o item antes de excluir para obter a URL da imagem
+        let itemToDelete;
+        let currentData;
+        
+        switch(table) {
+            case 'members': 
+                currentData = members;
+                break;
+            case 'events': 
+                currentData = events;
+                break;
+            case 'darceiros': 
+                currentData = darceiros;
+                break;
+            case 'sponsors': 
+                currentData = sponsors;
+                break;
+            default:
+                throw new Error('Tabela não encontrada');
+        }
+        
+        itemToDelete = currentData.find(item => item.id == itemId);
+        
+        if (!itemToDelete) {
+            throw new Error('Item não encontrado');
+        }
+
+        console.log(`Tentando excluir ${table} com ID:`, itemId);
+        
+        if (isOnline) {
+            // CORREÇÃO: Exclui primeiro do banco de dados
+            const { error: dbError } = await supabase
+                .from(table)
+                .delete()
+                .eq('id', itemId);
+            
+            if (dbError) {
+                console.error(`Erro ao excluir do banco ${table}:`, dbError);
+                throw new Error(`Falha na exclusão do banco: ${dbError.message}`);
+            }
+            
+            console.log(`✅ Sucesso ao excluir ${table} do banco`);
+            
+            // Exclui a imagem do storage se existir
+            const imageField = getImageFieldForTable(table);
+            const imageUrl = itemToDelete[imageField];
+            const bucket = getBucketForTable(table);
+            
+            if (imageUrl && !imageUrl.includes('unsplash.com') && !imageUrl.includes('data:')) {
+                await deleteImageFromStorage(imageUrl, bucket);
+            }
+        }
+        
+        // ATUALIZA LOCALMENTE (funciona tanto online quanto offline)
+        const updatedData = currentData.filter(item => item.id != itemId);
+        
+        switch(table) {
+            case 'members': 
+                members = updatedData;
+                break;
+            case 'events': 
+                events = updatedData;
+                break;
+            case 'darceiros': 
+                darceiros = updatedData;
+                break;
+            case 'sponsors': 
+                sponsors = updatedData;
+                break;
+        }
+        
+        // Salva no localStorage
+        saveToLocalStorage(table, updatedData);
+        
+        // Atualiza a interface
+        switch(table) {
+            case 'members': 
+                renderMembers(); 
+                break;
+            case 'events': 
+                renderEvents(); 
+                break;
+            case 'darceiros': 
+                renderDarceiros(); 
+                break;
+            case 'sponsors': 
+                renderSponsors(); 
+                break;
+        }
+        
+        showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
+        
+    } catch (error) {
+        console.error(`❌ Erro ao excluir ${table}:`, error);
+        showMessage(`Erro ao excluir ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
 
     // Funções de exclusão específicas
     async function deleteMember(memberId) {
@@ -2023,6 +2017,7 @@
     
 </body>
 </html>
+
 
 
 
