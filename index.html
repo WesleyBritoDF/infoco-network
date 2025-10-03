@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="IN FOCO NETWORK - Conecte-se, compartilhe e cresça com nossa comunidade de membros e eventos">
     <meta name="keywords" content="rede, membros, eventos, networking, comunidade, IN FOCO">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0/dist/umd/supabase.min.js"></script>
     <title>NETWORK IN FOCO EVENTOS - Rede de Membros e Eventos</title>
     <style>
         :root {
@@ -678,7 +679,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1>NETWORK <span>IN FOCO EVENTOS v1</span></h1>
+                    <h1>NETWORK <span>IN FOCO EVENTOS v2</span></h1>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
                 <nav>
@@ -948,16 +949,16 @@
         </div>
     </footer>
 
-          <script>
+              
+   
+    <script>
     // ========== CONFIGURAÇÃO DO SUPABASE (POSTGRESQL) ==========
     // SUBSTITUA COM SUAS CREDENCIAIS REAIS DO SUPABASE!
     const SUPABASE_URL = 'https://jywmvnxurbtziixntuuq.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5d212bnh1cmJ0emlpeG50dXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0OTQ4NzMsImV4cCI6MjA3NTA3MDg3M30.XQ_nZV8E-ifNzFmNggRtlhKETIIt-Kw3skjOsE56xFk';
-        
-    // Inicializar Supabase
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // ========== VARIÁVEIS GLOBAIS ==========
+     
+    // Variáveis globais
+    let supabase;
     let members = [];
     let events = [];
     let darceiros = [];
@@ -976,222 +977,367 @@
     const syncStatus = document.getElementById('syncStatus');
     const loadingOverlay = document.getElementById('loadingOverlay');
 
-    // ========== FUNÇÕES DO POSTGRESQL ==========
+    // ========== INICIALIZAÇÃO DO SUPABASE ==========
 
-    // Função para carregar membros do PostgreSQL
+    async function initializeSupabase() {
+        try {
+            // Verifica se o Supabase está disponível
+            if (typeof window.supabase !== 'undefined') {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase inicializado com sucesso!');
+                return true;
+            } else {
+                throw new Error('Biblioteca Supabase não carregada');
+            }
+        } catch (error) {
+            console.error('Erro ao inicializar Supabase:', error);
+            
+            // Modo offline - usa localStorage como fallback
+            showMessage('Modo offline ativado. Dados salvos localmente.', 'warning');
+            setupOfflineMode();
+            return false;
+        }
+    }
+
+    // ========== MODO OFFLINE (FALLBACK) ==========
+
+    function setupOfflineMode() {
+        isOnline = false;
+        updateSyncStatus(false);
+        
+        // Sistema simples com localStorage
+        window.supabase = {
+            from: () => ({
+                select: () => ({
+                    order: () => Promise.resolve({ data: [], error: null })
+                }),
+                insert: () => ({
+                    select: () => Promise.resolve({ data: [], error: null })
+                }),
+                delete: () => ({
+                    eq: () => Promise.resolve({ error: null })
+                })
+            })
+        };
+        
+        supabase = window.supabase;
+    }
+
+    function saveToLocalStorage(key, data) {
+        localStorage.setItem(`network_${key}`, JSON.stringify(data));
+    }
+
+    function loadFromLocalStorage(key) {
+        const data = localStorage.getItem(`network_${key}`);
+        return data ? JSON.parse(data) : [];
+    }
+
+    // ========== FUNÇÕES DO BANCO DE DADOS ==========
+
     async function loadMembers() {
         try {
             showLoading('Carregando membros...');
             
-            const { data, error } = await supabase
-                .from('members')
-                .select('*')
-                .order('created_at', { ascending: false });
+            if (isOnline) {
+                const { data, error } = await supabase
+                    .from('members')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                members = data || [];
+                saveToLocalStorage('members', members);
+            } else {
+                members = loadFromLocalStorage('members');
+            }
             
-            if (error) throw error;
-            
-            members = data || [];
             renderMembers();
-            updateSyncStatus(true);
+            updateSyncStatus(isOnline);
             
         } catch (error) {
             console.error('Erro ao carregar membros:', error);
+            members = loadFromLocalStorage('members');
+            renderMembers();
             updateSyncStatus(false);
-            showMessage('Erro ao carregar membros do banco de dados.', 'error');
         } finally {
             hideLoading();
         }
     }
 
-    // Função para carregar eventos do PostgreSQL
     async function loadEvents() {
         try {
             showLoading('Carregando eventos...');
             
-            const { data, error } = await supabase
-                .from('events')
-                .select('*')
-                .order('event_date', { ascending: true });
+            if (isOnline) {
+                const { data, error } = await supabase
+                    .from('events')
+                    .select('*')
+                    .order('event_date', { ascending: true });
+                
+                if (error) throw error;
+                events = data || [];
+                saveToLocalStorage('events', events);
+            } else {
+                events = loadFromLocalStorage('events');
+            }
             
-            if (error) throw error;
-            
-            events = data || [];
             renderEvents();
-            updateSyncStatus(true);
+            updateSyncStatus(isOnline);
             
         } catch (error) {
             console.error('Erro ao carregar eventos:', error);
+            events = loadFromLocalStorage('events');
+            renderEvents();
             updateSyncStatus(false);
-            showMessage('Erro ao carregar eventos do banco de dados.', 'error');
         } finally {
             hideLoading();
         }
     }
 
-    // Função para carregar darceiros do PostgreSQL
     async function loadDarceiros() {
         try {
             showLoading('Carregando darceiros...');
             
-            const { data, error } = await supabase
-                .from('darceiros')
-                .select('*')
-                .order('created_at', { ascending: false });
+            if (isOnline) {
+                const { data, error } = await supabase
+                    .from('darceiros')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                darceiros = data || [];
+                saveToLocalStorage('darceiros', darceiros);
+            } else {
+                darceiros = loadFromLocalStorage('darceiros');
+            }
             
-            if (error) throw error;
-            
-            darceiros = data || [];
             renderDarceiros();
-            updateSyncStatus(true);
+            updateSyncStatus(isOnline);
             
         } catch (error) {
             console.error('Erro ao carregar darceiros:', error);
+            darceiros = loadFromLocalStorage('darceiros');
+            renderDarceiros();
             updateSyncStatus(false);
-            showMessage('Erro ao carregar darceiros do banco de dados.', 'error');
         } finally {
             hideLoading();
         }
     }
 
-    // Função para carregar patrocinadores do PostgreSQL
     async function loadSponsors() {
         try {
             showLoading('Carregando patrocinadores...');
             
-            const { data, error } = await supabase
-                .from('sponsors')
-                .select('*')
-                .order('created_at', { ascending: false });
+            if (isOnline) {
+                const { data, error } = await supabase
+                    .from('sponsors')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                sponsors = data || [];
+                saveToLocalStorage('sponsors', sponsors);
+            } else {
+                sponsors = loadFromLocalStorage('sponsors');
+            }
             
-            if (error) throw error;
-            
-            sponsors = data || [];
             renderSponsors();
-            updateSyncStatus(true);
+            updateSyncStatus(isOnline);
             
         } catch (error) {
             console.error('Erro ao carregar patrocinadores:', error);
+            sponsors = loadFromLocalStorage('sponsors');
+            renderSponsors();
             updateSyncStatus(false);
-            showMessage('Erro ao carregar patrocinadores do banco de dados.', 'error');
         } finally {
             hideLoading();
         }
     }
 
-    // Função para salvar membro no PostgreSQL
     async function saveMember(memberData) {
         try {
             showButtonLoading(document.getElementById('memberSubmitBtn'), true);
             
-            const { data, error } = await supabase
-                .from('members')
-                .insert([memberData])
-                .select();
+            if (isOnline) {
+                const { data, error } = await supabase
+                    .from('members')
+                    .insert([memberData])
+                    .select();
+                
+                if (error) throw error;
+                
+                await loadMembers();
+                showMessage('Membro cadastrado com sucesso no banco de dados!', 'success');
+            } else {
+                // Modo offline
+                memberData.id = Date.now().toString();
+                memberData.created_at = new Date().toISOString();
+                members.unshift(memberData);
+                saveToLocalStorage('members', members);
+                renderMembers();
+                showMessage('Membro salvo localmente!', 'success');
+            }
             
-            if (error) throw error;
-            
-            // Recarrega a lista atualizada
-            await loadMembers();
-            showMessage('Membro cadastrado com sucesso no banco de dados!', 'success');
             return true;
             
         } catch (error) {
             console.error('Erro ao salvar membro:', error);
-            showMessage('Erro ao cadastrar membro no banco de dados.', 'error');
+            showMessage('Erro ao salvar membro. Dados salvos localmente.', 'warning');
+            
+            // Fallback offline
+            memberData.id = Date.now().toString();
+            memberData.created_at = new Date().toISOString();
+            members.unshift(memberData);
+            saveToLocalStorage('members', members);
+            renderMembers();
+            
             return false;
         } finally {
             showButtonLoading(document.getElementById('memberSubmitBtn'), false);
         }
     }
 
-    // Função para salvar evento no PostgreSQL
     async function saveEvent(eventData) {
         try {
             showButtonLoading(document.getElementById('eventSubmitBtn'), true);
             
-            const { data, error } = await supabase
-                .from('events')
-                .insert([eventData])
-                .select();
+            if (isOnline) {
+                const { data, error } = await supabase
+                    .from('events')
+                    .insert([eventData])
+                    .select();
+                
+                if (error) throw error;
+                
+                await loadEvents();
+                showMessage('Evento cadastrado com sucesso no banco de dados!', 'success');
+            } else {
+                eventData.id = Date.now().toString();
+                eventData.created_at = new Date().toISOString();
+                events.unshift(eventData);
+                saveToLocalStorage('events', events);
+                renderEvents();
+                showMessage('Evento salvo localmente!', 'success');
+            }
             
-            if (error) throw error;
-            
-            await loadEvents();
-            showMessage('Evento cadastrado com sucesso no banco de dados!', 'success');
             return true;
             
         } catch (error) {
             console.error('Erro ao salvar evento:', error);
-            showMessage('Erro ao cadastrar evento no banco de dados.', 'error');
+            showMessage('Erro ao salvar evento. Dados salvos localmente.', 'warning');
+            
+            eventData.id = Date.now().toString();
+            eventData.created_at = new Date().toISOString();
+            events.unshift(eventData);
+            saveToLocalStorage('events', events);
+            renderEvents();
+            
             return false;
         } finally {
             showButtonLoading(document.getElementById('eventSubmitBtn'), false);
         }
     }
 
-    // Função para salvar darceiro no PostgreSQL
     async function saveDarceiro(darceiroData) {
         try {
             showButtonLoading(document.getElementById('darceiroSubmitBtn'), true);
             
-            const { data, error } = await supabase
-                .from('darceiros')
-                .insert([darceiroData])
-                .select();
+            if (isOnline) {
+                const { data, error } = await supabase
+                    .from('darceiros')
+                    .insert([darceiroData])
+                    .select();
+                
+                if (error) throw error;
+                
+                await loadDarceiros();
+                showMessage('Darceiro cadastrado com sucesso no banco de dados!', 'success');
+            } else {
+                darceiroData.id = Date.now().toString();
+                darceiroData.created_at = new Date().toISOString();
+                darceiros.unshift(darceiroData);
+                saveToLocalStorage('darceiros', darceiros);
+                renderDarceiros();
+                showMessage('Darceiro salvo localmente!', 'success');
+            }
             
-            if (error) throw error;
-            
-            await loadDarceiros();
-            showMessage('Darceiro cadastrado com sucesso no banco de dados!', 'success');
             return true;
             
         } catch (error) {
             console.error('Erro ao salvar darceiro:', error);
-            showMessage('Erro ao cadastrar darceiro no banco de dados.', 'error');
+            showMessage('Erro ao salvar darceiro. Dados salvos localmente.', 'warning');
+            
+            darceiroData.id = Date.now().toString();
+            darceiroData.created_at = new Date().toISOString();
+            darceiros.unshift(darceiroData);
+            saveToLocalStorage('darceiros', darceiros);
+            renderDarceiros();
+            
             return false;
         } finally {
             showButtonLoading(document.getElementById('darceiroSubmitBtn'), false);
         }
     }
 
-    // Função para salvar patrocinador no PostgreSQL
     async function saveSponsor(sponsorData) {
         try {
             showButtonLoading(document.getElementById('sponsorSubmitBtn'), true);
             
-            const { data, error } = await supabase
-                .from('sponsors')
-                .insert([sponsorData])
-                .select();
+            if (isOnline) {
+                const { data, error } = await supabase
+                    .from('sponsors')
+                    .insert([sponsorData])
+                    .select();
+                
+                if (error) throw error;
+                
+                await loadSponsors();
+                showMessage('Patrocinador cadastrado com sucesso no banco de dados!', 'success');
+            } else {
+                sponsorData.id = Date.now().toString();
+                sponsorData.created_at = new Date().toISOString();
+                sponsors.unshift(sponsorData);
+                saveToLocalStorage('sponsors', sponsors);
+                renderSponsors();
+                showMessage('Patrocinador salvo localmente!', 'success');
+            }
             
-            if (error) throw error;
-            
-            await loadSponsors();
-            showMessage('Patrocinador cadastrado com sucesso no banco de dados!', 'success');
             return true;
             
         } catch (error) {
             console.error('Erro ao salvar patrocinador:', error);
-            showMessage('Erro ao cadastrar patrocinador no banco de dados.', 'error');
+            showMessage('Erro ao salvar patrocinador. Dados salvos localmente.', 'warning');
+            
+            sponsorData.id = Date.now().toString();
+            sponsorData.created_at = new Date().toISOString();
+            sponsors.unshift(sponsorData);
+            saveToLocalStorage('sponsors', sponsors);
+            renderSponsors();
+            
             return false;
         } finally {
             showButtonLoading(document.getElementById('sponsorSubmitBtn'), false);
         }
     }
 
-    // Funções para excluir (opcional)
+    // Funções de exclusão
     async function deleteMember(memberId) {
         if (confirm('Tem certeza que deseja excluir este membro?')) {
             try {
-                const { error } = await supabase
-                    .from('members')
-                    .delete()
-                    .eq('id', memberId);
+                if (isOnline) {
+                    const { error } = await supabase
+                        .from('members')
+                        .delete()
+                        .eq('id', memberId);
+                    
+                    if (error) throw error;
+                }
                 
-                if (error) throw error;
-                
-                await loadMembers();
+                members = members.filter(m => m.id !== memberId);
+                saveToLocalStorage('members', members);
+                renderMembers();
                 showMessage('Membro excluído com sucesso!', 'success');
+                
             } catch (error) {
                 console.error('Erro ao excluir membro:', error);
                 showMessage('Erro ao excluir membro.', 'error');
@@ -1343,7 +1489,7 @@
             syncStatus.innerHTML = '<span>🔵</span> Conectado ao PostgreSQL';
             syncStatus.classList.remove('offline');
         } else {
-            syncStatus.innerHTML = '<span>🔴</span> Offline';
+            syncStatus.innerHTML = '<span>🔴</span> Modo Offline (Local)';
             syncStatus.classList.add('offline');
         }
     }
@@ -1381,7 +1527,8 @@
         const messageDiv = document.createElement('div');
         messageDiv.className = `global-notification ${type}`;
         messageDiv.textContent = message;
-        messageDiv.style.background = type === 'success' ? '#2ecc71' : '#e74c3c';
+        messageDiv.style.background = type === 'success' ? '#2ecc71' : 
+                                    type === 'warning' ? '#f39c12' : '#e74c3c';
         
         document.body.appendChild(messageDiv);
         
@@ -1526,15 +1673,8 @@
     // ========== INICIALIZAÇÃO ==========
 
     async function initializeApp() {
-        // Adicionar Supabase CDN se não estiver disponível
-        if (typeof window.supabase === 'undefined') {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-            document.head.appendChild(script);
-            
-            // Esperar o Supabase carregar
-            await new Promise(resolve => setTimeout(resolve, 2000));
-        }
+        // Inicializar Supabase
+        const supabaseInitialized = await initializeSupabase();
         
         setupEventListeners();
         await loadMembers();
@@ -1542,15 +1682,20 @@
         await loadDarceiros();
         await loadSponsors();
         
-        updateSyncStatus(true);
-        showMessage('Sistema conectado ao PostgreSQL!', 'success');
+        if (supabaseInitialized) {
+            showMessage('Sistema conectado ao PostgreSQL!', 'success');
+        } else {
+            showMessage('Sistema em modo offline. Dados salvos localmente.', 'warning');
+        }
         
         // Atualizar dados a cada 30 segundos
         setInterval(async () => {
-            await loadMembers();
-            await loadEvents();
-            await loadDarceiros();
-            await loadSponsors();
+            if (isOnline) {
+                await loadMembers();
+                await loadEvents();
+                await loadDarceiros();
+                await loadSponsors();
+            }
         }, 30000);
     }
 
@@ -1560,4 +1705,5 @@
     
 </body>
 </html>
+
 
