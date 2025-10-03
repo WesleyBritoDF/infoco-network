@@ -1111,6 +1111,7 @@
     let sponsors = [];
     let isOnline = true;
     let currentEditingMemberId = null;
+    let eventPhotosFiles = []; // Array para armazenar as fotos do evento
 
     // ========== DOM ELEMENTS ==========
     const membersList = document.getElementById('members-list');
@@ -1145,19 +1146,28 @@
         }
     }
 
-    // ========== FUNÇÃO DE UPLOAD DE IMAGENS ==========
+    // ========== FUNÇÃO DE UPLOAD DE IMAGENS CORRIGIDA ==========
     async function uploadImage(file, bucket, fileName) {
         try {
+            console.log(`📤 Iniciando upload para bucket: ${bucket}, arquivo: ${fileName}`);
+            
             if (!isOnline) {
+                console.log('📴 Modo offline - usando base64');
                 return new Promise((resolve) => {
                     const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onload = (e) => {
+                        console.log('✅ Imagem convertida para base64');
+                        resolve(e.target.result);
+                    };
                     reader.readAsDataURL(file);
                 });
             }
 
+            // Gera um nome único para o arquivo
             const fileExt = file.name.split('.').pop();
             const uniqueFileName = `${fileName}_${Date.now()}.${fileExt}`;
+            
+            console.log(`🔄 Fazendo upload do arquivo: ${uniqueFileName}`);
             
             const { data, error } = await supabase.storage
                 .from(bucket)
@@ -1166,32 +1176,45 @@
                     upsert: false
                 });
 
-            if (error) throw error;
+            if (error) {
+                console.error('❌ Erro no upload:', error);
+                throw error;
+            }
 
+            console.log('✅ Upload concluído, obtendo URL pública...');
+
+            // Obtém a URL pública da imagem
             const { data: { publicUrl } } = supabase.storage
                 .from(bucket)
                 .getPublicUrl(uniqueFileName);
 
+            console.log('✅ URL pública obtida:', publicUrl);
             return publicUrl;
             
         } catch (error) {
-            console.error('Erro no upload da imagem:', error);
-            throw new Error('Falha no upload da imagem');
+            console.error('❌ Erro completo no upload da imagem:', error);
+            throw new Error('Falha no upload da imagem: ' + error.message);
         }
     }
 
     // ========== FUNÇÃO PARA UPLOAD DE MÚLTIPLAS IMAGENS ==========
     async function uploadMultipleImages(files, bucket, baseName) {
         try {
+            console.log(`📤 Iniciando upload de ${files.length} imagens`);
+            
             const uploadPromises = Array.from(files).map((file, index) => {
                 const fileName = `${baseName}_${Date.now()}_${index}`;
+                console.log(`🔄 Upload ${index + 1}/${files.length}: ${file.name}`);
                 return uploadImage(file, bucket, fileName);
             });
             
             const urls = await Promise.all(uploadPromises);
-            return urls.filter(url => url !== null);
+            const successfulUrls = urls.filter(url => url !== null && url !== undefined);
+            
+            console.log(`✅ Upload concluído: ${successfulUrls.length}/${files.length} imagens salvas`);
+            return successfulUrls;
         } catch (error) {
-            console.error('Erro no upload múltiplo de imagens:', error);
+            console.error('❌ Erro no upload múltiplo de imagens:', error);
             throw error;
         }
     }
@@ -1346,15 +1369,21 @@
         renderSponsors();
     }
 
+    // ========== FUNÇÃO SALVAR DADOS CORRIGIDA ==========
     async function saveData(table, formData, imageFiles, bucket, buttonId) {
         try {
             showButtonLoading(document.getElementById(buttonId), true);
+            console.log(`💾 Iniciando salvamento de ${table}`, formData);
             
             let imageUrls = [];
             
             // Faz upload das imagens se existirem
-            if (imageFiles && imageFiles.length > 0) {
-                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 'image';
+            if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
+                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
+                                formData.title?.replace(/\s+/g, '_').toLowerCase() || 
+                                'image';
+                
+                console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'}`);
                 
                 if (Array.isArray(imageFiles)) {
                     // Múltiplas imagens (para eventos)
@@ -1364,18 +1393,28 @@
                     const imageUrl = await uploadImage(imageFiles, bucket, baseName);
                     imageUrls = [imageUrl];
                 }
+                
+                console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
             }
             
+            // Prepara os dados para salvar
+            const dataToSave = { ...formData };
+            
             // Adiciona as URLs das imagens aos dados
-            const dataToSave = {
-                ...formData,
-                ...(imageUrls.length > 0 && { 
-                    [bucket === STORAGE_BUCKETS.MEMBERS ? 'photo' : 
-                     bucket === STORAGE_BUCKETS.SPONSORS ? 'logo' : 
-                     bucket === STORAGE_BUCKETS.EVENTS ? 'photos' : 'photo']: 
-                     Array.isArray(imageFiles) ? imageUrls : imageUrls[0] 
-                })
-            };
+            if (imageUrls.length > 0) {
+                if (table === 'events') {
+                    // Para eventos, salva array de fotos
+                    dataToSave.photos = imageUrls;
+                } else if (table === 'sponsors') {
+                    // Para sponsors, salva logo
+                    dataToSave.logo = imageUrls[0];
+                } else {
+                    // Para membros e darceiros, salva photo
+                    dataToSave.photo = imageUrls[0];
+                }
+            }
+            
+            console.log(`📝 Dados preparados para salvar:`, dataToSave);
             
             if (isOnline) {
                 let result;
@@ -1451,8 +1490,8 @@
             }
             
         } catch (error) {
-            console.error(`Erro ao salvar ${table}:`, error);
-            showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}.`, 'error');
+            console.error(`❌ Erro ao salvar ${table}:`, error);
+            showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
             return false;
         } finally {
             showButtonLoading(document.getElementById(buttonId), false);
@@ -1816,7 +1855,7 @@
         setupImageUpload('memberPhoto', 'memberPhotoPreview');
         setupImageUpload('darceiroPhoto', 'darceiroPhotoPreview');
         setupImageUpload('sponsorLogo', 'sponsorLogoPreview');
-        setupMultiplePhotosUpload('eventPhotos', 'eventPhotosPreview', 'eventPhotosUploadArea');
+        setupMultiplePhotosUpload();
 
         // Form submissions
         if (memberForm) {
@@ -1853,9 +1892,6 @@
             eventForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const eventPhotosInput = document.getElementById('eventPhotos');
-                const eventPhotosFiles = Array.from(eventPhotosInput.files);
-                
                 const eventData = {
                     title: document.getElementById('eventTitle')?.value || '',
                     event_date: document.getElementById('eventDate')?.value || '',
@@ -1864,12 +1900,14 @@
                     description: document.getElementById('eventDescription')?.value || ''
                 };
                 
+                // Usa o array global de fotos do evento
                 await saveData('events', eventData, eventPhotosFiles, STORAGE_BUCKETS.EVENTS, 'eventSubmitBtn');
                 eventForm.reset();
                 
-                // Limpa o preview das fotos
+                // Limpa o preview das fotos e o array
                 const preview = document.getElementById('eventPhotosPreview');
                 if (preview) preview.innerHTML = '';
+                eventPhotosFiles = [];
             });
         }
 
@@ -1979,10 +2017,10 @@
         });
     }
 
-    function setupMultiplePhotosUpload(inputId, previewId, uploadAreaId) {
-        const input = document.getElementById(inputId);
-        const preview = document.getElementById(previewId);
-        const uploadArea = document.getElementById(uploadAreaId);
+    function setupMultiplePhotosUpload() {
+        const input = document.getElementById('eventPhotos');
+        const preview = document.getElementById('eventPhotosPreview');
+        const uploadArea = document.getElementById('eventPhotosUploadArea');
         
         if (!input || !preview || !uploadArea) return;
         
@@ -2030,14 +2068,19 @@
             // Limita a 10 fotos
             const filesToProcess = validFiles.slice(0, 10);
             
-            filesToProcess.forEach(file => {
+            // Adiciona ao array global
+            eventPhotosFiles = [...eventPhotosFiles, ...filesToProcess].slice(0, 10);
+            
+            // Atualiza o preview
+            preview.innerHTML = '';
+            eventPhotosFiles.forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const photoItem = document.createElement('div');
                     photoItem.className = 'photo-preview-item';
                     photoItem.innerHTML = `
                         <img src="${e.target.result}" alt="Preview">
-                        <button type="button" class="remove-photo" onclick="this.parentElement.remove()">×</button>
+                        <button type="button" class="remove-photo" onclick="removeEventPhoto(${index})">×</button>
                     `;
                     preview.appendChild(photoItem);
                 };
@@ -2047,7 +2090,31 @@
             if (validFiles.length > 10) {
                 showMessage('Apenas as primeiras 10 fotos serão processadas.', 'warning');
             }
+            
+            showMessage(`${filesToProcess.length} foto(s) adicionada(s) ao evento!`, 'success');
         }
+    }
+
+    // Função para remover foto do evento
+    function removeEventPhoto(index) {
+        eventPhotosFiles.splice(index, 1);
+        
+        // Atualiza o preview
+        const preview = document.getElementById('eventPhotosPreview');
+        preview.innerHTML = '';
+        eventPhotosFiles.forEach((file, newIndex) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const photoItem = document.createElement('div');
+                photoItem.className = 'photo-preview-item';
+                photoItem.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview">
+                    <button type="button" class="remove-photo" onclick="removeEventPhoto(${newIndex})">×</button>
+                `;
+                preview.appendChild(photoItem);
+            };
+            reader.readAsDataURL(file);
+        });
     }
 
     // Funções de exclusão específicas
