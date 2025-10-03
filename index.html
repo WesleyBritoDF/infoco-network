@@ -6,6 +6,7 @@
     <meta name="description" content="IN FOCO NETWORK - Conecte-se, compartilhe e cresça com nossa comunidade de membros e eventos">
     <meta name="keywords" content="rede, membros, eventos, networking, comunidade, IN FOCO">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0/dist/umd/supabase.min.js"></script>
+    <title>NETWORK IN FOCO EVENTOS - Rede de Membros e Eventos</title>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -788,6 +789,124 @@
         .change-photo-btn:hover {
             background-color: #e67e22;
         }
+     .event-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .event-gallery-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .event-gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .event-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10002;
+        }
+
+        .gallery-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .gallery-modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .gallery-modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-nav.prev {
+            left: 20px;
+        }
+
+        .gallery-nav.next {
+            right: 20px;
+        }
+
+        .gallery-counter {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .photos-info {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .view-photos-btn {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .view-photos-btn:hover {
+            background: #2980b9;
+        }
     </style>
 </head>
 <body>
@@ -806,7 +925,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1>NETWORK <span>IN FOCO EVENTOS v2</span></h1>
+                    <h1>NETWORK <span>IN FOCO EVENTOS v1</span></h1>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
                 <nav>
@@ -1090,6 +1209,16 @@
         </div>
     </footer>
 
+ <div class="gallery-modal" id="galleryModal">
+        <button class="gallery-modal-close" onclick="closeGallery()">×</button>
+        <button class="gallery-nav prev" onclick="prevPhoto()">‹</button>
+        <div class="gallery-modal-content">
+            <img id="galleryImage" src="" alt="Foto do evento">
+        </div>
+        <button class="gallery-nav next" onclick="nextPhoto()">›</button>
+        <div class="gallery-counter" id="galleryCounter"></div>
+    </div>
+
 <script>
     // ========== CONFIGURAÇÃO DO SUPABASE ==========
     const SUPABASE_URL = 'https://jywmvnxurbtziixntuuq.supabase.co';
@@ -1111,6 +1240,10 @@
     let isOnline = true;
     let currentEditingMemberId = null;
     let eventPhotosFiles = [];
+    
+    // Variáveis para galeria
+    let currentGalleryEvent = null;
+    let currentPhotoIndex = 0;
 
     // ========== DOM ELEMENTS ==========
     const membersList = document.getElementById('members-list');
@@ -1123,25 +1256,307 @@
     const sponsorForm = document.getElementById('sponsorRegistrationForm');
     const syncStatus = document.getElementById('syncStatus');
     const loadingOverlay = document.getElementById('loadingOverlay');
+    const galleryModal = document.getElementById('galleryModal');
+    const galleryImage = document.getElementById('galleryImage');
+    const galleryCounter = document.getElementById('galleryCounter');
 
-    // ========== INICIALIZAÇÃO DO SUPABASE ==========
-    async function initializeSupabase() {
+    // ========== FUNÇÕES DA GALERIA ==========
+    function openGallery(eventId, photoIndex = 0) {
+        const event = events.find(e => e.id == eventId);
+        if (!event || !event.photos || event.photos.length === 0) return;
+        
+        currentGalleryEvent = event;
+        currentPhotoIndex = photoIndex;
+        
+        showPhoto();
+        galleryModal.style.display = 'flex';
+        
+        // Previne scroll do body quando a galeria está aberta
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeGallery() {
+        galleryModal.style.display = 'none';
+        currentGalleryEvent = null;
+        currentPhotoIndex = 0;
+        
+        // Restaura scroll do body
+        document.body.style.overflow = '';
+    }
+
+    function showPhoto() {
+        if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
+        
+        const photos = currentGalleryEvent.photos;
+        if (photos.length === 0) return;
+        
+        galleryImage.src = photos[currentPhotoIndex];
+        galleryCounter.textContent = `${currentPhotoIndex + 1} / ${photos.length}`;
+    }
+
+    function nextPhoto() {
+        if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
+        
+        const photos = currentGalleryEvent.photos;
+        currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+        showPhoto();
+    }
+
+    function prevPhoto() {
+        if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
+        
+        const photos = currentGalleryEvent.photos;
+        currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+        showPhoto();
+    }
+
+    // Fechar galeria com ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && galleryModal.style.display === 'flex') {
+            closeGallery();
+        }
+    });
+
+    // ========== FUNÇÃO PARA LISTAR FOTOS DO STORAGE ==========
+    async function listEventPhotosFromStorage() {
         try {
-            if (typeof window.supabase !== 'undefined') {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('Supabase inicializado com sucesso!');
+            console.log('📷 Listando fotos do storage...');
+            
+            const { data, error } = await supabase.storage
+                .from(STORAGE_BUCKETS.EVENTS)
+                .list();
+            
+            if (error) {
+                console.error('❌ Erro ao listar fotos:', error);
+                return [];
+            }
+            
+            console.log('✅ Fotos encontradas no storage:', data);
+            
+            // Obtém URLs públicas para todas as fotos
+            const photosWithUrls = data.map(file => {
+                const { data: { publicUrl } } = supabase.storage
+                    .from(STORAGE_BUCKETS.EVENTS)
+                    .getPublicUrl(file.name);
+                return publicUrl;
+            });
+            
+            return photosWithUrls;
+        } catch (error) {
+            console.error('Erro ao listar fotos do storage:', error);
+            return [];
+        }
+    }
+
+    // ========== FUNÇÃO PARA VERIFICAR E ATUALIZAR EVENTOS COM FOTOS ==========
+    async function updateEventsWithPhotos() {
+        try {
+            console.log('🔄 Verificando e atualizando eventos com fotos...');
+            
+            // Lista todas as fotos do storage
+            const storagePhotos = await listEventPhotosFromStorage();
+            console.log('📸 Fotos disponíveis no storage:', storagePhotos);
+            
+            // Para cada evento, verifica se tem fotos e atualiza se necessário
+            for (let event of events) {
+                if (!event.photos || event.photos.length === 0) {
+                    console.log(`ℹ️ Evento "${event.title}" não tem fotos cadastradas`);
+                    
+                    // Tenta encontrar fotos relacionadas a este evento no storage
+                    const eventPhotos = storagePhotos.filter(photoUrl => {
+                        // Verifica se o nome do arquivo contém o título do evento
+                        const fileName = photoUrl.split('/').pop();
+                        const eventName = event.title.replace(/\s+/g, '_').toLowerCase();
+                        return fileName.includes(eventName);
+                    });
+                    
+                    if (eventPhotos.length > 0) {
+                        console.log(`✅ Encontradas ${eventPhotos.length} fotos para o evento "${event.title}"`);
+                        
+                        // Atualiza o evento com as fotos encontradas
+                        const { error } = await supabase
+                            .from('events')
+                            .update({ photos: eventPhotos })
+                            .eq('id', event.id);
+                        
+                        if (error) {
+                            console.error(`❌ Erro ao atualizar evento com fotos:`, error);
+                        } else {
+                            console.log(`✅ Evento "${event.title}" atualizado com fotos`);
+                        }
+                    }
+                } else {
+                    console.log(`✅ Evento "${event.title}" já tem ${event.photos.length} fotos`);
+                }
+            }
+            
+            // Recarrega os eventos para ter os dados atualizados
+            await loadEvents();
+            
+        } catch (error) {
+            console.error('Erro ao atualizar eventos com fotos:', error);
+        }
+    }
+
+    // ========== FUNÇÃO SALVAR DADOS ATUALIZADA ==========
+    async function saveData(table, formData, imageFiles, bucket, buttonId) {
+        try {
+            showButtonLoading(document.getElementById(buttonId), true);
+            console.log(`💾 Iniciando salvamento de ${table}`, formData);
+            
+            let imageUrls = [];
+            
+            // Faz upload das imagens se existirem
+            if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
+                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
+                                formData.title?.replace(/\s+/g, '_').toLowerCase() || 
+                                'image';
                 
-                const { data, error } = await supabase.from('members').select('count').limit(1);
-                if (error) throw error;
+                console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'}`);
                 
+                if (Array.isArray(imageFiles)) {
+                    // Múltiplas imagens (para eventos)
+                    imageUrls = await uploadMultipleImages(imageFiles, bucket, baseName);
+                    console.log('✅ URLs das fotos do evento:', imageUrls);
+                } else {
+                    // Uma imagem (para membros, darceiros, sponsors)
+                    const imageUrl = await uploadImage(imageFiles, bucket, baseName);
+                    imageUrls = [imageUrl];
+                }
+                
+                console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
+            }
+            
+            // Prepara os dados para salvar
+            const dataToSave = { ...formData };
+            
+            // Adiciona as URLs das imagens aos dados
+            if (imageUrls.length > 0) {
+                if (table === 'events') {
+                    // Para eventos, salva array de fotos
+                    dataToSave.photos = imageUrls;
+                    console.log('📸 Fotos a serem salvas no evento:', imageUrls);
+                } else if (table === 'sponsors') {
+                    // Para sponsors, salva logo
+                    dataToSave.logo = imageUrls[0];
+                } else {
+                    // Para membros e darceiros, salva photo
+                    dataToSave.photo = imageUrls[0];
+                }
+            }
+            
+            console.log(`📝 Dados preparados para salvar:`, dataToSave);
+            
+            if (isOnline) {
+                let result;
+                
+                try {
+                    if (currentEditingMemberId && table === 'members') {
+                        // Atualização de membro existente
+                        const { data, error } = await supabase
+                            .from(table)
+                            .update(dataToSave)
+                            .eq('id', currentEditingMemberId)
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data;
+                        currentEditingMemberId = null;
+                    } else {
+                        // Inserção normal
+                        const { data, error } = await supabase
+                            .from(table)
+                            .insert([dataToSave])
+                            .select();
+                        
+                        if (error) {
+                            // SE DER ERRO POR FALTA DA COLUNA PHOTOS, TENTA SEM AS FOTOS
+                            if (error.message.includes("photos") && table === 'events') {
+                                console.log('⚠️ Coluna photos não encontrada, tentando salvar sem fotos...');
+                                
+                                // Remove as fotos dos dados
+                                const { photos, ...dataWithoutPhotos } = dataToSave;
+                                
+                                const { data: retryData, error: retryError } = await supabase
+                                    .from(table)
+                                    .insert([dataWithoutPhotos])
+                                    .select();
+                                
+                                if (retryError) throw retryError;
+                                result = retryData;
+                                
+                                showMessage('Evento salvo, mas fotos não foram salvas (coluna photos não existe). Configure a coluna no Supabase.', 'warning');
+                            } else {
+                                throw error;
+                            }
+                        } else {
+                            result = data;
+                        }
+                    }
+                } catch (dbError) {
+                    console.error(`❌ Erro no banco de dados:`, dbError);
+                    
+                    // SE DER ERRO, SALVA APENAS LOCALMENTE
+                    console.log('💾 Salvando localmente devido ao erro...');
+                    await saveDataLocally(table, dataToSave);
+                    showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
+                    return true;
+                }
+                
+                // Recarrega os dados atualizados
+                await loadData(table);
+                
+                // Se for um evento com fotos, verifica se as fotos foram salvas
+                if (table === 'events' && imageUrls.length > 0) {
+                    console.log('🔍 Verificando se as fotos foram salvas no evento...');
+                    await verifyEventPhotos(result[0].id, imageUrls);
+                }
+                
+                showMessage(`${getEntityName(table)} ${currentEditingMemberId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
                 return true;
             } else {
-                throw new Error('Biblioteca Supabase não carregada');
+                // Modo offline - salva localmente
+                await saveDataLocally(table, dataToSave);
+                return true;
             }
+            
         } catch (error) {
-            console.error('Erro ao inicializar Supabase:', error);
-            setupOfflineMode();
+            console.error(`❌ Erro ao salvar ${table}:`, error);
+            showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
             return false;
+        } finally {
+            showButtonLoading(document.getElementById(buttonId), false);
+        }
+    }
+
+    // ========== FUNÇÃO PARA VERIFICAR FOTOS DO EVENTO ==========
+    async function verifyEventPhotos(eventId, expectedPhotos) {
+        try {
+            console.log(`🔍 Verificando fotos do evento ${eventId}...`);
+            
+            // Busca o evento atualizado
+            const { data: event, error } = await supabase
+                .from('events')
+                .select('*')
+                .eq('id', eventId)
+                .single();
+            
+            if (error) {
+                console.error('❌ Erro ao buscar evento:', error);
+                return;
+            }
+            
+            console.log('📊 Fotos esperadas:', expectedPhotos);
+            console.log('📊 Fotos salvas no evento:', event.photos);
+            
+            if (event.photos && event.photos.length > 0) {
+                console.log('✅ Fotos salvas com sucesso no evento!');
+            } else {
+                console.log('⚠️ Fotos não foram salvas no evento, mas estão no storage');
+            }
+            
+        } catch (error) {
+            console.error('Erro ao verificar fotos do evento:', error);
         }
     }
 
@@ -1216,133 +1631,9 @@
         }
     }
 
-    // ========== FUNÇÃO SALVAR DADOS CORRIGIDA PARA EVENTOS ==========
-    async function saveData(table, formData, imageFiles, bucket, buttonId) {
-        try {
-            showButtonLoading(document.getElementById(buttonId), true);
-            console.log(`💾 Iniciando salvamento de ${table}`, formData);
-            
-            let imageUrls = [];
-            
-            // Faz upload das imagens se existirem
-            if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
-                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
-                                formData.title?.replace(/\s+/g, '_').toLowerCase() || 
-                                'image';
-                
-                console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'}`);
-                
-                if (Array.isArray(imageFiles)) {
-                    // Múltiplas imagens (para eventos)
-                    imageUrls = await uploadMultipleImages(imageFiles, bucket, baseName);
-                } else {
-                    // Uma imagem (para membros, darceiros, sponsors)
-                    const imageUrl = await uploadImage(imageFiles, bucket, baseName);
-                    imageUrls = [imageUrl];
-                }
-                
-                console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
-            }
-            
-            // Prepara os dados para salvar
-            const dataToSave = { ...formData };
-            
-            // Adiciona as URLs das imagens aos dados
-            if (imageUrls.length > 0) {
-                if (table === 'events') {
-                    // Para eventos, salva array de fotos - MAS VERIFICA SE A COLUNA EXISTE
-                    dataToSave.photos = imageUrls;
-                } else if (table === 'sponsors') {
-                    // Para sponsors, salva logo
-                    dataToSave.logo = imageUrls[0];
-                } else {
-                    // Para membros e darceiros, salva photo
-                    dataToSave.photo = imageUrls[0];
-                }
-            }
-            
-            console.log(`📝 Dados preparados para salvar:`, dataToSave);
-            
-            if (isOnline) {
-                let result;
-                
-                // TENTA SALVAR NO BANCO
-                try {
-                    if (currentEditingMemberId && table === 'members') {
-                        // Atualização de membro existente
-                        const { data, error } = await supabase
-                            .from(table)
-                            .update(dataToSave)
-                            .eq('id', currentEditingMemberId)
-                            .select();
-                        
-                        if (error) throw error;
-                        result = data;
-                        currentEditingMemberId = null;
-                    } else {
-                        // Inserção normal
-                        const { data, error } = await supabase
-                            .from(table)
-                            .insert([dataToSave])
-                            .select();
-                        
-                        if (error) {
-                            // SE DER ERRO POR FALTA DA COLUNA PHOTOS, TENTA SEM AS FOTOS
-                            if (error.message.includes("photos") && table === 'events') {
-                                console.log('⚠️ Coluna photos não encontrada, tentando salvar sem fotos...');
-                                
-                                // Remove as fotos dos dados
-                                const { photos, ...dataWithoutPhotos } = dataToSave;
-                                
-                                const { data: retryData, error: retryError } = await supabase
-                                    .from(table)
-                                    .insert([dataWithoutPhotos])
-                                    .select();
-                                
-                                if (retryError) throw retryError;
-                                result = retryData;
-                                
-                                showMessage('Evento salvo, mas fotos não foram salvas (coluna photos não existe). Configure a coluna no Supabase.', 'warning');
-                            } else {
-                                throw error;
-                            }
-                        } else {
-                            result = data;
-                        }
-                    }
-                } catch (dbError) {
-                    console.error(`❌ Erro no banco de dados:`, dbError);
-                    
-                    // SE DER ERRO, SALVA APENAS LOCALMENTE
-                    console.log('💾 Salvando localmente devido ao erro...');
-                    await saveDataLocally(table, dataToSave);
-                    showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
-                    return true;
-                }
-                
-                // Recarrega os dados atualizados
-                await loadData(table);
-                showMessage(`${getEntityName(table)} ${currentEditingMemberId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
-                return true;
-            } else {
-                // Modo offline - salva localmente
-                await saveDataLocally(table, dataToSave);
-                return true;
-            }
-            
-        } catch (error) {
-            console.error(`❌ Erro ao salvar ${table}:`, error);
-            showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
-            return false;
-        } finally {
-            showButtonLoading(document.getElementById(buttonId), false);
-        }
-    }
-
-    // ========== FUNÇÃO PARA SALVAR LOCALMENTE ==========
+    // ========== FUNÇÃO SALVAR LOCALMENTE ==========
     async function saveDataLocally(table, dataToSave) {
         if (currentEditingMemberId && table === 'members') {
-            // Atualização no modo offline
             const localData = loadFromLocalStorage(table) || [];
             const index = localData.findIndex(item => item.id === currentEditingMemberId);
             if (index !== -1) {
@@ -1351,7 +1642,6 @@
             }
             currentEditingMemberId = null;
         } else {
-            // Inserção no modo offline
             dataToSave.id = Date.now().toString();
             dataToSave.created_at = new Date().toISOString();
             
@@ -1360,7 +1650,6 @@
             saveToLocalStorage(table, localData);
         }
         
-        // Atualiza a interface
         switch(table) {
             case 'members': 
                 members = loadFromLocalStorage('members'); 
@@ -1383,380 +1672,7 @@
         showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
     }
 
-    // ========== INSTRUÇÕES PARA CRIAR A COLUNA PHOTOS ==========
-    function showColumnInstructions() {
-        const instructions = `
-🎯 PARA RESOLVER O ERRO DA COLUNA "photos":
-
-1️⃣ ACESSE O SUPABASE:
-   • Vá em: https://supabase.com/dashboard
-   • Selecione seu projeto
-
-2️⃣ VÁ PARA O EDITOR SQL:
-   • Clique em "SQL Editor" no menu lateral
-
-3️⃣ EXECUTE ESTE COMANDO SQL:
-
-   ALTER TABLE events 
-   ADD COLUMN IF NOT EXISTS photos TEXT[];
-
-4️⃣ OU PELO EDITOR DE TABELAS:
-   • Vá em "Table Editor" > "events"
-   • Clique em "Add Column"
-   • Nome: "photos"
-   • Tipo: "Array"
-   • Array Type: "text"
-
-5️⃣ CONFIGURE AS POLÍTICAS (se necessário):
-   • Vá em "Authentication" > "Policies"
-   • Garanta que há políticas para INSERT em events
-
-🔧 ISSO RESOLVERÁ O ERRO E PERMITIRÁ SALVAR FOTOS!
-        `;
-        
-        console.log(instructions);
-        
-        // Mostra as instruções também na interface
-        const instructionDiv = document.createElement('div');
-        instructionDiv.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: 10001;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-            font-family: monospace;
-            white-space: pre-line;
-            line-height: 1.4;
-        `;
-        instructionDiv.innerHTML = `
-            <h3 style="color: #e74c3c; margin-bottom: 1rem;">🔧 Correção Necessária</h3>
-            <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
-                ${instructions.replace(/\n/g, '<br>')}
-            </div>
-            <button onclick="this.parentElement.remove()" style="
-                background: #3498db;
-                color: white;
-                border: none;
-                padding: 0.5rem 1rem;
-                border-radius: 4px;
-                cursor: pointer;
-            ">Fechar</button>
-        `;
-        
-        document.body.appendChild(instructionDiv);
-    }
-
-    // ========== FUNÇÃO PARA VERIFICAR ESTRUTURA DA TABELA ==========
-    async function checkTableStructure() {
-        try {
-            console.log('🔍 Verificando estrutura da tabela events...');
-            
-            const { data, error } = await supabase
-                .from('events')
-                .select('*')
-                .limit(1);
-            
-            if (error) {
-                console.error('❌ Erro ao verificar estrutura:', error);
-                return false;
-            }
-            
-            if (data && data.length > 0) {
-                const firstEvent = data[0];
-                const hasPhotosColumn = 'photos' in firstEvent;
-                
-                console.log('📊 Estrutura da tabela events:', Object.keys(firstEvent));
-                console.log('✅ Coluna photos existe?', hasPhotosColumn);
-                
-                if (!hasPhotosColumn) {
-                    console.log('⚠️ Coluna photos não encontrada!');
-                    showColumnInstructions();
-                    return false;
-                }
-                
-                return true;
-            }
-            
-            return false;
-        } catch (error) {
-            console.error('Erro na verificação da estrutura:', error);
-            return false;
-        }
-    }
-
-    // ========== MODO OFFLINE ==========
-    function setupOfflineMode() {
-        isOnline = false;
-        updateSyncStatus(false);
-        
-        window.supabase = {
-            from: (table) => ({
-                select: () => ({
-                    order: () => Promise.resolve({ 
-                        data: loadFromLocalStorage(table) || [], 
-                        error: null 
-                    })
-                }),
-                insert: (data) => ({
-                    select: () => {
-                        const localData = loadFromLocalStorage(table) || [];
-                        const newItem = {
-                            ...data[0],
-                            id: Date.now().toString(),
-                            created_at: new Date().toISOString()
-                        };
-                        localData.unshift(newItem);
-                        saveToLocalStorage(table, localData);
-                        return Promise.resolve({ data: [newItem], error: null });
-                    }
-                }),
-                update: (data) => ({
-                    eq: (field, value) => {
-                        const localData = loadFromLocalStorage(table) || [];
-                        const index = localData.findIndex(item => item[field] === value);
-                        if (index !== -1) {
-                            localData[index] = { ...localData[index], ...data };
-                            saveToLocalStorage(table, localData);
-                        }
-                        return Promise.resolve({ error: null });
-                    }
-                }),
-                delete: () => ({
-                    eq: (field, value) => {
-                        const localData = loadFromLocalStorage(table) || [];
-                        const filteredData = localData.filter(item => item[field] !== value);
-                        saveToLocalStorage(table, filteredData);
-                        return Promise.resolve({ error: null });
-                    }
-                })
-            }),
-            storage: {
-                from: () => ({
-                    upload: () => Promise.resolve({ data: null, error: null }),
-                    getPublicUrl: () => ({ data: { publicUrl: '' } }),
-                    remove: () => Promise.resolve({ error: null })
-                })
-            }
-        };
-        
-        supabase = window.supabase;
-    }
-
-    function saveToLocalStorage(key, data) {
-        try {
-            localStorage.setItem(`network_${key}`, JSON.stringify(data));
-        } catch (error) {
-            console.error('Erro ao salvar no localStorage:', error);
-        }
-    }
-
-    function loadFromLocalStorage(key) {
-        try {
-            const data = localStorage.getItem(`network_${key}`);
-            return data ? JSON.parse(data) : [];
-        } catch (error) {
-            console.error('Erro ao carregar do localStorage:', error);
-            return [];
-        }
-    }
-
-    // ========== FUNÇÕES DO BANCO DE DADOS ==========
-    async function loadData(table) {
-        try {
-            showLoading(`Carregando ${table}...`);
-            
-            if (isOnline) {
-                const { data, error } = await supabase
-                    .from(table)
-                    .select('*')
-                    .order('created_at', { ascending: false });
-                
-                if (error) throw error;
-                
-                const result = data || [];
-                saveToLocalStorage(table, result);
-                return result;
-            } else {
-                return loadFromLocalStorage(table);
-            }
-            
-        } catch (error) {
-            console.error(`Erro ao carregar ${table}:`, error);
-            return loadFromLocalStorage(table);
-        } finally {
-            hideLoading();
-        }
-    }
-
-    async function loadMembers() {
-        members = await loadData('members');
-        renderMembers();
-    }
-
-    async function loadEvents() {
-        events = await loadData('events');
-        renderEvents();
-    }
-
-    async function loadDarceiros() {
-        darceiros = await loadData('darceiros');
-        renderDarceiros();
-    }
-
-    async function loadSponsors() {
-        sponsors = await loadData('sponsors');
-        renderSponsors();
-    }
-
-    function getEntityName(table) {
-        const names = {
-            'members': 'Membro',
-            'events': 'Evento',
-            'darceiros': 'Darceiro',
-            'sponsors': 'Patrocinador'
-        };
-        return names[table] || 'Item';
-    }
-
-    function getBucketForTable(table) {
-        const buckets = {
-            'members': STORAGE_BUCKETS.MEMBERS,
-            'darceiros': STORAGE_BUCKETS.DARCEIROS,
-            'sponsors': STORAGE_BUCKETS.SPONSORS,
-            'events': STORAGE_BUCKETS.EVENTS
-        };
-        return buckets[table] || STORAGE_BUCKETS.MEMBERS;
-    }
-
-    // ========== FUNÇÃO DE EXCLUSÃO ==========
-    async function deleteItem(table, itemId) {
-        if (!confirm(`Tem certeza que deseja excluir este ${getEntityName(table).toLowerCase()}?`)) {
-            return;
-        }
-
-        try {
-            showLoading(`Excluindo ${getEntityName(table).toLowerCase()}...`);
-            
-            let currentData;
-            switch(table) {
-                case 'members': currentData = members; break;
-                case 'events': currentData = events; break;
-                case 'darceiros': currentData = darceiros; break;
-                case 'sponsors': currentData = sponsors; break;
-                default: throw new Error('Tabela não encontrada');
-            }
-            
-            const itemToDelete = currentData.find(item => item.id == itemId);
-            if (!itemToDelete) {
-                throw new Error('Item não encontrado localmente');
-            }
-
-            if (isOnline) {
-                const { error: dbError } = await supabase
-                    .from(table)
-                    .delete()
-                    .eq('id', itemId);
-                
-                if (dbError) {
-                    console.error(`Erro ao excluir do banco:`, dbError);
-                    throw new Error(`Falha na exclusão do banco: ${dbError.message}`);
-                }
-            }
-            
-            // Atualização local
-            const updatedData = currentData.filter(item => item.id != itemId);
-            
-            switch(table) {
-                case 'members': members = updatedData; break;
-                case 'events': events = updatedData; break;
-                case 'darceiros': darceiros = updatedData; break;
-                case 'sponsors': sponsors = updatedData; break;
-            }
-            
-            saveToLocalStorage(table, updatedData);
-            
-            // Atualiza a interface
-            switch(table) {
-                case 'members': renderMembers(); break;
-                case 'events': renderEvents(); break;
-                case 'darceiros': renderDarceiros(); break;
-                case 'sponsors': renderSponsors(); break;
-            }
-            
-            showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
-            
-        } catch (error) {
-            console.error(`Erro ao excluir ${table}:`, error);
-            showMessage(`Erro ao excluir ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
-        } finally {
-            hideLoading();
-        }
-    }
-
-    // ========== FUNÇÃO PARA EDITAR MEMBRO ==========
-    async function editMember(memberId) {
-        const member = members.find(m => m.id == memberId);
-        if (!member) return;
-
-        document.getElementById('memberName').value = member.name || '';
-        document.getElementById('memberEmail').value = member.email || '';
-        document.getElementById('memberPhone').value = member.phone || '';
-        document.getElementById('memberRole').value = member.role || '';
-        document.getElementById('memberBio').value = member.bio || '';
-
-        const preview = document.getElementById('memberPhotoPreview');
-        if (member.photo) {
-            preview.innerHTML = `<img src="${member.photo}" alt="Preview">`;
-        } else {
-            preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
-        }
-
-        const submitBtn = document.getElementById('memberSubmitBtn');
-        submitBtn.querySelector('span').textContent = 'Atualizar Membro';
-
-        currentEditingMemberId = memberId;
-
-        document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
-        
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelector('.tab[data-tab="member"]').classList.add('active');
-        
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        document.getElementById('member-form').classList.add('active');
-    }
-
-    // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
-    function renderMembers() {
-        renderList(membersList, members, 'members', (member) => `
-            <div class="card-actions">
-                <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
-                <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
-            </div>
-            <div class="card-image">
-                <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
-            </div>
-            <div class="card-header">
-                <h3>${member.name}</h3>
-                <span class="member-role">${member.role}</span>
-            </div>
-            <div class="card-body">
-                <p><strong>Email:</strong> ${member.email}</p>
-                ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
-                <p>${member.bio || 'Sem descrição'}</p>
-                <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                    Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
-                </p>
-            </div>
-        `);
-    }
-
+    // ========== FUNÇÕES DE RENDERIZAÇÃO ATUALIZADAS ==========
     function renderEvents() {
         renderList(eventsList, events, 'events', (event) => {
             const eventDate = new Date(event.event_date);
@@ -1769,8 +1685,12 @@
                     <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
                 </div>
                 <div class="card-image">
-                    <img src="${mainPhoto}" alt="${event.title}" loading="lazy">
-                    ${photos.length > 1 ? `<div class="image-counter">+${photos.length - 1}</div>` : ''}
+                    <img src="${mainPhoto}" alt="${event.title}" loading="lazy" onclick="openGallery('${event.id}', 0)" style="cursor: pointer;">
+                    ${photos.length > 1 ? `
+                        <div class="image-counter" onclick="openGallery('${event.id}', 0)" style="cursor: pointer;">
+                            +${photos.length - 1}
+                        </div>
+                    ` : ''}
                 </div>
                 <div class="card-header">
                     <h3>${event.title}</h3>
@@ -1781,7 +1701,32 @@
                 <div class="card-body">
                     <p><strong>Local:</strong> ${event.location}</p>
                     <p>${event.description || 'Sem descrição'}</p>
-                    ${photos.length > 0 ? `<p><small><strong>${photos.length} foto(s)</strong></small></p>` : ''}
+                    
+                    ${photos.length > 0 ? `
+                        <div class="photos-info">
+                            <strong>${photos.length} foto(s)</strong>
+                            <button class="view-photos-btn" onclick="openGallery('${event.id}', 0)">
+                                👁️ Ver Fotos
+                            </button>
+                        </div>
+                        
+                        <div class="event-gallery">
+                            ${photos.slice(0, 4).map((photo, index) => `
+                                <div class="event-gallery-item" onclick="openGallery('${event.id}', ${index})">
+                                    <img src="${photo}" alt="Foto ${index + 1} do evento" loading="lazy">
+                                </div>
+                            `).join('')}
+                            ${photos.length > 4 ? `
+                                <div class="event-gallery-item" onclick="openGallery('${event.id}', 0)" style="background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                    +${photos.length - 4}
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : `
+                        <div class="photos-info">
+                            <em>Nenhuma foto cadastrada</em>
+                        </div>
+                    `}
                 </div>
                 <div class="card-footer">
                     <button class="btn btn-success">Participar</button>
@@ -1790,434 +1735,7 @@
         });
     }
 
-    function renderDarceiros() {
-        renderList(darceirosList, darceiros, 'darceiros', (darceiro) => `
-            <div class="card-actions">
-                <button class="card-action-btn delete" onclick="deleteDarceiro('${darceiro.id}')" title="Excluir darceiro">🗑️</button>
-            </div>
-            <div class="card-image">
-                <img src="${darceiro.photo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${darceiro.name}" loading="lazy">
-            </div>
-            <div class="card-header darceiro">
-                <h3>${darceiro.name}</h3>
-                <span class="darceiro-type">${darceiro.type}</span>
-            </div>
-            <div class="card-body">
-                <p><strong>Contato:</strong> ${darceiro.contact}</p>
-                ${darceiro.website ? `<p><strong>Website:</strong> <a href="${darceiro.website}" target="_blank">${darceiro.website}</a></p>` : ''}
-                <p>${darceiro.description || 'Sem descrição'}</p>
-            </div>
-        `);
-    }
-
-    function renderSponsors() {
-        renderList(sponsorsList, sponsors, 'sponsors', (sponsor) => `
-            <div class="card-actions">
-                <button class="card-action-btn delete" onclick="deleteSponsor('${sponsor.id}')" title="Excluir patrocinador">🗑️</button>
-            </div>
-            <div class="card-image">
-                <img src="${sponsor.logo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${sponsor.name}" loading="lazy">
-            </div>
-            <div class="card-header sponsor">
-                <h3>${sponsor.name}</h3>
-                <span class="sponsor-level">${sponsor.level}</span>
-            </div>
-            <div class="card-body">
-                <p><strong>Contato:</strong> ${sponsor.contact}</p>
-                ${sponsor.website ? `<p><strong>Website:</strong> <a href="${sponsor.website}" target="_blank">${sponsor.website}</a></p>` : ''}
-                <p>${sponsor.description || 'Sem descrição'}</p>
-            </div>
-        `);
-    }
-
-    function renderList(container, data, type, templateFunction) {
-        if (!container) {
-            console.error(`Container não encontrado para: ${type}`);
-            return;
-        }
-        
-        container.innerHTML = '';
-        
-        if (!data || data.length === 0) {
-            container.innerHTML = `<p style="text-align: center; grid-column: 1/-1;">Nenhum ${getEntityName(type).toLowerCase()} cadastrado ainda.</p>`;
-            return;
-        }
-        
-        data.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = templateFunction(item);
-            container.appendChild(card);
-        });
-    }
-
-    // ========== FUNÇÕES AUXILIARES ==========
-    function updateSyncStatus(online) {
-        isOnline = online;
-        if (syncStatus) {
-            if (online) {
-                syncStatus.innerHTML = '<span>🔵</span> Conectado ao PostgreSQL';
-                syncStatus.classList.remove('offline');
-            } else {
-                syncStatus.innerHTML = '<span>🔴</span> Modo Offline (Local)';
-                syncStatus.classList.add('offline');
-            }
-        }
-    }
-
-    function showLoading(message = 'Carregando...') {
-        if (loadingOverlay) {
-            loadingOverlay.innerHTML = `<div>${message}</div>`;
-            loadingOverlay.style.display = 'flex';
-        }
-    }
-
-    function hideLoading() {
-        if (loadingOverlay) {
-            loadingOverlay.style.display = 'none';
-        }
-    }
-
-    function showButtonLoading(button, loading) {
-        if (!button) return;
-        
-        const span = button.querySelector('span');
-        const loadingDiv = button.querySelector('.btn-loading');
-        
-        if (loading) {
-            if (span) span.style.display = 'none';
-            if (loadingDiv) loadingDiv.style.display = 'block';
-            button.disabled = true;
-        } else {
-            if (span) span.style.display = 'block';
-            if (loadingDiv) loadingDiv.style.display = 'none';
-            button.disabled = false;
-        }
-    }
-
-    function showMessage(message, type = 'success') {
-        const existingNotification = document.querySelector('.global-notification');
-        if (existingNotification) {
-            existingNotification.remove();
-        }
-        
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `global-notification ${type}`;
-        messageDiv.textContent = message;
-        
-        const colors = {
-            success: '#2ecc71',
-            warning: '#f39c12',
-            error: '#e74c3c'
-        };
-        
-        messageDiv.style.background = colors[type] || colors.success;
-        
-        document.body.appendChild(messageDiv);
-        
-        setTimeout(() => {
-            messageDiv.style.opacity = '1';
-            messageDiv.style.transform = 'translateY(0)';
-        }, 100);
-        
-        setTimeout(() => {
-            messageDiv.style.opacity = '0';
-            messageDiv.style.transform = 'translateY(-100%)';
-            setTimeout(() => messageDiv.remove(), 300);
-        }, 5000);
-    }
-
-    // ========== CONFIGURAÇÃO DE EVENTOS ==========
-    function setupEventListeners() {
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.getAttribute('data-tab');
-                
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                    if (content.id === `${tabId}-form`) {
-                        content.classList.add('active');
-                    }
-                });
-            });
-        });
-
-        // Image upload handlers
-        setupImageUpload('memberPhoto', 'memberPhotoPreview');
-        setupImageUpload('darceiroPhoto', 'darceiroPhotoPreview');
-        setupImageUpload('sponsorLogo', 'sponsorLogoPreview');
-        setupMultiplePhotosUpload();
-
-        // Form submissions
-        if (memberForm) {
-            memberForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const memberPhotoInput = document.getElementById('memberPhoto');
-                const memberPhotoFile = memberPhotoInput.files[0];
-                
-                const memberData = {
-                    name: document.getElementById('memberName')?.value || '',
-                    email: document.getElementById('memberEmail')?.value || '',
-                    phone: document.getElementById('memberPhone')?.value || '',
-                    role: document.getElementById('memberRole')?.value || '',
-                    bio: document.getElementById('memberBio')?.value || ''
-                };
-                
-                await saveData('members', memberData, memberPhotoFile, STORAGE_BUCKETS.MEMBERS, 'memberSubmitBtn');
-                
-                memberForm.reset();
-                const preview = document.getElementById('memberPhotoPreview');
-                if (preview) preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
-                memberPhotoInput.value = '';
-                
-                const submitBtn = document.getElementById('memberSubmitBtn');
-                submitBtn.querySelector('span').textContent = 'Cadastrar Membro';
-                currentEditingMemberId = null;
-            });
-        }
-
-        if (eventForm) {
-            eventForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const eventData = {
-                    title: document.getElementById('eventTitle')?.value || '',
-                    event_date: document.getElementById('eventDate')?.value || '',
-                    event_time: document.getElementById('eventTime')?.value || '',
-                    location: document.getElementById('eventLocation')?.value || '',
-                    description: document.getElementById('eventDescription')?.value || ''
-                };
-                
-                await saveData('events', eventData, eventPhotosFiles, STORAGE_BUCKETS.EVENTS, 'eventSubmitBtn');
-                eventForm.reset();
-                
-                const preview = document.getElementById('eventPhotosPreview');
-                if (preview) preview.innerHTML = '';
-                eventPhotosFiles = [];
-            });
-        }
-
-        if (darceiroForm) {
-            darceiroForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const darceiroPhotoInput = document.getElementById('darceiroPhoto');
-                const darceiroPhotoFile = darceiroPhotoInput.files[0];
-                
-                const darceiroData = {
-                    name: document.getElementById('darceiroName')?.value || '',
-                    type: document.getElementById('darceiroType')?.value || '',
-                    contact: document.getElementById('darceiroContact')?.value || '',
-                    website: document.getElementById('darceiroWebsite')?.value || '',
-                    description: document.getElementById('darceiroDescription')?.value || ''
-                };
-                
-                await saveData('darceiros', darceiroData, darceiroPhotoFile, STORAGE_BUCKETS.DARCEIROS, 'darceiroSubmitBtn');
-                darceiroForm.reset();
-                const preview = document.getElementById('darceiroPhotoPreview');
-                if (preview) preview.innerHTML = '<div class="placeholder">Logo/Foto</div>';
-                darceiroPhotoInput.value = '';
-            });
-        }
-
-        if (sponsorForm) {
-            sponsorForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const sponsorLogoInput = document.getElementById('sponsorLogo');
-                const sponsorLogoFile = sponsorLogoInput.files[0];
-                
-                const sponsorData = {
-                    name: document.getElementById('sponsorName')?.value || '',
-                    level: document.getElementById('sponsorLevel')?.value || '',
-                    contact: document.getElementById('sponsorContact')?.value || '',
-                    website: document.getElementById('sponsorWebsite')?.value || '',
-                    description: document.getElementById('sponsorDescription')?.value || ''
-                };
-                
-                await saveData('sponsors', sponsorData, sponsorLogoFile, STORAGE_BUCKETS.SPONSORS, 'sponsorSubmitBtn');
-                sponsorForm.reset();
-                const preview = document.getElementById('sponsorLogoPreview');
-                if (preview) preview.innerHTML = '<div class="placeholder">Logo do Patrocinador</div>';
-                sponsorLogoInput.value = '';
-            });
-        }
-
-        // Mobile menu
-        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-        if (mobileMenuBtn) {
-            mobileMenuBtn.addEventListener('click', function() {
-                const navUl = document.querySelector('nav ul');
-                if (navUl) navUl.classList.toggle('show');
-            });
-        }
-
-        // Smooth scrolling
-        document.querySelectorAll('nav a').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                const targetId = this.getAttribute('href');
-                if (targetId && targetId !== '#') {
-                    e.preventDefault();
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        window.scrollTo({
-                            top: targetElement.offsetTop - 80,
-                            behavior: 'smooth'
-                        });
-                        const navUl = document.querySelector('nav ul');
-                        if (navUl) navUl.classList.remove('show');
-                    }
-                }
-            });
-        });
-    }
-
-    function setupImageUpload(inputId, previewId) {
-        const input = document.getElementById(inputId);
-        const preview = document.getElementById(previewId);
-        
-        if (!input || !preview) return;
-        
-        input.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                if (!file.type.startsWith('image/')) {
-                    showMessage('Por favor, selecione um arquivo de imagem.', 'error');
-                    return;
-                }
-                
-                if (file.size > 5 * 1024 * 1024) {
-                    showMessage('A imagem deve ter menos de 5MB.', 'error');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                };
-                reader.onerror = function() {
-                    showMessage('Erro ao carregar a imagem.', 'error');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    function setupMultiplePhotosUpload() {
-        const input = document.getElementById('eventPhotos');
-        const preview = document.getElementById('eventPhotosPreview');
-        const uploadArea = document.getElementById('eventPhotosUploadArea');
-        
-        if (!input || !preview || !uploadArea) return;
-        
-        uploadArea.addEventListener('click', () => {
-            input.click();
-        });
-        
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#3498db';
-            uploadArea.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
-        });
-        
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = '#ddd';
-            uploadArea.style.backgroundColor = '';
-        });
-        
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#ddd';
-            uploadArea.style.backgroundColor = '';
-            
-            const files = e.dataTransfer.files;
-            handleMultiplePhotos(files);
-        });
-        
-        input.addEventListener('change', (e) => {
-            handleMultiplePhotos(e.target.files);
-        });
-        
-        function handleMultiplePhotos(files) {
-            const validFiles = Array.from(files).filter(file => 
-                file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024
-            );
-            
-            if (validFiles.length === 0) {
-                showMessage('Por favor, selecione apenas imagens válidas (máx. 5MB cada).', 'error');
-                return;
-            }
-            
-            const filesToProcess = validFiles.slice(0, 10);
-            eventPhotosFiles = [...eventPhotosFiles, ...filesToProcess].slice(0, 10);
-            
-            preview.innerHTML = '';
-            eventPhotosFiles.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const photoItem = document.createElement('div');
-                    photoItem.className = 'photo-preview-item';
-                    photoItem.innerHTML = `
-                        <img src="${e.target.result}" alt="Preview">
-                        <button type="button" class="remove-photo" onclick="removeEventPhoto(${index})">×</button>
-                    `;
-                    preview.appendChild(photoItem);
-                };
-                reader.readAsDataURL(file);
-            });
-            
-            if (validFiles.length > 10) {
-                showMessage('Apenas as primeiras 10 fotos serão processadas.', 'warning');
-            }
-            
-            showMessage(`${filesToProcess.length} foto(s) adicionada(s) ao evento!`, 'success');
-        }
-    }
-
-    // Função para remover foto do evento
-    function removeEventPhoto(index) {
-        eventPhotosFiles.splice(index, 1);
-        
-        const preview = document.getElementById('eventPhotosPreview');
-        preview.innerHTML = '';
-        eventPhotosFiles.forEach((file, newIndex) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const photoItem = document.createElement('div');
-                photoItem.className = 'photo-preview-item';
-                photoItem.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview">
-                    <button type="button" class="remove-photo" onclick="removeEventPhoto(${newIndex})">×</button>
-                `;
-                preview.appendChild(photoItem);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    // Funções de exclusão específicas
-    async function deleteMember(memberId) {
-        await deleteItem('members', memberId);
-    }
-
-    async function deleteEvent(eventId) {
-        await deleteItem('events', eventId);
-    }
-
-    async function deleteDarceiro(darceiroId) {
-        await deleteItem('darceiros', darceiroId);
-    }
-
-    async function deleteSponsor(sponsorId) {
-        await deleteItem('sponsors', sponsorId);
-    }
-
-    // ========== INICIALIZAÇÃO ==========
+    // ========== INICIALIZAÇÃO ATUALIZADA ==========
     async function initializeApp() {
         try {
             const supabaseInitialized = await initializeSupabase();
@@ -2233,8 +1751,15 @@
             
             if (supabaseInitialized) {
                 showMessage('Sistema conectado ao PostgreSQL!', 'success');
+                
                 // Verifica a estrutura da tabela events
                 await checkTableStructure();
+                
+                // Atualiza eventos com fotos do storage
+                setTimeout(async () => {
+                    await updateEventsWithPhotos();
+                }, 2000);
+                
             } else {
                 showMessage('Sistema em modo offline. Dados salvos localmente.', 'warning');
             }
@@ -2269,6 +1794,9 @@
         }
     }
 
+    // ========== FUNÇÕES RESTANTES (mantenha as outras funções do código anterior) ==========
+    // ... (initializeSupabase, setupOfflineMode, saveToLocalStorage, loadFromLocalStorage, loadData, etc.)
+
     // Inicia a aplicação quando o DOM estiver pronto
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initializeApp);
@@ -2279,5 +1807,6 @@
     
 </body>
 </html>
+
 
 
