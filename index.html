@@ -1097,7 +1097,7 @@
                         NETWORK <span style="color: #ffffff;">IN FOCO </span>
                     </h1>
                     <h2 style="margin: 5px 0 0 0; font-size: 10px; color: #fffffff; font-weight: normal;">
-                        Versão 2 <b>develop</b> | © 2025
+                        Versão 1 <b>develop</b> | © 2025
                     </h2>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
@@ -1947,24 +1947,42 @@
             }
             
             console.log(`📝 Dados preparados para salvar:`, dataToSave);
+            console.log(`🆔 currentEditingMemberId:`, currentEditingMemberId);
+            console.log(`📊 Tabela:`, table);
             
             if (isOnline) {
                 let result;
                 
                 try {
                     if (currentEditingMemberId && table === 'members') {
-                        // Atualização de membro existente
+                        console.log(`🔄 Atualizando membro existente: ${currentEditingMemberId}`);
+                        
+                        // Remove campos vazios para evitar sobrescrever com null
+                        Object.keys(dataToSave).forEach(key => {
+                            if (dataToSave[key] === '' || dataToSave[key] === null) {
+                                delete dataToSave[key];
+                            }
+                        });
+                        
+                        console.log(`📝 Dados para atualização:`, dataToSave);
+                        
                         const { data, error } = await supabase
                             .from(table)
                             .update(dataToSave)
                             .eq('id', currentEditingMemberId)
                             .select();
                         
-                        if (error) throw error;
+                        if (error) {
+                            console.error('❌ Erro na atualização:', error);
+                            throw error;
+                        }
+                        
                         result = data;
+                        console.log('✅ Membro atualizado com sucesso:', result);
                         currentEditingMemberId = null;
                     } else {
                         // Inserção normal
+                        console.log(`🆕 Inserindo novo registro`);
                         const { data, error } = await supabase
                             .from(table)
                             .insert([dataToSave])
@@ -2005,12 +2023,19 @@
                 }
                 
                 // Recarrega os dados atualizados
-                await loadData(table);
+                console.log('🔄 Recarregando dados...');
+                switch(table) {
+                    case 'members': await loadMembers(); break;
+                    case 'events': await loadEvents(); break;
+                    case 'darceiros': await loadDarceiros(); break;
+                    case 'sponsors': await loadSponsors(); break;
+                }
                 
                 showMessage(`${getEntityName(table)} ${currentEditingMemberId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
                 return true;
             } else {
                 // Modo offline - salva localmente
+                console.log('📴 Modo offline - salvando localmente');
                 await saveDataLocally(table, dataToSave);
                 return true;
             }
@@ -2026,17 +2051,31 @@
 
     // ========== FUNÇÃO PARA SALVAR LOCALMENTE ==========
     async function saveDataLocally(table, dataToSave) {
+        console.log(`💾 Salvando localmente na tabela: ${table}`);
+        console.log(`🆔 currentEditingMemberId:`, currentEditingMemberId);
+        
         if (currentEditingMemberId && table === 'members') {
             // Atualização no modo offline
+            console.log(`🔄 Atualizando membro localmente: ${currentEditingMemberId}`);
             const localData = loadFromLocalStorage(table) || [];
             const index = localData.findIndex(item => item.id === currentEditingMemberId);
             if (index !== -1) {
-                localData[index] = { ...localData[index], ...dataToSave };
+                // Mantém os dados existentes e atualiza apenas os campos fornecidos
+                localData[index] = { 
+                    ...localData[index], 
+                    ...dataToSave,
+                    // Garante que o ID não seja alterado
+                    id: currentEditingMemberId
+                };
                 saveToLocalStorage(table, localData);
+                console.log('✅ Membro atualizado localmente');
+            } else {
+                console.error('❌ Membro não encontrado para atualização');
             }
             currentEditingMemberId = null;
         } else {
             // Inserção no modo offline
+            console.log(`🆕 Inserindo novo registro localmente`);
             dataToSave.id = Date.now().toString();
             dataToSave.created_at = new Date().toISOString();
             
@@ -2046,6 +2085,7 @@
         }
         
         // Atualiza a interface
+        console.log('🔄 Atualizando interface...');
         switch(table) {
             case 'members': 
                 members = loadFromLocalStorage('members'); 
@@ -2170,8 +2210,12 @@
 
     // ========== FUNÇÃO PARA EDITAR MEMBRO ==========
     async function editMember(memberId) {
+        console.log(`✏️ Editando membro: ${memberId}`);
         const member = members.find(m => m.id == memberId);
-        if (!member) return;
+        if (!member) {
+            console.error('❌ Membro não encontrado');
+            return;
+        }
 
         // Preenche o formulário com os dados do membro
         document.getElementById('memberName').value = member.name || '';
@@ -2194,6 +2238,7 @@
 
         // Armazena o ID do membro sendo editado
         currentEditingMemberId = memberId;
+        console.log(`✅ currentEditingMemberId definido como: ${currentEditingMemberId}`);
 
         // Rola até o formulário
         document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
@@ -2204,6 +2249,8 @@
         
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
         document.getElementById('member-form').classList.add('active');
+
+        console.log('✅ Formulário de edição preparado');
     }
 
     // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
@@ -2539,6 +2586,9 @@
             memberForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
+                console.log('📝 Enviando formulário de membro');
+                console.log(`🆔 currentEditingMemberId: ${currentEditingMemberId}`);
+                
                 const memberPhotoInput = document.getElementById('memberPhoto');
                 const memberPhotoFile = memberPhotoInput.files[0];
                 
@@ -2550,18 +2600,24 @@
                     bio: document.getElementById('memberBio')?.value || ''
                 };
                 
-                await saveData('members', memberData, memberPhotoFile, STORAGE_BUCKETS.MEMBERS, 'memberSubmitBtn');
+                console.log('📊 Dados do membro:', memberData);
                 
-                // Reseta o formulário
-                memberForm.reset();
-                const preview = document.getElementById('memberPhotoPreview');
-                if (preview) preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
-                memberPhotoInput.value = '';
+                const success = await saveData('members', memberData, memberPhotoFile, STORAGE_BUCKETS.MEMBERS, 'memberSubmitBtn');
                 
-                // Reseta o botão para cadastrar
-                const submitBtn = document.getElementById('memberSubmitBtn');
-                submitBtn.querySelector('span').textContent = 'Cadastrar Membro';
-                currentEditingMemberId = null;
+                if (success) {
+                    // Reseta o formulário apenas se foi bem-sucedido
+                    memberForm.reset();
+                    const preview = document.getElementById('memberPhotoPreview');
+                    if (preview) preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
+                    memberPhotoInput.value = '';
+                    
+                    // Reseta o botão para cadastrar
+                    const submitBtn = document.getElementById('memberSubmitBtn');
+                    submitBtn.querySelector('span').textContent = 'Cadastrar Membro';
+                    currentEditingMemberId = null;
+                    
+                    console.log('✅ Formulário resetado e currentEditingMemberId limpo');
+                }
             });
         }
 
