@@ -60,37 +60,48 @@
         }
 
         .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                text-align: center;
+            }
 
         .logo-image {
-            width: 85px;
-            height: 85px;
+            width: 100px;
+            height: 100px;
             border-radius: 8px;
             overflow: hidden;
             border: 2px solid rgba(255,255,255,0.2);
             box-shadow: var(--shadow);
+             transition: var(--transition);
         }
-
+        
         .logo-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-
+        
         .logo-text {
             display: flex;
             flex-direction: column;
+            align-items: center;
+        }    
+       
+      
+        
+        .logo-image:hover {
+            transform: scale(1.05);
+            border-color: rgba(255,255,255,0.4);
         }
-
-        .logo h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: white;
-            letter-spacing: 0.5px;
+    
+        .logo h2 {
             margin: 0;
+            font-size: 10px;
+            color: #ffffff;
+            font-weight: normal;
+            opacity: 0.9;
         }
 
         .logo span {
@@ -1239,14 +1250,13 @@
     <header>
         <div class="container">
             <div class="header-content">
-                <div class="logo">
+               <div class="logo">
                     <div class="logo-image">
                         <img src="https://jywmvnxurbtziixntuuq.supabase.co/storage/v1/object/public/Imagens/LogotipoS.jpeg" 
                              alt="NETWORK IN FOCO Logo" 
                              onerror="handleLogoError(this)">
                     </div>
                     <div class="logo-text">
-                        <h1>NETWORK <span>IN FOCO</span></h1>
                         <h2>Versão 3 <b>develop</b> | © 2025</h2>
                     </div>
                 </div>
@@ -3257,5 +3267,6 @@ function updateUIForAdmin() {
     
 </body>
 </html>
+
 
 
