@@ -1176,6 +1176,33 @@
             .admin-access-btn.logout:hover {
                 background-color: #c53030;
             }
+/* Melhorias para scroll suave */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Destaque para seções quando navegadas */
+section:target {
+    animation: highlightSection 2s ease;
+}
+
+@keyframes highlightSection {
+    0% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: rgba(66, 153, 225, 0.05);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* Melhor espaçamento entre seções */
+section {
+    scroll-margin-top: 100px;
+}
+        
     </style>
 </head>
 <body>
@@ -1278,13 +1305,13 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
+       <!-- Hero Section -->
     <section class="hero">
         <div class="container">
             <h2>Conecte-se, Compartilhe e Cresça.</h2>
             <p>Aqui você interage com outras pessoas e conecta-se a oportunidades.</p>
-            <a href="#cadastro" class="btn">Começar Agora</a>
-            <a href="#eventos" class="btn btn-secondary">Ver Eventos</a>
+            <a href="#membros" class="btn">Membros</a>
+            <a href="#eventos" class="btn btn-secondary">Eventos</a>
         </div>
     </section>
 
@@ -2729,26 +2756,77 @@
             });
         }
 
-        // Smooth scrolling
-        document.querySelectorAll('nav a').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                const targetId = this.getAttribute('href');
-                if (targetId && targetId !== '#') {
-                    e.preventDefault();
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        window.scrollTo({
-                            top: targetElement.offsetTop - 80,
-                            behavior: 'smooth'
-                        });
-                        const navUl = document.querySelector('nav ul');
-                        if (navUl) navUl.classList.remove('show');
+                    // Smooth scrolling - Atualizada
+            document.querySelectorAll('nav a, .btn').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const targetId = this.getAttribute('href');
+                    
+                    // Verifica se é um link interno (#)
+                    if (targetId && targetId.startsWith('#')) {
+                        e.preventDefault();
+                        const targetElement = document.querySelector(targetId);
+                        
+                        if (targetElement) {
+                            // Calcula a posição considerando o header fixo
+                            const headerHeight = document.querySelector('header').offsetHeight;
+                            const targetPosition = targetElement.offsetTop - headerHeight - 20;
+                            
+                            window.scrollTo({
+                                top: targetPosition,
+                                behavior: 'smooth'
+                            });
+                            
+                            // Fecha o menu mobile se estiver aberto
+                            const navUl = document.querySelector('nav ul');
+                            if (navUl) navUl.classList.remove('show');
+                            
+                            // Atualiza a classe active no menu
+                            document.querySelectorAll('nav a').forEach(link => {
+                                link.classList.remove('active');
+                            });
+                            this.classList.add('active');
+                        }
                     }
-                }
+                });
             });
-        });
     }
+// Observador de interseção para destacar a seção ativa no menu
+function setupIntersectionObserver() {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('nav a[href^="#"]');
+    
+    const observerOptions = {
+        root: null,
+        rootMargin: '-20% 0px -70% 0px',
+        threshold: 0.1
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                
+                // Remove active de todos os links
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Adiciona active ao link correspondente
+                const correspondingLink = document.querySelector(`nav a[href="#${id}"]`);
+                if (correspondingLink) {
+                    correspondingLink.classList.add('active');
+                }
+            }
+        });
+    }, observerOptions);
+    
+    sections.forEach(section => {
+        observer.observe(section);
+    });
+}
 
+// Chame esta função na inicialização
+// setupIntersectionObserver();
     function setupImageUpload(inputId, previewId) {
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
@@ -3036,6 +3114,7 @@
 
     // ========== INICIALIZAÇÃO ==========
     // ========== INICIALIZAÇÃO ==========
+// ========== INICIALIZAÇÃO ==========
 async function initializeApp() {
     try {
         console.log('🚀 Inicializando aplicação...');
@@ -3060,6 +3139,9 @@ async function initializeApp() {
         addLogoutButton();
         
         setupEventListeners();
+        
+        // Configura observador de interseção (opcional)
+        // setupIntersectionObserver();
         
         // Carrega dados
         console.log('📥 Carregando dados...');
@@ -3088,7 +3170,6 @@ async function initializeApp() {
         showMessage('❌ Erro ao inicializar o sistema: ' + error.message, 'error');
     }
 }
-
     // Inicia a aplicação quando o DOM estiver pronto
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
@@ -3267,6 +3348,7 @@ function updateUIForAdmin() {
     
 </body>
 </html>
+
 
 
 
