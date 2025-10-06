@@ -1205,7 +1205,7 @@
                             <textarea id="memberBio" class="form-control" rows="4" required></textarea>
                         </div>
                         <button type="submit" class="btn" id="memberSubmitBtn">
-                            <span>Cadastrar Membro</span>
+                            <span id="memberSubmitText">Cadastrar Membro</span>
                             <div class="btn-loading">Enviando...</div>
                         </button>
                     </form>
@@ -1255,7 +1255,7 @@
                         </div>
 
                         <button type="submit" class="btn" id="eventSubmitBtn">
-                            <span>Cadastrar Evento</span>
+                            <span id="eventSubmitText">Cadastrar Evento</span>
                             <div class="btn-loading">Enviando...</div>
                         </button>
                     </form>
@@ -1304,7 +1304,7 @@
                             <textarea id="darceiroDescription" class="form-control" rows="4" required></textarea>
                         </div>
                         <button type="submit" class="btn btn-darceiro" id="darceiroSubmitBtn">
-                            <span>Cadastrar Parceiro</span>
+                            <span id="darceiroSubmitText">Cadastrar Parceiro</span>
                             <div class="btn-loading">Enviando...</div>
                         </button>
                     </form>
@@ -1353,7 +1353,7 @@
                             <textarea id="sponsorDescription" class="form-control" rows="4" required></textarea>
                         </div>
                         <button type="submit" class="btn btn-sponsor" id="sponsorSubmitBtn">
-                            <span>Cadastrar Patrocinador</span>
+                            <span id="sponsorSubmitText">Cadastrar Patrocinador</span>
                             <div class="btn-loading">Enviando...</div>
                         </button>
                     </form>
@@ -1418,6 +1418,9 @@
     let sponsors = [];
     let isOnline = true;
     let currentEditingMemberId = null;
+    let currentEditingEventId = null;
+    let currentEditingDarceiroId = null;
+    let currentEditingSponsorId = null;
     let eventPhotosFiles = [];
     
     // Variáveis para galeria
@@ -1900,7 +1903,7 @@
     }
 
     // ========== FUNÇÃO SALVAR DADOS CORRIGIDA ==========
-    async function saveData(table, formData, imageFiles, bucket, buttonId) {
+    async function saveData(table, formData, imageFiles, bucket, buttonId, editingId = null) {
         try {
             showButtonLoading(document.getElementById(buttonId), true);
             console.log(`💾 Iniciando salvamento de ${table}`, formData);
@@ -1947,15 +1950,15 @@
             }
             
             console.log(`📝 Dados preparados para salvar:`, dataToSave);
-            console.log(`🆔 currentEditingMemberId:`, currentEditingMemberId);
+            console.log(`🆔 Editing ID:`, editingId);
             console.log(`📊 Tabela:`, table);
             
             if (isOnline) {
                 let result;
                 
                 try {
-                    if (currentEditingMemberId && table === 'members') {
-                        console.log(`🔄 Atualizando membro existente: ${currentEditingMemberId}`);
+                    if (editingId) {
+                        console.log(`🔄 Atualizando ${table} existente: ${editingId}`);
                         
                         // Remove campos vazios para evitar sobrescrever com null
                         Object.keys(dataToSave).forEach(key => {
@@ -1964,12 +1967,15 @@
                             }
                         });
                         
+                        // Adiciona timestamp de atualização
+                        dataToSave.updated_at = new Date().toISOString();
+                        
                         console.log(`📝 Dados para atualização:`, dataToSave);
                         
                         const { data, error } = await supabase
                             .from(table)
                             .update(dataToSave)
-                            .eq('id', currentEditingMemberId)
+                            .eq('id', editingId)
                             .select();
                         
                         if (error) {
@@ -1978,8 +1984,8 @@
                         }
                         
                         result = data;
-                        console.log('✅ Membro atualizado com sucesso:', result);
-                        currentEditingMemberId = null;
+                        console.log(`✅ ${table} atualizado com sucesso:`, result);
+                        
                     } else {
                         // Inserção normal
                         console.log(`🆕 Inserindo novo registro`);
@@ -2017,7 +2023,7 @@
                     
                     // SE DER ERRO, SALVA APENAS LOCALMENTE
                     console.log('💾 Salvando localmente devido ao erro...');
-                    await saveDataLocally(table, dataToSave);
+                    await saveDataLocally(table, dataToSave, editingId);
                     showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
                     return true;
                 }
@@ -2031,12 +2037,12 @@
                     case 'sponsors': await loadSponsors(); break;
                 }
                 
-                showMessage(`${getEntityName(table)} ${currentEditingMemberId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
+                showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
                 return true;
             } else {
                 // Modo offline - salva localmente
                 console.log('📴 Modo offline - salvando localmente');
-                await saveDataLocally(table, dataToSave);
+                await saveDataLocally(table, dataToSave, editingId);
                 return true;
             }
             
@@ -2050,29 +2056,32 @@
     }
 
     // ========== FUNÇÃO PARA SALVAR LOCALMENTE ==========
-    async function saveDataLocally(table, dataToSave) {
+    async function saveDataLocally(table, dataToSave, editingId = null) {
         console.log(`💾 Salvando localmente na tabela: ${table}`);
-        console.log(`🆔 currentEditingMemberId:`, currentEditingMemberId);
+        console.log(`🆔 Editing ID:`, editingId);
         
-        if (currentEditingMemberId && table === 'members') {
+        if (editingId) {
             // Atualização no modo offline
-            console.log(`🔄 Atualizando membro localmente: ${currentEditingMemberId}`);
+            console.log(`🔄 Atualizando ${table} localmente: ${editingId}`);
             const localData = loadFromLocalStorage(table) || [];
-            const index = localData.findIndex(item => item.id === currentEditingMemberId);
+            const index = localData.findIndex(item => item.id === editingId);
             if (index !== -1) {
                 // Mantém os dados existentes e atualiza apenas os campos fornecidos
                 localData[index] = { 
                     ...localData[index], 
                     ...dataToSave,
                     // Garante que o ID não seja alterado
-                    id: currentEditingMemberId
+                    id: editingId,
+                    // Atualiza o timestamp
+                    updated_at: new Date().toISOString()
                 };
                 saveToLocalStorage(table, localData);
-                console.log('✅ Membro atualizado localmente');
+                console.log(`✅ ${table} atualizado localmente`);
             } else {
-                console.error('❌ Membro não encontrado para atualização');
+                console.error(`❌ ${table} não encontrado para atualização`);
+                showMessage(`${getEntityName(table)} não encontrado para atualização`, 'error');
+                return;
             }
-            currentEditingMemberId = null;
         } else {
             // Inserção no modo offline
             console.log(`🆕 Inserindo novo registro localmente`);
@@ -2112,7 +2121,7 @@
         const names = {
             'members': 'Membro',
             'events': 'Evento',
-            'darceiros': 'Darceiro',
+            'darceiros': 'Parceiro',
             'sponsors': 'Patrocinador'
         };
         return names[table] || 'Item';
@@ -2208,49 +2217,218 @@
         }
     }
 
-    // ========== FUNÇÃO PARA EDITAR MEMBRO ==========
+    // ========== FUNÇÕES PARA EDITAR ==========
     async function editMember(memberId) {
         console.log(`✏️ Editando membro: ${memberId}`);
         const member = members.find(m => m.id == memberId);
         if (!member) {
             console.error('❌ Membro não encontrado');
+            showMessage('Membro não encontrado', 'error');
             return;
         }
 
-        // Preenche o formulário com os dados do membro
-        document.getElementById('memberName').value = member.name || '';
-        document.getElementById('memberEmail').value = member.email || '';
-        document.getElementById('memberPhone').value = member.phone || '';
-        document.getElementById('memberRole').value = member.role || '';
-        document.getElementById('memberBio').value = member.bio || '';
+        try {
+            // Preenche o formulário com os dados do membro
+            document.getElementById('memberName').value = member.name || '';
+            document.getElementById('memberEmail').value = member.email || '';
+            document.getElementById('memberPhone').value = member.phone || '';
+            document.getElementById('memberRole').value = member.role || '';
+            document.getElementById('memberBio').value = member.bio || '';
 
-        // Atualiza o preview da foto
-        const preview = document.getElementById('memberPhotoPreview');
-        if (member.photo) {
-            preview.innerHTML = `<img src="${member.photo}" alt="Preview">`;
-        } else {
-            preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
+            // Atualiza o preview da foto
+            const preview = document.getElementById('memberPhotoPreview');
+            if (member.photo) {
+                preview.innerHTML = `<img src="${member.photo}" alt="Preview">`;
+            } else {
+                preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
+            }
+
+            // Limpa o input de arquivo para permitir nova seleção
+            const memberPhotoInput = document.getElementById('memberPhoto');
+            memberPhotoInput.value = '';
+
+            // Altera o texto do botão
+            document.getElementById('memberSubmitText').textContent = 'Atualizar Membro';
+
+            // Armazena o ID do membro sendo editado
+            currentEditingMemberId = memberId;
+            console.log(`✅ currentEditingMemberId definido como: ${currentEditingMemberId}`);
+
+            // Rola até o formulário
+            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
+            
+            // Ativa a tab de membros
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="member"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('member-form').classList.add('active');
+
+            console.log('✅ Formulário de edição preparado');
+            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Membro".', 'success');
+            
+        } catch (error) {
+            console.error('❌ Erro ao preparar formulário de edição:', error);
+            showMessage('Erro ao carregar dados do membro para edição', 'error');
+        }
+    }
+
+    async function editEvent(eventId) {
+        console.log(`✏️ Editando evento: ${eventId}`);
+        const event = events.find(e => e.id == eventId);
+        if (!event) {
+            console.error('❌ Evento não encontrado');
+            showMessage('Evento não encontrado', 'error');
+            return;
         }
 
-        // Altera o texto do botão
-        const submitBtn = document.getElementById('memberSubmitBtn');
-        submitBtn.querySelector('span').textContent = 'Atualizar Membro';
+        try {
+            // Preenche o formulário com os dados do evento
+            document.getElementById('eventTitle').value = event.title || '';
+            document.getElementById('eventDate').value = event.event_date || '';
+            document.getElementById('eventTime').value = event.event_time || '';
+            document.getElementById('eventLocation').value = event.location || '';
+            document.getElementById('eventDescription').value = event.description || '';
 
-        // Armazena o ID do membro sendo editado
-        currentEditingMemberId = memberId;
-        console.log(`✅ currentEditingMemberId definido como: ${currentEditingMemberId}`);
+            // Limpa e atualiza as fotos
+            eventPhotosFiles = [];
+            const preview = document.getElementById('eventPhotosPreview');
+            preview.innerHTML = '';
 
-        // Rola até o formulário
-        document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
-        
-        // Ativa a tab de membros
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelector('.tab[data-tab="member"]').classList.add('active');
-        
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        document.getElementById('member-form').classList.add('active');
+            // Altera o texto do botão
+            document.getElementById('eventSubmitText').textContent = 'Atualizar Evento';
 
-        console.log('✅ Formulário de edição preparado');
+            // Armazena o ID do evento sendo editado
+            currentEditingEventId = eventId;
+            console.log(`✅ currentEditingEventId definido como: ${currentEditingEventId}`);
+
+            // Rola até o formulário
+            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
+            
+            // Ativa a tab de eventos
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="event"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('event-form').classList.add('active');
+
+            console.log('✅ Formulário de edição do evento preparado');
+            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Evento".', 'success');
+            
+        } catch (error) {
+            console.error('❌ Erro ao preparar formulário de edição do evento:', error);
+            showMessage('Erro ao carregar dados do evento para edição', 'error');
+        }
+    }
+
+    async function editDarceiro(darceiroId) {
+        console.log(`✏️ Editando parceiro: ${darceiroId}`);
+        const darceiro = darceiros.find(d => d.id == darceiroId);
+        if (!darceiro) {
+            console.error('❌ Parceiro não encontrado');
+            showMessage('Parceiro não encontrado', 'error');
+            return;
+        }
+
+        try {
+            // Preenche o formulário com os dados do parceiro
+            document.getElementById('darceiroName').value = darceiro.name || '';
+            document.getElementById('darceiroType').value = darceiro.type || '';
+            document.getElementById('darceiroContact').value = darceiro.contact || '';
+            document.getElementById('darceiroWebsite').value = darceiro.website || '';
+            document.getElementById('darceiroDescription').value = darceiro.description || '';
+
+            // Atualiza o preview da foto
+            const preview = document.getElementById('darceiroPhotoPreview');
+            if (darceiro.photo) {
+                preview.innerHTML = `<img src="${darceiro.photo}" alt="Preview">`;
+            } else {
+                preview.innerHTML = '<div class="placeholder">Logo/Foto</div>';
+            }
+
+            // Limpa o input de arquivo para permitir nova seleção
+            const darceiroPhotoInput = document.getElementById('darceiroPhoto');
+            darceiroPhotoInput.value = '';
+
+            // Altera o texto do botão
+            document.getElementById('darceiroSubmitText').textContent = 'Atualizar Parceiro';
+
+            // Armazena o ID do parceiro sendo editado
+            currentEditingDarceiroId = darceiroId;
+            console.log(`✅ currentEditingDarceiroId definido como: ${currentEditingDarceiroId}`);
+
+            // Rola até o formulário
+            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
+            
+            // Ativa a tab de parceiros
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="darceiro"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('darceiro-form').classList.add('active');
+
+            console.log('✅ Formulário de edição do parceiro preparado');
+            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Parceiro".', 'success');
+            
+        } catch (error) {
+            console.error('❌ Erro ao preparar formulário de edição do parceiro:', error);
+            showMessage('Erro ao carregar dados do parceiro para edição', 'error');
+        }
+    }
+
+    async function editSponsor(sponsorId) {
+        console.log(`✏️ Editando patrocinador: ${sponsorId}`);
+        const sponsor = sponsors.find(s => s.id == sponsorId);
+        if (!sponsor) {
+            console.error('❌ Patrocinador não encontrado');
+            showMessage('Patrocinador não encontrado', 'error');
+            return;
+        }
+
+        try {
+            // Preenche o formulário com os dados do patrocinador
+            document.getElementById('sponsorName').value = sponsor.name || '';
+            document.getElementById('sponsorLevel').value = sponsor.level || '';
+            document.getElementById('sponsorContact').value = sponsor.contact || '';
+            document.getElementById('sponsorWebsite').value = sponsor.website || '';
+            document.getElementById('sponsorDescription').value = sponsor.description || '';
+
+            // Atualiza o preview do logo
+            const preview = document.getElementById('sponsorLogoPreview');
+            if (sponsor.logo) {
+                preview.innerHTML = `<img src="${sponsor.logo}" alt="Preview">`;
+            } else {
+                preview.innerHTML = '<div class="placeholder">Logo do Patrocinador</div>';
+            }
+
+            // Limpa o input de arquivo para permitir nova seleção
+            const sponsorLogoInput = document.getElementById('sponsorLogo');
+            sponsorLogoInput.value = '';
+
+            // Altera o texto do botão
+            document.getElementById('sponsorSubmitText').textContent = 'Atualizar Patrocinador';
+
+            // Armazena o ID do patrocinador sendo editado
+            currentEditingSponsorId = sponsorId;
+            console.log(`✅ currentEditingSponsorId definido como: ${currentEditingSponsorId}`);
+
+            // Rola até o formulário
+            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
+            
+            // Ativa a tab de patrocinadores
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="sponsor"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('sponsor-form').classList.add('active');
+
+            console.log('✅ Formulário de edição do patrocinador preparado');
+            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Patrocinador".', 'success');
+            
+        } catch (error) {
+            console.error('❌ Erro ao preparar formulário de edição do patrocinador:', error);
+            showMessage('Erro ao carregar dados do patrocinador para edição', 'error');
+        }
     }
 
     // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
@@ -2273,6 +2451,7 @@
                 <p>${member.bio || 'Sem descrição'}</p>
                 <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
                     Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
+                    ${member.updated_at ? `<br>Atualizado em: ${new Date(member.updated_at).toLocaleDateString('pt-BR')}` : ''}
                 </p>
             </div>
         `);
@@ -2287,6 +2466,7 @@
             
             return `
                 <div class="card-actions">
+                    <button class="card-action-btn edit" onclick="editEvent('${event.id}')" title="Editar evento">✏️</button>
                     <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
                 </div>
                 <div class="card-image">
@@ -2332,6 +2512,10 @@
                             <em>Nenhuma foto cadastrada</em>
                         </div>
                     `}
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                        Criado em: ${new Date(event.created_at).toLocaleDateString('pt-BR')}
+                        ${event.updated_at ? `<br>Atualizado em: ${new Date(event.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                    </p>
                 </div>
                 <div class="card-footer">
                     <button class="btn btn-success">Participar</button>
@@ -2365,7 +2549,8 @@
     function renderDarceiros() {
         renderList(darceirosList, darceiros, 'darceiros', (darceiro) => `
             <div class="card-actions">
-                <button class="card-action-btn delete" onclick="deleteDarceiro('${darceiro.id}')" title="Excluir darceiro">🗑️</button>
+                <button class="card-action-btn edit" onclick="editDarceiro('${darceiro.id}')" title="Editar parceiro">✏️</button>
+                <button class="card-action-btn delete" onclick="deleteDarceiro('${darceiro.id}')" title="Excluir parceiro">🗑️</button>
             </div>
             <div class="card-image">
                 <img src="${darceiro.photo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${darceiro.name}" loading="lazy">
@@ -2378,6 +2563,10 @@
                 <p><strong>Contato:</strong> ${darceiro.contact}</p>
                 ${darceiro.website ? `<p><strong>Website:</strong> <a href="${darceiro.website}" target="_blank">${darceiro.website}</a></p>` : ''}
                 <p>${darceiro.description || 'Sem descrição'}</p>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                    Cadastrado em: ${new Date(darceiro.created_at).toLocaleDateString('pt-BR')}
+                    ${darceiro.updated_at ? `<br>Atualizado em: ${new Date(darceiro.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                </p>
             </div>
         `);
     }
@@ -2385,6 +2574,7 @@
     function renderSponsors() {
         renderList(sponsorsList, sponsors, 'sponsors', (sponsor) => `
             <div class="card-actions">
+                <button class="card-action-btn edit" onclick="editSponsor('${sponsor.id}')" title="Editar patrocinador">✏️</button>
                 <button class="card-action-btn delete" onclick="deleteSponsor('${sponsor.id}')" title="Excluir patrocinador">🗑️</button>
             </div>
             <div class="card-image">
@@ -2398,6 +2588,10 @@
                 <p><strong>Contato:</strong> ${sponsor.contact}</p>
                 ${sponsor.website ? `<p><strong>Website:</strong> <a href="${sponsor.website}" target="_blank">${sponsor.website}</a></p>` : ''}
                 <p>${sponsor.description || 'Sem descrição'}</p>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                    Cadastrado em: ${new Date(sponsor.created_at).toLocaleDateString('pt-BR')}
+                    ${sponsor.updated_at ? `<br>Atualizado em: ${new Date(sponsor.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                </p>
             </div>
         `);
     }
@@ -2572,6 +2766,9 @@
                         content.classList.add('active');
                     }
                 });
+
+                // Limpa os IDs de edição quando muda de tab
+                resetEditingIds();
             });
         });
 
@@ -2602,21 +2799,16 @@
                 
                 console.log('📊 Dados do membro:', memberData);
                 
-                const success = await saveData('members', memberData, memberPhotoFile, STORAGE_BUCKETS.MEMBERS, 'memberSubmitBtn');
+                // Verifica se todos os campos obrigatórios estão preenchidos
+                if (!memberData.name || !memberData.email || !memberData.role) {
+                    showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Email e Cargo).', 'error');
+                    return;
+                }
+                
+                const success = await saveData('members', memberData, memberPhotoFile, STORAGE_BUCKETS.MEMBERS, 'memberSubmitBtn', currentEditingMemberId);
                 
                 if (success) {
-                    // Reseta o formulário apenas se foi bem-sucedido
-                    memberForm.reset();
-                    const preview = document.getElementById('memberPhotoPreview');
-                    if (preview) preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
-                    memberPhotoInput.value = '';
-                    
-                    // Reseta o botão para cadastrar
-                    const submitBtn = document.getElementById('memberSubmitBtn');
-                    submitBtn.querySelector('span').textContent = 'Cadastrar Membro';
-                    currentEditingMemberId = null;
-                    
-                    console.log('✅ Formulário resetado e currentEditingMemberId limpo');
+                    resetForm('member');
                 }
             });
         }
@@ -2633,14 +2825,15 @@
                     description: document.getElementById('eventDescription')?.value || ''
                 };
                 
-                // Usa o array global de fotos do evento
-                await saveData('events', eventData, eventPhotosFiles, STORAGE_BUCKETS.EVENTS, 'eventSubmitBtn');
-                eventForm.reset();
+                // Verifica se todos os campos obrigatórios estão preenchidos
+                if (!eventData.title || !eventData.event_date || !eventData.event_time || !eventData.location) {
+                    showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
+                    return;
+                }
                 
-                // Limpa o preview das fotos e o array
-                const preview = document.getElementById('eventPhotosPreview');
-                if (preview) preview.innerHTML = '';
-                eventPhotosFiles = [];
+                // Usa o array global de fotos do evento
+                await saveData('events', eventData, eventPhotosFiles, STORAGE_BUCKETS.EVENTS, 'eventSubmitBtn', currentEditingEventId);
+                resetForm('event');
             });
         }
 
@@ -2659,11 +2852,14 @@
                     description: document.getElementById('darceiroDescription')?.value || ''
                 };
                 
-                await saveData('darceiros', darceiroData, darceiroPhotoFile, STORAGE_BUCKETS.DARCEIROS, 'darceiroSubmitBtn');
-                darceiroForm.reset();
-                const preview = document.getElementById('darceiroPhotoPreview');
-                if (preview) preview.innerHTML = '<div class="placeholder">Logo/Foto</div>';
-                darceiroPhotoInput.value = '';
+                // Verifica se todos os campos obrigatórios estão preenchidos
+                if (!darceiroData.name || !darceiroData.type || !darceiroData.contact) {
+                    showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
+                    return;
+                }
+                
+                await saveData('darceiros', darceiroData, darceiroPhotoFile, STORAGE_BUCKETS.DARCEIROS, 'darceiroSubmitBtn', currentEditingDarceiroId);
+                resetForm('darceiro');
             });
         }
 
@@ -2682,11 +2878,14 @@
                     description: document.getElementById('sponsorDescription')?.value || ''
                 };
                 
-                await saveData('sponsors', sponsorData, sponsorLogoFile, STORAGE_BUCKETS.SPONSORS, 'sponsorSubmitBtn');
-                sponsorForm.reset();
-                const preview = document.getElementById('sponsorLogoPreview');
-                if (preview) preview.innerHTML = '<div class="placeholder">Logo do Patrocinador</div>';
-                sponsorLogoInput.value = '';
+                // Verifica se todos os campos obrigatórios estão preenchidos
+                if (!sponsorData.name || !sponsorData.level || !sponsorData.contact) {
+                    showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
+                    return;
+                }
+                
+                await saveData('sponsors', sponsorData, sponsorLogoFile, STORAGE_BUCKETS.SPONSORS, 'sponsorSubmitBtn', currentEditingSponsorId);
+                resetForm('sponsor');
             });
         }
 
@@ -2717,6 +2916,68 @@
                 }
             });
         });
+    }
+
+    function resetForm(type) {
+        let form, preview, fileInput, submitText, photosPreview;
+        
+        switch(type) {
+            case 'member':
+                form = memberForm;
+                preview = document.getElementById('memberPhotoPreview');
+                fileInput = document.getElementById('memberPhoto');
+                submitText = document.getElementById('memberSubmitText');
+                currentEditingMemberId = null;
+                break;
+            case 'event':
+                form = eventForm;
+                preview = document.getElementById('eventPhotosPreview');
+                fileInput = document.getElementById('eventPhotos');
+                submitText = document.getElementById('eventSubmitText');
+                eventPhotosFiles = [];
+                currentEditingEventId = null;
+                break;
+            case 'darceiro':
+                form = darceiroForm;
+                preview = document.getElementById('darceiroPhotoPreview');
+                fileInput = document.getElementById('darceiroPhoto');
+                submitText = document.getElementById('darceiroSubmitText');
+                currentEditingDarceiroId = null;
+                break;
+            case 'sponsor':
+                form = sponsorForm;
+                preview = document.getElementById('sponsorLogoPreview');
+                fileInput = document.getElementById('sponsorLogo');
+                submitText = document.getElementById('sponsorSubmitText');
+                currentEditingSponsorId = null;
+                break;
+        }
+        
+        if (form) form.reset();
+        if (preview) {
+            if (type === 'event') {
+                preview.innerHTML = '';
+            } else {
+                preview.innerHTML = `<div class="placeholder">${type === 'sponsor' ? 'Logo do Patrocinador' : type === 'darceiro' ? 'Logo/Foto' : 'Foto do Membro'}</div>`;
+            }
+        }
+        if (fileInput) fileInput.value = '';
+        if (submitText) submitText.textContent = `Cadastrar ${getEntityName(type)}`;
+        
+        console.log(`✅ Formulário ${type} resetado e IDs de edição limpos`);
+    }
+
+    function resetEditingIds() {
+        currentEditingMemberId = null;
+        currentEditingEventId = null;
+        currentEditingDarceiroId = null;
+        currentEditingSponsorId = null;
+        
+        // Reseta os textos dos botões
+        document.getElementById('memberSubmitText').textContent = 'Cadastrar Membro';
+        document.getElementById('eventSubmitText').textContent = 'Cadastrar Evento';
+        document.getElementById('darceiroSubmitText').textContent = 'Cadastrar Parceiro';
+        document.getElementById('sponsorSubmitText').textContent = 'Cadastrar Patrocinador';
     }
 
     function setupImageUpload(inputId, previewId) {
@@ -2938,4 +3199,3 @@
     
 </body>
 </html>
-
