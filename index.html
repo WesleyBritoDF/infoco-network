@@ -832,96 +832,77 @@
             background: #2c5282;
         }
 
-        /* Chat Styles - CORREÇÕES APLICADAS */
-        .chat-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 350px;
-            height: 450px;
-            background: white;
+        /* Chat Styles - NOVO CHAT POR EVENTO */
+        .event-chat-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .event-chat-container {
+            background-color: white;
             border-radius: var(--radius);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            display: flex;
-            flex-direction: column;
-            z-index: 999;
+            box-shadow: var(--shadow);
             overflow: hidden;
             border: 1px solid #e2e8f0;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            margin-top: 1.5rem;
         }
 
-        .chat-container.open {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .chat-header {
+        .event-chat-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
             color: white;
-            padding: 1rem;
+            padding: 1rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .chat-header h3 {
+        .event-chat-header h4 {
             margin: 0;
             font-size: 1.1rem;
         }
 
-        .chat-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
+        .event-chat-toggle {
+            background: transparent;
             color: white;
-            border: none;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: var(--radius);
+            padding: 0.5rem 1rem;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            z-index: 998;
             transition: var(--transition);
-            font-size: 1.5rem;
         }
 
-        .chat-toggle:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        .event-chat-toggle:hover {
+            background: rgba(255,255,255,0.1);
         }
 
-        .chat-toggle.open {
-            transform: rotate(45deg);
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 1rem;
+        .event-chat-messages {
+            height: 300px;
             overflow-y: auto;
+            padding: 1rem;
             background-color: #f8f9fa;
+            display: none;
         }
 
-        .message {
+        .event-chat-messages.open {
+            display: block;
+        }
+
+        .event-message {
             margin-bottom: 1rem;
             display: flex;
             flex-direction: column;
         }
 
-        .message.sent {
+        .event-message.sent {
             align-items: flex-end;
         }
 
-        .message.received {
+        .event-message.received {
             align-items: flex-start;
         }
 
-        .message-bubble {
+        .event-message-bubble {
             max-width: 80%;
             padding: 0.7rem 1rem;
             border-radius: 18px;
@@ -929,33 +910,37 @@
             word-wrap: break-word;
         }
 
-        .message.sent .message-bubble {
+        .event-message.sent .event-message-bubble {
             background: var(--secondary-color);
             color: white;
             border-bottom-right-radius: 4px;
         }
 
-        .message.received .message-bubble {
+        .event-message.received .event-message-bubble {
             background: white;
             color: var(--dark-color);
             border: 1px solid #e2e8f0;
             border-bottom-left-radius: 4px;
         }
 
-        .message-info {
+        .event-message-info {
             font-size: 0.7rem;
             color: #a0aec0;
             margin-top: 0.3rem;
         }
 
-        .chat-input-container {
-            display: flex;
+        .event-chat-input-container {
+            display: none;
             padding: 1rem;
             border-top: 1px solid #e2e8f0;
             background: white;
         }
 
-        .chat-input {
+        .event-chat-input-container.open {
+            display: flex;
+        }
+
+        .event-chat-input {
             flex: 1;
             padding: 0.7rem;
             border: 1px solid #cbd5e0;
@@ -964,7 +949,7 @@
             font-size: 0.9rem;
         }
 
-        .chat-send-btn {
+        .event-chat-send-btn {
             background: var(--secondary-color);
             color: white;
             border: none;
@@ -974,8 +959,15 @@
             transition: var(--transition);
         }
 
-        .chat-send-btn:hover {
+        .event-chat-send-btn:hover {
             background: #2c5282;
+        }
+
+        .no-chat-messages {
+            text-align: center;
+            color: #a0aec0;
+            padding: 2rem;
+            font-style: italic;
         }
 
         /* Footer */
@@ -1079,17 +1071,8 @@
                 left: 10px;
             }
 
-            .chat-container {
-                width: calc(100% - 40px);
-                height: 60vh;
-                bottom: 80px;
-                right: 20px;
-                left: 20px;
-            }
-            
-            .chat-toggle {
-                bottom: 20px;
-                right: 20px;
+            .event-chat-messages {
+                height: 250px;
             }
         }
     </style>
@@ -1114,7 +1097,7 @@
                         NETWORK <span style="color: #ffffff;">IN FOCO </span>
                     </h1>
                     <h2 style="margin: 5px 0 0 0; font-size: 10px; color: #fffffff; font-weight: normal;">
-                        Versão 1 <b>develop</b> | © 2025
+                        Versão 2 <b>develop</b> | © 2025
                     </h2>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
@@ -1404,26 +1387,6 @@
         </div>
     </footer>
 
-    <!-- Chat Toggle Button -->
-    <button class="chat-toggle" id="chatToggle">
-        💬
-    </button>
-
-    <!-- Chat Container -->
-    <div class="chat-container" id="chatContainer">
-        <div class="chat-header">
-            <h3>Chat da Comunidade</h3>
-            <button class="chat-close" id="chatClose">✕</button>
-        </div>
-        <div class="chat-messages" id="chatMessages">
-            <!-- Messages will be dynamically added here -->
-        </div>
-        <div class="chat-input-container">
-            <input type="text" class="chat-input" id="chatInput" placeholder="Digite sua mensagem...">
-            <button class="chat-send-btn" id="chatSendBtn">Enviar</button>
-        </div>
-    </div>
-
     <!-- Modal para galeria de fotos -->
     <div class="gallery-modal" id="galleryModal">
         <button class="gallery-modal-close" onclick="closeGallery()">×</button>
@@ -1462,7 +1425,7 @@
     let currentPhotoIndex = 0;
 
     // Variáveis para chat
-    let chatMessages = [];
+    let eventChats = {};
     let currentUser = null;
 
     // ========== DOM ELEMENTS ==========
@@ -1479,14 +1442,6 @@
     const galleryModal = document.getElementById('galleryModal');
     const galleryImage = document.getElementById('galleryImage');
     const galleryCounter = document.getElementById('galleryCounter');
-    
-    // Chat elements
-    const chatToggle = document.getElementById('chatToggle');
-    const chatContainer = document.getElementById('chatContainer');
-    const chatMessagesContainer = document.getElementById('chatMessages');
-    const chatInput = document.getElementById('chatInput');
-    const chatSendBtn = document.getElementById('chatSendBtn');
-    const chatClose = document.getElementById('chatClose');
 
     // ========== INICIALIZAÇÃO DO SUPABASE ==========
     async function initializeSupabase() {
@@ -1633,6 +1588,218 @@
     async function loadSponsors() {
         sponsors = await loadData('sponsors');
         renderSponsors();
+    }
+
+    // ========== FUNÇÕES DO CHAT POR EVENTO ==========
+    async function loadEventChats() {
+        try {
+            if (isOnline) {
+                const { data, error } = await supabase
+                    .from('event_chats')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+                
+                if (error) throw error;
+                
+                // Organiza as mensagens por evento
+                eventChats = {};
+                data.forEach(message => {
+                    if (!eventChats[message.event_id]) {
+                        eventChats[message.event_id] = [];
+                    }
+                    eventChats[message.event_id].push(message);
+                });
+                
+                saveToLocalStorage('event_chats', data);
+            } else {
+                const allChats = loadFromLocalStorage('event_chats') || [];
+                eventChats = {};
+                allChats.forEach(message => {
+                    if (!eventChats[message.event_id]) {
+                        eventChats[message.event_id] = [];
+                    }
+                    eventChats[message.event_id].push(message);
+                });
+            }
+        } catch (error) {
+            console.error('Erro ao carregar chats:', error);
+            const allChats = loadFromLocalStorage('event_chats') || [];
+            eventChats = {};
+            allChats.forEach(message => {
+                if (!eventChats[message.event_id]) {
+                    eventChats[message.event_id] = [];
+                }
+                eventChats[message.event_id].push(message);
+            });
+        }
+    }
+
+    async function sendEventMessage(eventId, messageText) {
+        try {
+            if (!currentUser) {
+                // Se não há usuário atual, cria um anônimo
+                currentUser = {
+                    id: 'user_' + Date.now(),
+                    name: 'Usuário Anônimo',
+                    photo: null
+                };
+            }
+
+            const newMessage = {
+                event_id: eventId,
+                sender_id: currentUser.id,
+                sender_name: currentUser.name,
+                message: messageText,
+                created_at: new Date().toISOString()
+            };
+
+            if (isOnline) {
+                const { data, error } = await supabase
+                    .from('event_chats')
+                    .insert([newMessage])
+                    .select();
+                
+                if (error) throw error;
+                
+                // Adiciona a mensagem ao chat local
+                if (!eventChats[eventId]) {
+                    eventChats[eventId] = [];
+                }
+                eventChats[eventId].push(data[0]);
+                
+                // Atualiza o localStorage
+                const allChats = loadFromLocalStorage('event_chats') || [];
+                allChats.push(data[0]);
+                saveToLocalStorage('event_chats', allChats);
+            } else {
+                // Modo offline
+                newMessage.id = 'msg_' + Date.now();
+                if (!eventChats[eventId]) {
+                    eventChats[eventId] = [];
+                }
+                eventChats[eventId].push(newMessage);
+                
+                // Atualiza o localStorage
+                const allChats = loadFromLocalStorage('event_chats') || [];
+                allChats.push(newMessage);
+                saveToLocalStorage('event_chats', allChats);
+            }
+
+            // Atualiza a interface
+            renderEventChat(eventId);
+            
+            return true;
+        } catch (error) {
+            console.error('Erro ao enviar mensagem:', error);
+            showMessage('Erro ao enviar mensagem: ' + error.message, 'error');
+            return false;
+        }
+    }
+
+    function renderEventChat(eventId) {
+        const chatContainer = document.getElementById(`event-chat-${eventId}`);
+        if (!chatContainer) return;
+
+        const messagesContainer = chatContainer.querySelector('.event-chat-messages');
+        const messages = eventChats[eventId] || [];
+
+        messagesContainer.innerHTML = '';
+
+        if (messages.length === 0) {
+            messagesContainer.innerHTML = `
+                <div class="no-chat-messages">
+                    Nenhuma mensagem ainda. Seja o primeiro a comentar sobre este evento!
+                </div>
+            `;
+            return;
+        }
+
+        messages.forEach(message => {
+            const messageDiv = document.createElement('div');
+            const isCurrentUser = message.sender_id === currentUser?.id;
+            
+            messageDiv.className = `event-message ${isCurrentUser ? 'sent' : 'received'}`;
+            
+            const messageDate = new Date(message.created_at);
+            const timeString = messageDate.toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            messageDiv.innerHTML = `
+                <div class="event-message-bubble">
+                    ${message.message}
+                </div>
+                <div class="event-message-info">
+                    ${message.sender_name} • ${timeString}
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+        });
+
+        // Scroll para a última mensagem
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function toggleEventChat(eventId) {
+        const chatContainer = document.getElementById(`event-chat-${eventId}`);
+        if (!chatContainer) return;
+
+        const messagesContainer = chatContainer.querySelector('.event-chat-messages');
+        const inputContainer = chatContainer.querySelector('.event-chat-input-container');
+        const toggleButton = chatContainer.querySelector('.event-chat-toggle');
+
+        const isOpen = messagesContainer.classList.contains('open');
+        
+        if (isOpen) {
+            messagesContainer.classList.remove('open');
+            inputContainer.classList.remove('open');
+            toggleButton.textContent = 'Abrir Chat';
+        } else {
+            messagesContainer.classList.add('open');
+            inputContainer.classList.add('open');
+            toggleButton.textContent = 'Fechar Chat';
+            
+            // Carrega as mensagens se ainda não foram carregadas
+            if (!eventChats[eventId]) {
+                loadEventChats().then(() => {
+                    renderEventChat(eventId);
+                });
+            } else {
+                renderEventChat(eventId);
+            }
+            
+            // Foca no input
+            const input = inputContainer.querySelector('.event-chat-input');
+            setTimeout(() => input.focus(), 100);
+        }
+    }
+
+    function setupEventChat(eventId) {
+        const chatContainer = document.getElementById(`event-chat-${eventId}`);
+        if (!chatContainer) return;
+
+        const input = chatContainer.querySelector('.event-chat-input');
+        const sendButton = chatContainer.querySelector('.event-chat-send-btn');
+
+        const sendMessageHandler = () => {
+            const messageText = input.value.trim();
+            if (!messageText) return;
+
+            sendEventMessage(eventId, messageText).then(success => {
+                if (success) {
+                    input.value = '';
+                }
+            });
+        };
+
+        sendButton.addEventListener('click', sendMessageHandler);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessageHandler();
+            }
+        });
     }
 
     // ========== FUNÇÃO DE UPLOAD DE IMAGENS ==========
@@ -2122,7 +2289,29 @@
                 <div class="card-footer">
                     <button class="btn btn-success">Participar</button>
                 </div>
+                
+                <!-- Chat do Evento -->
+                <div class="event-chat-section">
+                    <div class="event-chat-container" id="event-chat-${event.id}">
+                        <div class="event-chat-header">
+                            <h4>💬 Chat do Evento</h4>
+                            <button class="event-chat-toggle" onclick="toggleEventChat('${event.id}')">Abrir Chat</button>
+                        </div>
+                        <div class="event-chat-messages">
+                            <!-- Mensagens serão carregadas aqui -->
+                        </div>
+                        <div class="event-chat-input-container">
+                            <input type="text" class="event-chat-input" placeholder="Digite sua mensagem sobre o evento...">
+                            <button class="event-chat-send-btn">Enviar</button>
+                        </div>
+                    </div>
+                </div>
             `;
+        });
+        
+        // Configura os chats após renderizar os eventos
+        events.forEach(event => {
+            setupEventChat(event.id);
         });
     }
 
@@ -2243,164 +2432,6 @@
             closeGallery();
         }
     });
-
-    // ========== FUNÇÕES DO CHAT ==========
-    function setupChat() {
-        console.log('Inicializando chat...');
-        
-        // Inicializa o usuário atual (simulação)
-        currentUser = {
-            id: 'user_' + Date.now(),
-            name: 'Usuário Anônimo',
-            photo: null
-        };
-        
-        // Carrega mensagens do localStorage
-        loadChatMessages();
-        
-        // Configura eventos do chat
-        if (chatToggle) {
-            chatToggle.addEventListener('click', toggleChat);
-            console.log('Botão do chat configurado');
-        } else {
-            console.error('Botão do chat não encontrado');
-        }
-        
-        if (chatClose) {
-            chatClose.addEventListener('click', closeChat);
-        }
-        
-        if (chatSendBtn) {
-            chatSendBtn.addEventListener('click', sendMessage);
-        }
-        
-        if (chatInput) {
-            chatInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
-            });
-        }
-        
-        // Adiciona mensagem de boas-vindas se não houver mensagens
-        if (chatMessages.length === 0) {
-            const welcomeMessage = {
-                id: 'msg_welcome',
-                text: 'Bem-vindo ao chat da comunidade NETWORK IN FOCO! Conecte-se com outros membros e compartilhe ideias.',
-                senderId: 'system',
-                senderName: 'Sistema',
-                timestamp: new Date().toISOString()
-            };
-            chatMessages.push(welcomeMessage);
-            saveToLocalStorage('chat_messages', chatMessages);
-            renderChatMessages();
-        }
-    }
-
-    function toggleChat() {
-        chatContainer.classList.toggle('open');
-        chatToggle.classList.toggle('open');
-        
-        if (chatContainer.classList.contains('open')) {
-            chatInput.focus();
-            scrollChatToBottom();
-        }
-    }
-
-    function closeChat() {
-        chatContainer.classList.remove('open');
-        chatToggle.classList.remove('open');
-    }
-
-    function loadChatMessages() {
-        chatMessages = loadFromLocalStorage('chat_messages') || [];
-        renderChatMessages();
-    }
-
-    function renderChatMessages() {
-        if (!chatMessagesContainer) {
-            console.error('Container de mensagens do chat não encontrado');
-            return;
-        }
-        
-        chatMessagesContainer.innerHTML = '';
-        
-        if (chatMessages.length === 0) {
-            chatMessagesContainer.innerHTML = `
-                <div style="text-align: center; color: #a0aec0; padding: 2rem;">
-                    <p>Nenhuma mensagem ainda.</p>
-                    <p>Seja o primeiro a enviar uma mensagem!</p>
-                </div>
-            `;
-            return;
-        }
-        
-        chatMessages.forEach(message => {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${message.senderId === currentUser.id ? 'sent' : 'received'}`;
-            
-            const messageDate = new Date(message.timestamp);
-            const timeString = messageDate.toLocaleTimeString('pt-BR', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
-            
-            messageDiv.innerHTML = `
-                <div class="message-bubble">
-                    ${message.text}
-                </div>
-                <div class="message-info">
-                    ${message.senderName} • ${timeString}
-                </div>
-            `;
-            
-            chatMessagesContainer.appendChild(messageDiv);
-        });
-        
-        scrollChatToBottom();
-    }
-
-    function scrollChatToBottom() {
-        if (chatMessagesContainer) {
-            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
-        }
-    }
-
-    function sendMessage() {
-        const messageText = chatInput.value.trim();
-        if (!messageText) return;
-        
-        const newMessage = {
-            id: 'msg_' + Date.now(),
-            text: messageText,
-            senderId: currentUser.id,
-            senderName: currentUser.name,
-            timestamp: new Date().toISOString()
-        };
-        
-        chatMessages.push(newMessage);
-        saveToLocalStorage('chat_messages', chatMessages);
-        
-        renderChatMessages();
-        
-        // Limpa o input
-        chatInput.value = '';
-        
-        // Simula resposta automática após alguns segundos
-        setTimeout(() => {
-            const autoReply = {
-                id: 'msg_' + Date.now(),
-                text: 'Obrigado pela sua mensagem! Em breve alguém da comunidade irá responder.',
-                senderId: 'system',
-                senderName: 'Sistema',
-                timestamp: new Date().toISOString()
-            };
-            
-            chatMessages.push(autoReply);
-            saveToLocalStorage('chat_messages', chatMessages);
-            renderChatMessages();
-        }, 3000);
-    }
 
     // ========== FUNÇÕES AUXILIARES ==========
     function updateSyncStatus(online) {
@@ -2786,14 +2817,22 @@
             console.log('Inicializando aplicação...');
             const supabaseInitialized = await initializeSupabase();
             
-            setupEventListeners();
-            setupChat();
+            // Inicializa o usuário atual
+            currentUser = {
+                id: 'user_' + Date.now(),
+                name: 'Usuário Anônimo',
+                photo: null
+            };
             
+            setupEventListeners();
+            
+            // Carrega dados e chats
             await Promise.all([
                 loadMembers(),
                 loadEvents(),
                 loadDarceiros(),
-                loadSponsors()
+                loadSponsors(),
+                loadEventChats()
             ]);
             
             if (supabaseInitialized) {
@@ -2808,6 +2847,7 @@
                     await loadEvents();
                     await loadDarceiros();
                     await loadSponsors();
+                    await loadEventChats();
                 }
             }, 30000);
             
