@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="NETWORK IN FOCO - Sistema completo com usuários e chat">
+    <meta name="description" content="NETWORK IN FOCO - Sistema completo de gerenciamento">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0/dist/umd/supabase.min.js"></script>
     <title>NETWORK IN FOCO - Sistema Completo</title>
     <style>
@@ -967,7 +967,6 @@
                 <nav>
                     <ul>
                         <li><a href="#" class="active">Início</a></li>
-                        <li><a href="#usuarios">Usuários</a></li>
                         <li><a href="#membros">Membros</a></li>
                         <li><a href="#eventos">Eventos</a></li>
                         <li><a href="#cadastro">Cadastro</a></li>
@@ -981,7 +980,7 @@
     <section class="hero">
         <div class="container">
             <h2>Conecte-se. Compartilhe. Cresça.</h2>
-            <p>Uma plataforma completa para gerenciar usuários, membros, eventos e conversas.</p>
+            <p>Uma plataforma completa para gerenciar membros, eventos e conversas.</p>
             <a href="#cadastro" class="btn">Começar Agora</a>
             <a href="#eventos" class="btn btn-secondary">Ver Eventos</a>
         </div>
@@ -989,14 +988,6 @@
 
     <!-- Main Content -->
     <main class="container">
-        <!-- Users Section -->
-        <section id="usuarios">
-            <h2 class="section-title">Nossos Usuários</h2>
-            <div class="cards-grid" id="users-list">
-                <!-- Users will be dynamically added here -->
-            </div>
-        </section>
-
         <!-- Members Section -->
         <section id="membros">
             <h2 class="section-title">Nossos Membros</h2>
@@ -1017,50 +1008,13 @@
         <section id="cadastro">
             <h2 class="section-title">Cadastro</h2>
             <div class="tabs">
-                <div class="tab active" data-tab="user">Cadastrar Usuário</div>
-                <div class="tab" data-tab="member">Cadastrar Membro</div>
+                <div class="tab active" data-tab="member">Cadastrar Membro</div>
                 <div class="tab" data-tab="event">Cadastrar Evento</div>
                 <div class="tab admin" data-tab="admin">Administradores</div>
             </div>
 
-            <!-- User Form -->
-            <div class="tab-content active" id="user-form">
-                <div class="form-container">
-                    <form id="userRegistrationForm">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="userName">Nome Completo *</label>
-                                <input type="text" id="userName" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="userEmail">E-mail *</label>
-                                <input type="email" id="userEmail" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="userPhone">Telefone</label>
-                                <input type="tel" id="userPhone" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="userRole">Cargo/Função *</label>
-                                <input type="text" id="userRole" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="userBio">Biografia/Descrição *</label>
-                            <textarea id="userBio" class="form-control" rows="4" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-user" id="userSubmitBtn">
-                            <span id="userSubmitText">Cadastrar Usuário</span>
-                            <div class="btn-loading">Enviando...</div>
-                        </button>
-                    </form>
-                </div>
-            </div>
-
             <!-- Member Form -->
-            <div class="tab-content" id="member-form">
+            <div class="tab-content active" id="member-form">
                 <div class="form-container">
                     <form id="memberRegistrationForm">
                         <div class="image-upload-container">
@@ -1142,7 +1096,7 @@
             <div class="tab-content" id="admin-form">
                 <div class="form-container">
                     <h3 style="margin-bottom: 1.5rem; color: var(--admin-color);">Painel de Administração</h3>
-                    <p style="margin-bottom: 1.5rem;">Aqui você pode gerenciar usuários e permissões do sistema.</p>
+                    <p style="margin-bottom: 1.5rem;">Aqui você pode gerenciar permissões do sistema.</p>
                     
                     <div class="form-group">
                         <label for="adminPassword">Senha de Administrador *</label>
@@ -1155,14 +1109,6 @@
                             <option value="">Selecione uma ação...</option>
                             <option value="promote">Promover usuário a administrador</option>
                             <option value="demote">Rebaixar administrador a usuário</option>
-                            <option value="delete">Excluir usuário</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group" id="userSelectContainer" style="display: none;">
-                        <label for="userSelect">Selecionar Usuário</label>
-                        <select id="userSelect" class="form-control">
-                            <option value="">Selecione um usuário...</option>
                         </select>
                     </div>
                     
@@ -1212,14 +1158,12 @@
     let events = [];
     let isOnline = true;
     let currentUser = null;
-    let currentEditingUserId = null;
     let currentEditingMemberId = null;
     let currentEditingEventId = null;
     let eventChats = {};
     let adminPassword = "admin123";
 
     // ========== DOM ELEMENTS ==========
-    const usersList = document.getElementById('users-list');
     const membersList = document.getElementById('members-list');
     const eventsList = document.getElementById('events-list');
     const syncStatus = document.getElementById('syncStatus');
@@ -1342,10 +1286,7 @@
     async function loadUsers() {
         try {
             users = await loadData('users');
-            if (usersList) {
-                renderUsers();
-            }
-            populateUserSelect();
+            console.log('👥 Usuários carregados (para controle de acesso)');
         } catch (error) {
             console.error('Erro ao carregar usuários:', error);
         }
@@ -1374,48 +1315,201 @@
         }
     }
 
-    // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
-    function renderUsers() {
-        if (!usersList) {
-            console.error('Elemento users-list não encontrado');
-            return;
+    // ========== FUNÇÕES DO CHAT ==========
+    async function loadEventChats() {
+        try {
+            if (isOnline) {
+                const { data, error } = await supabase
+                    .from('event_chats')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+                
+                if (error) throw error;
+                
+                eventChats = {};
+                data.forEach(message => {
+                    if (!eventChats[message.event_id]) {
+                        eventChats[message.event_id] = [];
+                    }
+                    eventChats[message.event_id].push(message);
+                });
+                
+                saveToLocalStorage('event_chats', data);
+            } else {
+                const allChats = loadFromLocalStorage('event_chats') || [];
+                eventChats = {};
+                allChats.forEach(message => {
+                    if (!eventChats[message.event_id]) {
+                        eventChats[message.event_id] = [];
+                    }
+                    eventChats[message.event_id].push(message);
+                });
+            }
+        } catch (error) {
+            console.error('Erro ao carregar chats:', error);
         }
-        
-        renderList(usersList, users, 'users', (user) => {
-            const isAdmin = user.is_admin;
-            const canEdit = isCurrentUserAdmin();
-            
-            return `
-                <div class="card-actions">
-                    ${canEdit ? `
-                        <button class="card-action-btn edit" onclick="editUser('${user.id}')" title="Editar usuário">✏️</button>
-                        <button class="card-action-btn delete" onclick="deleteUser('${user.id}')" title="Excluir usuário">🗑️</button>
-                    ` : ''}
-                </div>
-                <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${user.name}" loading="lazy">
-                </div>
-                <div class="card-header ${isAdmin ? 'admin' : 'user'}">
-                    <h3>${user.name}</h3>
-                    <span class="${isAdmin ? 'admin-badge' : 'user-badge'}">${isAdmin ? 'Administrador' : 'Usuário'}</span>
-                </div>
-                <div class="card-body">
-                    <p><strong>Email:</strong> ${user.email}</p>
-                    ${user.phone ? `<p><strong>Telefone:</strong> ${user.phone}</p>` : ''}
-                    <p><strong>Cargo:</strong> ${user.role}</p>
-                    <p>${user.bio || 'Sem descrição'}</p>
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                        Cadastrado em: ${new Date(user.created_at).toLocaleDateString('pt-BR')}
-                        ${user.updated_at ? `<br>Atualizado em: ${new Date(user.updated_at).toLocaleDateString('pt-BR')}` : ''}
-                    </p>
+    }
+
+    async function sendEventMessage(eventId, messageText) {
+        try {
+            if (!currentUser) {
+                showUserLoginModal(eventId);
+                return false;
+            }
+
+            const newMessage = {
+                event_id: eventId,
+                sender_id: currentUser.id,
+                sender_name: currentUser.name,
+                sender_email: currentUser.email,
+                message: messageText,
+                created_at: new Date().toISOString()
+            };
+
+            if (isOnline) {
+                const { data, error } = await supabase
+                    .from('event_chats')
+                    .insert([newMessage])
+                    .select();
+                
+                if (error) throw error;
+                
+                if (!eventChats[eventId]) {
+                    eventChats[eventId] = [];
+                }
+                eventChats[eventId].push(data[0]);
+                
+                const allChats = loadFromLocalStorage('event_chats') || [];
+                allChats.push(data[0]);
+                saveToLocalStorage('event_chats', allChats);
+            } else {
+                newMessage.id = 'msg_' + Date.now();
+                if (!eventChats[eventId]) {
+                    eventChats[eventId] = [];
+                }
+                eventChats[eventId].push(newMessage);
+                
+                const allChats = loadFromLocalStorage('event_chats') || [];
+                allChats.push(newMessage);
+                saveToLocalStorage('event_chats', allChats);
+            }
+
+            renderEventChat(eventId);
+            return true;
+        } catch (error) {
+            console.error('Erro ao enviar mensagem:', error);
+            showMessage('Erro ao enviar mensagem: ' + error.message, 'error');
+            return false;
+        }
+    }
+
+    function renderEventChat(eventId) {
+        const chatContainer = document.getElementById(`event-chat-${eventId}`);
+        if (!chatContainer) return;
+
+        const messagesContainer = chatContainer.querySelector('.event-chat-messages');
+        const messages = eventChats[eventId] || [];
+
+        messagesContainer.innerHTML = '';
+
+        if (messages.length === 0) {
+            messagesContainer.innerHTML = `
+                <div class="no-chat-messages">
+                    Nenhuma mensagem ainda. Seja o primeiro a comentar sobre este evento!
                 </div>
             `;
+            return;
+        }
+
+        messages.forEach(message => {
+            const messageDiv = document.createElement('div');
+            const isCurrentUser = message.sender_id === currentUser?.id;
+            
+            messageDiv.className = `event-message ${isCurrentUser ? 'sent' : 'received'}`;
+            
+            const messageDate = new Date(message.created_at);
+            const timeString = messageDate.toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            messageDiv.innerHTML = `
+                <div class="event-message-bubble">
+                    ${message.message}
+                </div>
+                <div class="event-message-info">
+                    ${message.sender_name} • ${timeString}
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+        });
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function toggleEventChat(eventId) {
+        const chatContainer = document.getElementById(`event-chat-${eventId}`);
+        if (!chatContainer) return;
+
+        const messagesContainer = chatContainer.querySelector('.event-chat-messages');
+        const inputContainer = chatContainer.querySelector('.event-chat-input-container');
+        const toggleButton = chatContainer.querySelector('.event-chat-toggle');
+
+        const isOpen = messagesContainer.classList.contains('open');
+        
+        if (isOpen) {
+            messagesContainer.classList.remove('open');
+            inputContainer.classList.remove('open');
+            toggleButton.textContent = 'Abrir Chat';
+        } else {
+            messagesContainer.classList.add('open');
+            inputContainer.classList.add('open');
+            toggleButton.textContent = 'Fechar Chat';
+            
+            if (!eventChats[eventId]) {
+                loadEventChats().then(() => {
+                    renderEventChat(eventId);
+                });
+            } else {
+                renderEventChat(eventId);
+            }
+            
+            const input = inputContainer.querySelector('.event-chat-input');
+            setTimeout(() => input.focus(), 100);
+        }
+    }
+
+    function setupEventChat(eventId) {
+        const chatContainer = document.getElementById(`event-chat-${eventId}`);
+        if (!chatContainer) return;
+
+        const input = chatContainer.querySelector('.event-chat-input');
+        const sendButton = chatContainer.querySelector('.event-chat-send-btn');
+
+        const sendMessageHandler = () => {
+            const messageText = input.value.trim();
+            if (!messageText) return;
+
+            sendEventMessage(eventId, messageText).then(success => {
+                if (success) {
+                    input.value = '';
+                }
+            });
+        };
+
+        sendButton.addEventListener('click', sendMessageHandler);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessageHandler();
+            }
         });
     }
 
+    // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
     function renderMembers() {
         if (!membersList) {
-            console.error('❌ Elemento members-list não encontrado no DOM');
+            console.error('❌ Elemento members-list não encontrado');
             return;
         }
         
@@ -1486,18 +1580,34 @@
                         ${event.updated_at ? `<br>Atualizado em: ${new Date(event.updated_at).toLocaleDateString('pt-BR')}` : ''}
                     </p>
                 </div>
-                <div class="card-footer">
-                    <button class="btn btn-success">Participar</button>
+                
+                <!-- Chat do Evento -->
+                <div class="event-chat-section">
+                    <div class="event-chat-container" id="event-chat-${event.id}">
+                        <div class="event-chat-header">
+                            <h4>💬 Chat do Evento</h4>
+                            <button class="event-chat-toggle" onclick="toggleEventChat('${event.id}')">Abrir Chat</button>
+                        </div>
+                        <div class="event-chat-messages">
+                            <!-- Mensagens serão carregadas aqui -->
+                        </div>
+                        <div class="event-chat-input-container">
+                            <input type="text" class="event-chat-input" placeholder="Digite sua mensagem sobre o evento...">
+                            <button class="event-chat-send-btn">Enviar</button>
+                        </div>
+                    </div>
                 </div>
             `;
+        });
+        
+        // Configura os chats após renderizar os eventos
+        events.forEach(event => {
+            setupEventChat(event.id);
         });
     }
 
     function renderList(container, data, type, templateFunction) {
-        if (!container) {
-            console.error(`❌ Container não encontrado para: ${type}`);
-            return;
-        }
+        if (!container) return;
         
         container.innerHTML = '';
         
@@ -1618,8 +1728,6 @@
         switch(table) {
             case 'users': 
                 users = loadFromLocalStorage('users'); 
-                renderUsers(); 
-                populateUserSelect();
                 break;
             case 'members': 
                 members = loadFromLocalStorage('members'); 
@@ -1716,10 +1824,6 @@
             saveToLocalStorage(table, updatedData);
             
             switch(table) {
-                case 'users': 
-                    renderUsers(); 
-                    populateUserSelect();
-                    break;
                 case 'members': renderMembers(); break;
                 case 'events': renderEvents(); break;
             }
@@ -1735,39 +1839,6 @@
     }
 
     // ========== FUNÇÕES PARA EDITAR ==========
-    async function editUser(userId) {
-        const user = users.find(u => u.id == userId);
-        if (!user) {
-            showMessage('Usuário não encontrado', 'error');
-            return;
-        }
-
-        try {
-            document.getElementById('userName').value = user.name || '';
-            document.getElementById('userEmail').value = user.email || '';
-            document.getElementById('userPhone').value = user.phone || '';
-            document.getElementById('userRole').value = user.role || '';
-            document.getElementById('userBio').value = user.bio || '';
-
-            document.getElementById('userSubmitText').textContent = 'Atualizar Usuário';
-            currentEditingUserId = userId;
-
-            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
-            
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelector('.tab[data-tab="user"]').classList.add('active');
-            
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById('user-form').classList.add('active');
-
-            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Usuário".', 'success');
-            
-        } catch (error) {
-            console.error('Erro ao preparar formulário de edição:', error);
-            showMessage('Erro ao carregar dados do usuário para edição', 'error');
-        }
-    }
-
     async function editMember(memberId) {
         const member = members.find(m => m.id == memberId);
         if (!member) {
@@ -1935,20 +2006,6 @@
         return currentUser && currentUser.is_admin === true;
     }
 
-    function populateUserSelect() {
-        const userSelect = document.getElementById('userSelect');
-        if (!userSelect) return;
-        
-        userSelect.innerHTML = '<option value="">Selecione um usuário...</option>';
-        
-        users.forEach(user => {
-            const option = document.createElement('option');
-            option.value = user.id;
-            option.textContent = `${user.name} (${user.is_admin ? 'Admin' : 'Usuário'})`;
-            userSelect.appendChild(option);
-        });
-    }
-
     // ========== CONFIGURAÇÃO DE EVENTOS ==========
     function setupEventListeners() {
         // Tab switching
@@ -1971,32 +2028,6 @@
         });
 
         // Form submissions
-        if (document.getElementById('userRegistrationForm')) {
-            document.getElementById('userRegistrationForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const userData = {
-                    name: document.getElementById('userName')?.value || '',
-                    email: document.getElementById('userEmail')?.value || '',
-                    phone: document.getElementById('userPhone')?.value || '',
-                    role: document.getElementById('userRole')?.value || '',
-                    bio: document.getElementById('userBio')?.value || '',
-                    is_admin: false
-                };
-                
-                if (!userData.name || !userData.email || !userData.role) {
-                    showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Email e Cargo).', 'error');
-                    return;
-                }
-                
-                const success = await saveData('users', userData, null, 'userSubmitBtn', currentEditingUserId);
-                
-                if (success) {
-                    resetForm('user');
-                }
-            });
-        }
-
         if (document.getElementById('memberRegistrationForm')) {
             document.getElementById('memberRegistrationForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -2076,23 +2107,17 @@
                 
                 showMessage(`Bem-vindo, ${userName}!`, 'success');
                 hideUserLoginModal();
-            });
-        }
-
-        // Admin action form
-        if (document.getElementById('adminAction')) {
-            document.getElementById('adminAction').addEventListener('change', function() {
-                const action = this.value;
-                const userSelectContainer = document.getElementById('userSelectContainer');
                 
-                if (action) {
-                    userSelectContainer.style.display = 'block';
-                } else {
-                    userSelectContainer.style.display = 'none';
+                const modal = document.getElementById('userLoginModal');
+                if (modal.dataset.eventId) {
+                    const eventId = modal.dataset.eventId;
+                    toggleEventChat(eventId);
+                    delete modal.dataset.eventId;
                 }
             });
         }
 
+        // Admin action form
         if (document.getElementById('adminSubmitBtn')) {
             document.getElementById('adminSubmitBtn').addEventListener('click', executeAdminAction);
         }
@@ -2161,11 +2186,6 @@
         let form, submitText, preview;
         
         switch(type) {
-            case 'user':
-                form = document.getElementById('userRegistrationForm');
-                submitText = document.getElementById('userSubmitText');
-                currentEditingUserId = null;
-                break;
             case 'member':
                 form = document.getElementById('memberRegistrationForm');
                 submitText = document.getElementById('memberSubmitText');
@@ -2187,11 +2207,9 @@
     }
 
     function resetEditingIds() {
-        currentEditingUserId = null;
         currentEditingMemberId = null;
         currentEditingEventId = null;
         
-        document.getElementById('userSubmitText').textContent = 'Cadastrar Usuário';
         document.getElementById('memberSubmitText').textContent = 'Cadastrar Membro';
         document.getElementById('eventSubmitText').textContent = 'Cadastrar Evento';
     }
@@ -2200,7 +2218,6 @@
     async function executeAdminAction() {
         const password = document.getElementById('adminPassword').value;
         const action = document.getElementById('adminAction').value;
-        const userId = document.getElementById('userSelect').value;
         
         if (!password) {
             showMessage('Por favor, insira a senha de administrador.', 'error');
@@ -2217,17 +2234,6 @@
             return;
         }
         
-        if (!userId) {
-            showMessage('Por favor, selecione um usuário.', 'error');
-            return;
-        }
-        
-        const user = users.find(u => u.id == userId);
-        if (!user) {
-            showMessage('Usuário não encontrado.', 'error');
-            return;
-        }
-        
         try {
             showButtonLoading(document.getElementById('adminSubmitBtn'), true);
             
@@ -2236,31 +2242,30 @@
             
             switch(action) {
                 case 'promote':
-                    if (user.is_admin) {
-                        showMessage('Este usuário já é um administrador.', 'warning');
+                    if (!currentUser) {
+                        showMessage('Nenhum usuário logado.', 'error');
                         return;
                     }
                     
-                    user.is_admin = true;
-                    success = await saveData('users', { is_admin: true }, null, 'adminSubmitBtn', userId);
-                    message = 'Usuário promovido a administrador com sucesso!';
+                    currentUser.is_admin = true;
+                    success = await saveData('users', { is_admin: true }, null, 'adminSubmitBtn', currentUser.id);
+                    message = 'Você foi promovido a administrador com sucesso!';
                     break;
                     
                 case 'demote':
-                    if (!user.is_admin) {
-                        showMessage('Este usuário não é um administrador.', 'warning');
+                    if (!currentUser) {
+                        showMessage('Nenhum usuário logado.', 'error');
                         return;
                     }
                     
-                    user.is_admin = false;
-                    success = await saveData('users', { is_admin: false }, null, 'adminSubmitBtn', userId);
-                    message = 'Administrador rebaixado a usuário com sucesso!';
-                    break;
+                    if (!currentUser.is_admin) {
+                        showMessage('Você não é um administrador.', 'warning');
+                        return;
+                    }
                     
-                case 'delete':
-                    await deleteItem('users', userId);
-                    success = true;
-                    message = 'Usuário excluído com sucesso!';
+                    currentUser.is_admin = false;
+                    success = await saveData('users', { is_admin: false }, null, 'adminSubmitBtn', currentUser.id);
+                    message = 'Você foi rebaixado a usuário comum.';
                     break;
             }
             
@@ -2268,8 +2273,6 @@
                 showMessage(message, 'success');
                 document.getElementById('adminPassword').value = '';
                 document.getElementById('adminAction').value = '';
-                document.getElementById('userSelect').value = '';
-                document.getElementById('userSelectContainer').style.display = 'none';
             }
             
         } catch (error) {
@@ -2281,10 +2284,6 @@
     }
 
     // Funções de exclusão específicas
-    async function deleteUser(userId) {
-        await deleteItem('users', userId);
-    }
-
     async function deleteMember(memberId) {
         await deleteItem('members', memberId);
     }
@@ -2320,7 +2319,8 @@
             await Promise.all([
                 loadUsers(),
                 loadMembers(),
-                loadEvents()
+                loadEvents(),
+                loadEventChats()
             ]);
             
             if (supabaseInitialized) {
