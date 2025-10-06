@@ -2444,7 +2444,7 @@
         isOnline = online;
         if (syncStatus) {
             if (online) {
-                syncStatus.innerHTML = '<span>🔵</span> Conectado ao PostgreSQL';
+                syncStatus.innerHTML = '<span>🔵</span> Conectado';
                 syncStatus.classList.remove('offline');
             } else {
                 syncStatus.innerHTML = '<span>🔴</span> Modo Offline (Local)';
@@ -3066,7 +3066,7 @@ async function initializeApp() {
         // Verifica status dos buckets (apenas para debug)
         if (supabaseInitialized) {
             await checkBucketStatus();
-            showMessage('✅ Sistema conectado ao PostgreSQL!', 'success');
+            showMessage('✅ Sistema conectado!', 'success');
         } else {
             showMessage('📴 Sistema em modo offline. Dados salvos localmente.', 'warning');
         }
@@ -3257,4 +3257,5 @@ function updateUIForAdmin() {
     
 </body>
 </html>
+
 
