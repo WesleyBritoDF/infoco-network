@@ -832,7 +832,7 @@
             background: #2c5282;
         }
 
-        /* Chat Styles */
+        /* Chat Styles - CORREÇÕES APLICADAS */
         .chat-container {
             position: fixed;
             bottom: 20px;
@@ -888,6 +888,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             z-index: 998;
             transition: var(--transition);
+            font-size: 1.5rem;
         }
 
         .chat-toggle:hover {
@@ -975,40 +976,6 @@
 
         .chat-send-btn:hover {
             background: #2c5282;
-        }
-
-        .chat-members-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 0 0 var(--radius) var(--radius);
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-            z-index: 10;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .chat-members-list.show {
-            display: block;
-        }
-
-        .chat-member-item {
-            padding: 0.7rem 1rem;
-            cursor: pointer;
-            border-bottom: 1px solid #f1f5f9;
-            transition: var(--transition);
-        }
-
-        .chat-member-item:hover {
-            background-color: #f8f9fa;
-        }
-
-        .chat-member-item:last-child {
-            border-bottom: none;
         }
 
         /* Footer */
@@ -1119,6 +1086,11 @@
                 right: 20px;
                 left: 20px;
             }
+            
+            .chat-toggle {
+                bottom: 20px;
+                right: 20px;
+            }
         }
     </style>
 </head>
@@ -1142,7 +1114,7 @@
                         NETWORK <span style="color: #ffffff;">IN FOCO </span>
                     </h1>
                     <h2 style="margin: 5px 0 0 0; font-size: 10px; color: #fffffff; font-weight: normal;">
-                        Versão 2 <b>develop</b> | © 2025
+                        Versão 1 <b>develop</b> | © 2025
                     </h2>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
@@ -1964,7 +1936,6 @@
                 case 'events': currentData = events; break;
                 case 'darceiros': currentData = darceiros; break;
                 case 'sponsors': currentData = sponsors; break;
-                default: throw new Error('Tabela não encontrada');
             }
             
             const itemToDelete = currentData.find(item => item.id == itemId);
@@ -2275,6 +2246,8 @@
 
     // ========== FUNÇÕES DO CHAT ==========
     function setupChat() {
+        console.log('Inicializando chat...');
+        
         // Inicializa o usuário atual (simulação)
         currentUser = {
             id: 'user_' + Date.now(),
@@ -2286,14 +2259,42 @@
         loadChatMessages();
         
         // Configura eventos do chat
-        chatToggle.addEventListener('click', toggleChat);
-        chatClose.addEventListener('click', closeChat);
-        chatSendBtn.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
+        if (chatToggle) {
+            chatToggle.addEventListener('click', toggleChat);
+            console.log('Botão do chat configurado');
+        } else {
+            console.error('Botão do chat não encontrado');
+        }
+        
+        if (chatClose) {
+            chatClose.addEventListener('click', closeChat);
+        }
+        
+        if (chatSendBtn) {
+            chatSendBtn.addEventListener('click', sendMessage);
+        }
+        
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+        
+        // Adiciona mensagem de boas-vindas se não houver mensagens
+        if (chatMessages.length === 0) {
+            const welcomeMessage = {
+                id: 'msg_welcome',
+                text: 'Bem-vindo ao chat da comunidade NETWORK IN FOCO! Conecte-se com outros membros e compartilhe ideias.',
+                senderId: 'system',
+                senderName: 'Sistema',
+                timestamp: new Date().toISOString()
+            };
+            chatMessages.push(welcomeMessage);
+            saveToLocalStorage('chat_messages', chatMessages);
+            renderChatMessages();
+        }
     }
 
     function toggleChat() {
@@ -2317,6 +2318,11 @@
     }
 
     function renderChatMessages() {
+        if (!chatMessagesContainer) {
+            console.error('Container de mensagens do chat não encontrado');
+            return;
+        }
+        
         chatMessagesContainer.innerHTML = '';
         
         if (chatMessages.length === 0) {
@@ -2355,7 +2361,9 @@
     }
 
     function scrollChatToBottom() {
-        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        if (chatMessagesContainer) {
+            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        }
     }
 
     function sendMessage() {
@@ -2775,6 +2783,7 @@
     // ========== INICIALIZAÇÃO ==========
     async function initializeApp() {
         try {
+            console.log('Inicializando aplicação...');
             const supabaseInitialized = await initializeSupabase();
             
             setupEventListeners();
