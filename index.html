@@ -1090,16 +1090,28 @@
     const SUPABASE_URL = 'https://jywmvnxurbtziixntuuq.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5d212bnh1cmJ0emlpeG50dXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0OTQ4NzMsImV4cCI6MjA3NTA3MDg3M30.XQ_nZV8E-ifNzFmNggRtlhKETIIt-Kw3skjOsE56xFk';
     
-    // Variáveis globais
+    // ========== VARIÁVEIS GLOBAIS ==========
     let supabase;
     let users = [];
     let events = [];
+    let members = [];
+    let darceiros = [];
+    let sponsors = [];
     let isOnline = true;
     let currentUser = null;
     let currentEditingUserId = null;
     let currentEditingEventId = null;
     let eventChats = {};
-    let adminPassword = "admin123"; // Senha padrão do administrador
+    let adminPassword = "admin123";
+
+    // ========== DOM ELEMENTS ==========
+    const usersList = document.getElementById('users-list');
+    const eventsList = document.getElementById('events-list');
+    const membersList = document.getElementById('members-list');
+    const darceirosList = document.getElementById('darceiros-list');
+    const sponsorsList = document.getElementById('sponsors-list');
+    const syncStatus = document.getElementById('syncStatus');
+    const loadingOverlay = document.getElementById('loadingOverlay');
 
     // ========== INICIALIZAÇÃO DO SUPABASE ==========
     async function initializeSupabase() {
@@ -1128,7 +1140,6 @@
         isOnline = false;
         updateSyncStatus(false);
         
-        // Sistema com localStorage
         window.supabase = {
             from: (table) => ({
                 select: () => ({
@@ -1222,14 +1233,59 @@
     }
 
     async function loadUsers() {
-        users = await loadData('users');
-        renderUsers();
-        populateUserSelect();
+        try {
+            users = await loadData('users');
+            if (usersList) {
+                renderUsers();
+            }
+            populateUserSelect();
+        } catch (error) {
+            console.error('Erro ao carregar usuários:', error);
+        }
     }
 
     async function loadEvents() {
-        events = await loadData('events');
-        renderEvents();
+        try {
+            events = await loadData('events');
+            if (eventsList) {
+                renderEvents();
+            }
+        } catch (error) {
+            console.error('Erro ao carregar eventos:', error);
+        }
+    }
+
+    async function loadMembers() {
+        try {
+            members = await loadData('members');
+            if (membersList) {
+                renderMembers();
+            }
+        } catch (error) {
+            console.error('Erro ao carregar membros:', error);
+        }
+    }
+
+    async function loadDarceiros() {
+        try {
+            darceiros = await loadData('darceiros');
+            if (darceirosList) {
+                renderDarceiros();
+            }
+        } catch (error) {
+            console.error('Erro ao carregar parceiros:', error);
+        }
+    }
+
+    async function loadSponsors() {
+        try {
+            sponsors = await loadData('sponsors');
+            if (sponsorsList) {
+                renderSponsors();
+            }
+        } catch (error) {
+            console.error('Erro ao carregar patrocinadores:', error);
+        }
     }
 
     // ========== FUNÇÕES DO CHAT POR EVENTO ==========
@@ -1243,7 +1299,6 @@
                 
                 if (error) throw error;
                 
-                // Organiza as mensagens por evento
                 eventChats = {};
                 data.forEach(message => {
                     if (!eventChats[message.event_id]) {
@@ -1300,33 +1355,27 @@
                 
                 if (error) throw error;
                 
-                // Adiciona a mensagem ao chat local
                 if (!eventChats[eventId]) {
                     eventChats[eventId] = [];
                 }
                 eventChats[eventId].push(data[0]);
                 
-                // Atualiza o localStorage
                 const allChats = loadFromLocalStorage('event_chats') || [];
                 allChats.push(data[0]);
                 saveToLocalStorage('event_chats', allChats);
             } else {
-                // Modo offline
                 newMessage.id = 'msg_' + Date.now();
                 if (!eventChats[eventId]) {
                     eventChats[eventId] = [];
                 }
                 eventChats[eventId].push(newMessage);
                 
-                // Atualiza o localStorage
                 const allChats = loadFromLocalStorage('event_chats') || [];
                 allChats.push(newMessage);
                 saveToLocalStorage('event_chats', allChats);
             }
 
-            // Atualiza a interface
             renderEventChat(eventId);
-            
             return true;
         } catch (error) {
             console.error('Erro ao enviar mensagem:', error);
@@ -1377,7 +1426,6 @@
             messagesContainer.appendChild(messageDiv);
         });
 
-        // Scroll para a última mensagem
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
@@ -1400,7 +1448,6 @@
             inputContainer.classList.add('open');
             toggleButton.textContent = 'Fechar Chat';
             
-            // Carrega as mensagens se ainda não foram carregadas
             if (!eventChats[eventId]) {
                 loadEventChats().then(() => {
                     renderEventChat(eventId);
@@ -1409,7 +1456,6 @@
                 renderEventChat(eventId);
             }
             
-            // Foca no input
             const input = inputContainer.querySelector('.event-chat-input');
             setTimeout(() => input.focus(), 100);
         }
@@ -1445,30 +1491,13 @@
     async function saveData(table, formData, buttonId, editingId = null) {
         try {
             showButtonLoading(document.getElementById(buttonId), true);
-            console.log(`💾 Iniciando salvamento de ${table}`, formData);
-            
-            console.log(`📝 Dados preparados para salvar:`, formData);
-            console.log(`🆔 Editing ID:`, editingId);
-            console.log(`📊 Tabela:`, table);
             
             if (isOnline) {
                 let result;
                 
                 try {
                     if (editingId) {
-                        console.log(`🔄 Atualizando ${table} existente: ${editingId}`);
-                        
-                        // Remove campos vazios para evitar sobrescrever com null
-                        Object.keys(formData).forEach(key => {
-                            if (formData[key] === '' || formData[key] === null) {
-                                delete formData[key];
-                            }
-                        });
-                        
-                        // Adiciona timestamp de atualização
                         formData.updated_at = new Date().toISOString();
-                        
-                        console.log(`📝 Dados para atualização:`, formData);
                         
                         const { data, error } = await supabase
                             .from(table)
@@ -1476,56 +1505,41 @@
                             .eq('id', editingId)
                             .select();
                         
-                        if (error) {
-                            console.error('❌ Erro na atualização:', error);
-                            throw error;
-                        }
-                        
+                        if (error) throw error;
                         result = data;
-                        console.log(`✅ ${table} atualizado com sucesso:`, result);
-                        
                     } else {
-                        // Inserção normal
-                        console.log(`🆕 Inserindo novo registro`);
                         const { data, error } = await supabase
                             .from(table)
                             .insert([formData])
                             .select();
                         
-                        if (error) {
-                            throw error;
-                        } else {
-                            result = data;
-                        }
+                        if (error) throw error;
+                        result = data;
                     }
                 } catch (dbError) {
-                    console.error(`❌ Erro no banco de dados:`, dbError);
-                    
-                    // SE DER ERRO, SALVA APENAS LOCALMENTE
-                    console.log('💾 Salvando localmente devido ao erro...');
+                    console.error(`Erro no banco de dados:`, dbError);
                     await saveDataLocally(table, formData, editingId);
                     showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
                     return true;
                 }
                 
-                // Recarrega os dados atualizados
-                console.log('🔄 Recarregando dados...');
                 switch(table) {
                     case 'users': await loadUsers(); break;
                     case 'events': await loadEvents(); break;
+                    case 'members': await loadMembers(); break;
+                    case 'darceiros': await loadDarceiros(); break;
+                    case 'sponsors': await loadSponsors(); break;
                 }
                 
                 showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
                 return true;
             } else {
-                // Modo offline - salva localmente
-                console.log('📴 Modo offline - salvando localmente');
                 await saveDataLocally(table, formData, editingId);
                 return true;
             }
             
         } catch (error) {
-            console.error(`❌ Erro ao salvar ${table}:`, error);
+            console.error(`Erro ao salvar ${table}:`, error);
             showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
             return false;
         } finally {
@@ -1533,36 +1547,23 @@
         }
     }
 
-    // ========== FUNÇÃO PARA SALVAR LOCALMENTE ==========
     async function saveDataLocally(table, dataToSave, editingId = null) {
-        console.log(`💾 Salvando localmente na tabela: ${table}`);
-        console.log(`🆔 Editing ID:`, editingId);
-        
         if (editingId) {
-            // Atualização no modo offline
-            console.log(`🔄 Atualizando ${table} localmente: ${editingId}`);
             const localData = loadFromLocalStorage(table) || [];
             const index = localData.findIndex(item => item.id === editingId);
             if (index !== -1) {
-                // Mantém os dados existentes e atualiza apenas os campos fornecidos
                 localData[index] = { 
                     ...localData[index], 
                     ...dataToSave,
-                    // Garante que o ID não seja alterado
                     id: editingId,
-                    // Atualiza o timestamp
                     updated_at: new Date().toISOString()
                 };
                 saveToLocalStorage(table, localData);
-                console.log(`✅ ${table} atualizado localmente`);
             } else {
-                console.error(`❌ ${table} não encontrado para atualização`);
                 showMessage(`${getEntityName(table)} não encontrado para atualização`, 'error');
                 return;
             }
         } else {
-            // Inserção no modo offline
-            console.log(`🆕 Inserindo novo registro localmente`);
             dataToSave.id = Date.now().toString();
             dataToSave.created_at = new Date().toISOString();
             
@@ -1571,8 +1572,6 @@
             saveToLocalStorage(table, localData);
         }
         
-        // Atualiza a interface
-        console.log('🔄 Atualizando interface...');
         switch(table) {
             case 'users': 
                 users = loadFromLocalStorage('users'); 
@@ -1583,6 +1582,18 @@
                 events = loadFromLocalStorage('events'); 
                 renderEvents(); 
                 break;
+            case 'members': 
+                members = loadFromLocalStorage('members'); 
+                renderMembers(); 
+                break;
+            case 'darceiros': 
+                darceiros = loadFromLocalStorage('darceiros'); 
+                renderDarceiros(); 
+                break;
+            case 'sponsors': 
+                sponsors = loadFromLocalStorage('sponsors'); 
+                renderSponsors(); 
+                break;
         }
         
         showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
@@ -1591,7 +1602,10 @@
     function getEntityName(table) {
         const names = {
             'users': 'Usuário',
-            'events': 'Evento'
+            'events': 'Evento',
+            'members': 'Membro',
+            'darceiros': 'Parceiro',
+            'sponsors': 'Patrocinador'
         };
         return names[table] || 'Item';
     }
@@ -1609,6 +1623,9 @@
             switch(table) {
                 case 'users': currentData = users; break;
                 case 'events': currentData = events; break;
+                case 'members': currentData = members; break;
+                case 'darceiros': currentData = darceiros; break;
+                case 'sponsors': currentData = sponsors; break;
             }
             
             const itemToDelete = currentData.find(item => item.id == itemId);
@@ -1622,29 +1639,30 @@
                     .delete()
                     .eq('id', itemId);
                 
-                if (dbError) {
-                    console.error(`Erro ao excluir do banco:`, dbError);
-                    throw new Error(`Falha na exclusão do banco: ${dbError.message}`);
-                }
+                if (dbError) throw dbError;
             }
             
-            // Atualização local
             const updatedData = currentData.filter(item => item.id != itemId);
             
             switch(table) {
                 case 'users': users = updatedData; break;
                 case 'events': events = updatedData; break;
+                case 'members': members = updatedData; break;
+                case 'darceiros': darceiros = updatedData; break;
+                case 'sponsors': sponsors = updatedData; break;
             }
             
             saveToLocalStorage(table, updatedData);
             
-            // Atualiza a interface
             switch(table) {
                 case 'users': 
                     renderUsers(); 
                     populateUserSelect();
                     break;
                 case 'events': renderEvents(); break;
+                case 'members': renderMembers(); break;
+                case 'darceiros': renderDarceiros(); break;
+                case 'sponsors': renderSponsors(); break;
             }
             
             showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
@@ -1659,93 +1677,78 @@
 
     // ========== FUNÇÕES PARA EDITAR ==========
     async function editUser(userId) {
-        console.log(`✏️ Editando usuário: ${userId}`);
         const user = users.find(u => u.id == userId);
         if (!user) {
-            console.error('❌ Usuário não encontrado');
             showMessage('Usuário não encontrado', 'error');
             return;
         }
 
         try {
-            // Preenche o formulário com os dados do usuário
             document.getElementById('userName').value = user.name || '';
             document.getElementById('userEmail').value = user.email || '';
             document.getElementById('userPhone').value = user.phone || '';
             document.getElementById('userRole').value = user.role || '';
             document.getElementById('userBio').value = user.bio || '';
 
-            // Altera o texto do botão
             document.getElementById('userSubmitText').textContent = 'Atualizar Usuário';
-
-            // Armazena o ID do usuário sendo editado
             currentEditingUserId = userId;
-            console.log(`✅ currentEditingUserId definido como: ${currentEditingUserId}`);
 
-            // Rola até o formulário
             document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
             
-            // Ativa a tab de usuários
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelector('.tab[data-tab="user"]').classList.add('active');
             
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById('user-form').classList.add('active');
 
-            console.log('✅ Formulário de edição preparado');
             showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Usuário".', 'success');
             
         } catch (error) {
-            console.error('❌ Erro ao preparar formulário de edição:', error);
+            console.error('Erro ao preparar formulário de edição:', error);
             showMessage('Erro ao carregar dados do usuário para edição', 'error');
         }
     }
 
     async function editEvent(eventId) {
-        console.log(`✏️ Editando evento: ${eventId}`);
         const event = events.find(e => e.id == eventId);
         if (!event) {
-            console.error('❌ Evento não encontrado');
             showMessage('Evento não encontrado', 'error');
             return;
         }
 
         try {
-            // Preenche o formulário com os dados do evento
             document.getElementById('eventTitle').value = event.title || '';
             document.getElementById('eventDate').value = event.event_date || '';
             document.getElementById('eventTime').value = event.event_time || '';
             document.getElementById('eventLocation').value = event.location || '';
             document.getElementById('eventDescription').value = event.description || '';
 
-            // Altera o texto do botão
             document.getElementById('eventSubmitText').textContent = 'Atualizar Evento';
-
-            // Armazena o ID do evento sendo editado
             currentEditingEventId = eventId;
-            console.log(`✅ currentEditingEventId definido como: ${currentEditingEventId}`);
 
-            // Rola até o formulário
             document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
             
-            // Ativa a tab de eventos
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelector('.tab[data-tab="event"]').classList.add('active');
             
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById('event-form').classList.add('active');
 
-            console.log('✅ Formulário de edição do evento preparado');
             showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Evento".', 'success');
             
         } catch (error) {
-            console.error('❌ Erro ao preparar formulário de edição do evento:', error);
+            console.error('Erro ao preparar formulário de edição do evento:', error);
             showMessage('Erro ao carregar dados do evento para edição', 'error');
         }
     }
 
     // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
     function renderUsers() {
+        if (!usersList) {
+            console.error('Elemento users-list não encontrado');
+            return;
+        }
+        
         renderList(usersList, users, 'users', (user) => {
             const isAdmin = user.is_admin;
             const canEdit = isCurrentUserAdmin();
@@ -1779,6 +1782,11 @@
     }
 
     function renderEvents() {
+        if (!eventsList) {
+            console.error('Elemento events-list não encontrado');
+            return;
+        }
+        
         renderList(eventsList, events, 'events', (event) => {
             const eventDate = new Date(event.event_date);
             const formattedDate = eventDate.toLocaleDateString('pt-BR');
@@ -1831,17 +1839,79 @@
             `;
         });
         
-        // Configura os chats após renderizar os eventos
         events.forEach(event => {
             setupEventChat(event.id);
         });
     }
 
+    function renderMembers() {
+        if (!membersList) return;
+        renderList(membersList, members, 'members', (member) => `
+            <div class="card-actions">
+                <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
+                <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
+            </div>
+            <div class="card-image">
+                <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
+            </div>
+            <div class="card-header">
+                <h3>${member.name}</h3>
+                <span class="user-role">${member.role}</span>
+            </div>
+            <div class="card-body">
+                <p><strong>Email:</strong> ${member.email}</p>
+                ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                <p>${member.bio || 'Sem descrição'}</p>
+            </div>
+        `);
+    }
+
+    function renderDarceiros() {
+        if (!darceirosList) return;
+        renderList(darceirosList, darceiros, 'darceiros', (darceiro) => `
+            <div class="card-actions">
+                <button class="card-action-btn edit" onclick="editDarceiro('${darceiro.id}')" title="Editar parceiro">✏️</button>
+                <button class="card-action-btn delete" onclick="deleteDarceiro('${darceiro.id}')" title="Excluir parceiro">🗑️</button>
+            </div>
+            <div class="card-image">
+                <img src="${darceiro.photo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${darceiro.name}" loading="lazy">
+            </div>
+            <div class="card-header user">
+                <h3>${darceiro.name}</h3>
+                <span class="user-badge">${darceiro.type}</span>
+            </div>
+            <div class="card-body">
+                <p><strong>Contato:</strong> ${darceiro.contact}</p>
+                ${darceiro.website ? `<p><strong>Website:</strong> <a href="${darceiro.website}" target="_blank">${darceiro.website}</a></p>` : ''}
+                <p>${darceiro.description || 'Sem descrição'}</p>
+            </div>
+        `);
+    }
+
+    function renderSponsors() {
+        if (!sponsorsList) return;
+        renderList(sponsorsList, sponsors, 'sponsors', (sponsor) => `
+            <div class="card-actions">
+                <button class="card-action-btn edit" onclick="editSponsor('${sponsor.id}')" title="Editar patrocinador">✏️</button>
+                <button class="card-action-btn delete" onclick="deleteSponsor('${sponsor.id}')" title="Excluir patrocinador">🗑️</button>
+            </div>
+            <div class="card-image">
+                <img src="${sponsor.logo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${sponsor.name}" loading="lazy">
+            </div>
+            <div class="card-header admin">
+                <h3>${sponsor.name}</h3>
+                <span class="admin-badge">${sponsor.level}</span>
+            </div>
+            <div class="card-body">
+                <p><strong>Contato:</strong> ${sponsor.contact}</p>
+                ${sponsor.website ? `<p><strong>Website:</strong> <a href="${sponsor.website}" target="_blank">${sponsor.website}</a></p>` : ''}
+                <p>${sponsor.description || 'Sem descrição'}</p>
+            </div>
+        `);
+    }
+
     function renderList(container, data, type, templateFunction) {
-        if (!container) {
-            console.error(`Container não encontrado para: ${type}`);
-            return;
-        }
+        if (!container) return;
         
         container.innerHTML = '';
         
@@ -1939,7 +2009,6 @@
         const modal = document.getElementById('userLoginModal');
         modal.style.display = 'flex';
         
-        // Armazena o ID do evento para usar após o login
         if (eventId) {
             modal.dataset.eventId = eventId;
         }
@@ -2069,7 +2138,6 @@
                     }
                 });
 
-                // Limpa os IDs de edição quando muda de tab
                 resetEditingIds();
             });
         });
@@ -2079,21 +2147,15 @@
             document.getElementById('userRegistrationForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                console.log('📝 Enviando formulário de usuário');
-                console.log(`🆔 currentEditingUserId: ${currentEditingUserId}`);
-                
                 const userData = {
                     name: document.getElementById('userName')?.value || '',
                     email: document.getElementById('userEmail')?.value || '',
                     phone: document.getElementById('userPhone')?.value || '',
                     role: document.getElementById('userRole')?.value || '',
                     bio: document.getElementById('userBio')?.value || '',
-                    is_admin: false // Por padrão, novos usuários não são administradores
+                    is_admin: false
                 };
                 
-                console.log('📊 Dados do usuário:', userData);
-                
-                // Verifica se todos os campos obrigatórios estão preenchidos
                 if (!userData.name || !userData.email || !userData.role) {
                     showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Email e Cargo).', 'error');
                     return;
@@ -2119,7 +2181,6 @@
                     description: document.getElementById('eventDescription')?.value || ''
                 };
                 
-                // Verifica se todos os campos obrigatórios estão preenchidos
                 if (!eventData.title || !eventData.event_date || !eventData.event_time || !eventData.location) {
                     showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
                     return;
@@ -2143,7 +2204,6 @@
                     return;
                 }
                 
-                // Cria o usuário atual
                 currentUser = {
                     id: 'user_' + Date.now(),
                     name: userName,
@@ -2151,7 +2211,6 @@
                     is_admin: false
                 };
                 
-                // Salva no localStorage
                 const currentUsers = loadFromLocalStorage('current_users') || [];
                 currentUsers.push(currentUser);
                 saveToLocalStorage('current_users', currentUsers);
@@ -2159,7 +2218,6 @@
                 showMessage(`Bem-vindo, ${userName}!`, 'success');
                 hideUserLoginModal();
                 
-                // Se havia um evento para o chat, abre o chat
                 const modal = document.getElementById('userLoginModal');
                 if (modal.dataset.eventId) {
                     const eventId = modal.dataset.eventId;
@@ -2234,15 +2292,12 @@
         
         if (form) form.reset();
         if (submitText) submitText.textContent = `Cadastrar ${getEntityName(type)}`;
-        
-        console.log(`✅ Formulário ${type} resetado e IDs de edição limpos`);
     }
 
     function resetEditingIds() {
         currentEditingUserId = null;
         currentEditingEventId = null;
         
-        // Reseta os textos dos botões
         document.getElementById('userSubmitText').textContent = 'Cadastrar Usuário';
         document.getElementById('eventSubmitText').textContent = 'Cadastrar Evento';
     }
@@ -2256,10 +2311,44 @@
         await deleteItem('events', eventId);
     }
 
+    async function deleteMember(memberId) {
+        await deleteItem('members', memberId);
+    }
+
+    async function deleteDarceiro(darceiroId) {
+        await deleteItem('darceiros', darceiroId);
+    }
+
+    async function deleteSponsor(sponsorId) {
+        await deleteItem('sponsors', sponsorId);
+    }
+
+    // Funções de edição para outras entidades
+    async function editMember(memberId) {
+        // Implementação similar às outras funções de edição
+    }
+
+    async function editDarceiro(darceiroId) {
+        // Implementação similar às outras funções de edição
+    }
+
+    async function editSponsor(sponsorId) {
+        // Implementação similar às outras funções de edição
+    }
+
     // ========== INICIALIZAÇÃO ==========
     async function initializeApp() {
         try {
             console.log('Inicializando aplicação...');
+            
+            // Inicializa variáveis globais
+            users = [];
+            events = [];
+            members = [];
+            darceiros = [];
+            sponsors = [];
+            eventChats = {};
+            
             const supabaseInitialized = await initializeSupabase();
             
             // Verifica se há usuário atual salvo
@@ -2271,11 +2360,14 @@
             
             setupEventListeners();
             
-            // Carrega dados e chats
+            // Carrega dados e chats com tratamento de erro individual
             await Promise.all([
-                loadUsers(),
-                loadEvents(),
-                loadEventChats()
+                loadUsers().catch(e => console.error('Erro usuários:', e)),
+                loadEvents().catch(e => console.error('Erro eventos:', e)),
+                loadMembers().catch(e => console.error('Erro membros:', e)),
+                loadDarceiros().catch(e => console.error('Erro parceiros:', e)),
+                loadSponsors().catch(e => console.error('Erro patrocinadores:', e)),
+                loadEventChats().catch(e => console.error('Erro chats:', e))
             ]);
             
             if (supabaseInitialized) {
@@ -2284,14 +2376,7 @@
                 showMessage('Sistema em modo offline. Dados salvos localmente.', 'warning');
             }
             
-            setInterval(async () => {
-                if (isOnline && navigator.onLine) {
-                    await loadUsers();
-                    await loadEvents();
-                    await loadEventChats();
-                }
-            }, 30000);
-            
+            // Configura listeners de conectividade
             window.addEventListener('online', async () => {
                 if (!isOnline) {
                     isOnline = true;
@@ -2309,15 +2394,17 @@
             
         } catch (error) {
             console.error('Erro na inicialização do app:', error);
-            showMessage('Erro ao inicializar o sistema.', 'error');
+            showMessage('Erro ao inicializar o sistema: ' + error.message, 'error');
         }
     }
 
     // Inicia a aplicação quando o DOM estiver pronto
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeApp);
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initializeApp, 100);
+        });
     } else {
-        initializeApp();
+        setTimeout(initializeApp, 100);
     }
 </script>
     
