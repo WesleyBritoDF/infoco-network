@@ -105,6 +105,22 @@
             opacity: 0.9;
         }
 
+        .admin-access-btn {
+            background: var(--admin-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .admin-access-btn:hover {
+            background: #6b46c1;
+            transform: translateY(-2px);
+        }
+
         nav ul {
             display: flex;
             list-style: none;
@@ -369,6 +385,194 @@
             display: none;
         }
 
+        /* Multiple Photos Upload */
+        .multiple-photos-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .photos-upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            background-color: #f8f9fa;
+        }
+
+        .photos-upload-area:hover {
+            border-color: var(--secondary-color);
+            background-color: rgba(66, 153, 225, 0.05);
+        }
+
+        .photos-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .photo-preview-item {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .photo-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-photo {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(229, 62, 62, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Event Gallery */
+        .event-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .event-gallery-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .event-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photos-info {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .view-photos-btn {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .view-photos-btn:hover {
+            background: #2c5282;
+        }
+
+        /* Gallery Modal */
+        .gallery-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10002;
+        }
+
+        .gallery-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .gallery-modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .gallery-modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .gallery-nav:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .gallery-nav.prev {
+            left: 20px;
+        }
+
+        .gallery-nav.next {
+            right: 20px;
+        }
+
+        .gallery-counter {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 1rem;
+        }
+
         /* Cards */
         .cards-grid {
             display: grid;
@@ -453,6 +657,18 @@
 
         .card:hover .card-image img {
             transform: scale(1.05);
+        }
+
+        .image-counter {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
         .card-header {
@@ -948,6 +1164,37 @@
         </div>
     </div>
 
+    <!-- Admin Login Modal -->
+    <div class="user-login-modal" id="adminLoginModal">
+        <div class="user-login-content">
+            <div class="user-login-header">
+                <h3>Acesso de Administrador</h3>
+                <p>Digite a senha para acessar funções administrativas</p>
+            </div>
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="adminLoginPassword">Senha de Administrador *</label>
+                    <input type="password" id="adminLoginPassword" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-admin" style="width: 100%;">
+                    <span id="adminLoginText">Entrar como Admin</span>
+                    <div class="btn-loading">Entrando...</div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Gallery Modal -->
+    <div class="gallery-modal" id="galleryModal">
+        <button class="gallery-modal-close" onclick="closeGallery()">×</button>
+        <button class="gallery-nav prev" onclick="prevPhoto()">‹</button>
+        <div class="gallery-modal-content">
+            <img id="galleryImage" src="" alt="Foto do evento">
+        </div>
+        <button class="gallery-nav next" onclick="nextPhoto()">›</button>
+        <div class="gallery-counter" id="galleryCounter"></div>
+    </div>
+
     <!-- Header -->
     <header>
         <div class="container">
@@ -963,7 +1210,12 @@
                         <h2>Versão 3 <b>develop</b> | © 2025</h2>
                     </div>
                 </div>
-                <button class="mobile-menu-btn">☰</button>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <button class="admin-access-btn" onclick="showAdminLoginModal()">
+                        🔑 Acesso Admin
+                    </button>
+                    <button class="mobile-menu-btn">☰</button>
+                </div>
                 <nav>
                     <ul>
                         <li><a href="#" class="active">Início</a></li>
@@ -1010,7 +1262,6 @@
             <div class="tabs">
                 <div class="tab active" data-tab="member">Cadastrar Membro</div>
                 <div class="tab" data-tab="event">Cadastrar Evento</div>
-                <div class="tab admin" data-tab="admin">Administradores</div>
             </div>
 
             <!-- Member Form -->
@@ -1084,38 +1335,25 @@
                             <label for="eventDescription">Descrição do Evento *</label>
                             <textarea id="eventDescription" class="form-control" rows="4" required></textarea>
                         </div>
+                        
+                        <!-- Área para múltiplas fotos do evento -->
+                        <div class="multiple-photos-container">
+                            <label>Fotos do Evento (Múltiplas)</label>
+                            <div class="photos-upload-area" id="eventPhotosUploadArea">
+                                <p>📷 Clique aqui ou arraste fotos para adicionar</p>
+                                <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos</p>
+                            </div>
+                            <input type="file" id="eventPhotos" class="image-upload-input" accept="image/*" multiple style="display: none;">
+                            <div class="photos-preview" id="eventPhotosPreview">
+                                <!-- Preview das fotos será adicionado aqui -->
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn" id="eventSubmitBtn">
                             <span id="eventSubmitText">Cadastrar Evento</span>
                             <div class="btn-loading">Enviando...</div>
                         </button>
                     </form>
-                </div>
-            </div>
-
-            <!-- Admin Section -->
-            <div class="tab-content" id="admin-form">
-                <div class="form-container">
-                    <h3 style="margin-bottom: 1.5rem; color: var(--admin-color);">Painel de Administração</h3>
-                    <p style="margin-bottom: 1.5rem;">Aqui você pode gerenciar permissões do sistema.</p>
-                    
-                    <div class="form-group">
-                        <label for="adminPassword">Senha de Administrador *</label>
-                        <input type="password" id="adminPassword" class="form-control" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="adminAction">Ação</label>
-                        <select id="adminAction" class="form-control">
-                            <option value="">Selecione uma ação...</option>
-                            <option value="promote">Promover usuário a administrador</option>
-                            <option value="demote">Rebaixar administrador a usuário</option>
-                        </select>
-                    </div>
-                    
-                    <button type="button" class="btn btn-admin" id="adminSubmitBtn">
-                        <span id="adminSubmitText">Executar Ação</span>
-                        <div class="btn-loading">Processando...</div>
-                    </button>
                 </div>
             </div>
         </section>
@@ -1162,12 +1400,20 @@
     let currentEditingEventId = null;
     let eventChats = {};
     let adminPassword = "admin123";
+    let eventPhotosFiles = [];
+    
+    // Variáveis para galeria
+    let currentGalleryEvent = null;
+    let currentPhotoIndex = 0;
 
     // ========== DOM ELEMENTS ==========
     const membersList = document.getElementById('members-list');
     const eventsList = document.getElementById('events-list');
     const syncStatus = document.getElementById('syncStatus');
     const loadingOverlay = document.getElementById('loadingOverlay');
+    const galleryModal = document.getElementById('galleryModal');
+    const galleryImage = document.getElementById('galleryImage');
+    const galleryCounter = document.getElementById('galleryCounter');
 
     // ========== INICIALIZAÇÃO DO SUPABASE ==========
     async function initializeSupabase() {
@@ -1231,7 +1477,13 @@
                         return Promise.resolve({ error: null });
                     }
                 })
-            })
+            }),
+            storage: {
+                from: (bucket) => ({
+                    upload: (path, file) => Promise.resolve({ data: { path }, error: null }),
+                    getPublicUrl: (path) => ({ data: { publicUrl: URL.createObjectURL(file) } })
+                })
+            }
         };
         
         supabase = window.supabase;
@@ -1307,6 +1559,7 @@
     async function loadEvents() {
         try {
             events = await loadData('events');
+            console.log('📅 Eventos carregados:', events);
             if (eventsList) {
                 renderEvents();
             }
@@ -1314,6 +1567,571 @@
             console.error('Erro ao carregar eventos:', error);
         }
     }
+
+    // ========== FUNÇÕES DE UPLOAD DE IMAGENS ==========
+    async function uploadImage(file, bucket, fileName) {
+        try {
+            console.log(`📤 Iniciando upload para bucket: ${bucket}, arquivo: ${fileName}`);
+            
+            if (!isOnline) {
+                console.log('📴 Modo offline - usando base64');
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        console.log('✅ Imagem convertida para base64');
+                        resolve(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            const fileExt = file.name.split('.').pop();
+            const uniqueFileName = `${fileName}_${Date.now()}.${fileExt}`;
+            
+            console.log(`🔄 Fazendo upload do arquivo: ${uniqueFileName}`);
+            
+            const { data, error } = await supabase.storage
+                .from(bucket)
+                .upload(uniqueFileName, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
+
+            if (error) {
+                console.error('❌ Erro no upload:', error);
+                throw error;
+            }
+
+            console.log('✅ Upload concluído, obtendo URL pública...');
+
+            const { data: { publicUrl } } = supabase.storage
+                .from(bucket)
+                .getPublicUrl(uniqueFileName);
+
+            console.log('✅ URL pública obtida:', publicUrl);
+            return publicUrl;
+            
+        } catch (error) {
+            console.error('❌ Erro completo no upload da imagem:', error);
+            throw new Error('Falha no upload da imagem: ' + error.message);
+        }
+    }
+
+    async function uploadMultipleImages(files, bucket, baseName) {
+        try {
+            console.log(`📤 Iniciando upload de ${files.length} imagens`);
+            
+            const uploadPromises = Array.from(files).map((file, index) => {
+                const fileName = `${baseName}_${Date.now()}_${index}`;
+                console.log(`🔄 Upload ${index + 1}/${files.length}: ${file.name}`);
+                return uploadImage(file, bucket, fileName);
+            });
+            
+            const urls = await Promise.all(uploadPromises);
+            const successfulUrls = urls.filter(url => url !== null && url !== undefined);
+            
+            console.log(`✅ Upload concluído: ${successfulUrls.length}/${files.length} imagens salvas`);
+            return successfulUrls;
+        } catch (error) {
+            console.error('❌ Erro no upload múltiplo de imagens:', error);
+            throw error;
+        }
+    }
+
+    // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
+    function renderMembers() {
+        if (!membersList) {
+            console.error('❌ Elemento members-list não encontrado');
+            return;
+        }
+        
+        console.log('🎯 Renderizando membros:', members);
+        
+        renderList(membersList, members, 'members', (member) => {
+            const canEdit = isCurrentUserAdmin();
+            
+            return `
+                <div class="card-actions">
+                    ${canEdit ? `
+                        <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
+                        <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
+                    ` : ''}
+                </div>
+                <div class="card-image">
+                    <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
+                </div>
+                <div class="card-header">
+                    <h3>${member.name}</h3>
+                    <span class="user-role">${member.role}</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Email:</strong> ${member.email}</p>
+                    ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                    <p>${member.bio || 'Sem descrição'}</p>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                        Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
+                        ${member.updated_at ? `<br>Atualizado em: ${new Date(member.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                    </p>
+                </div>
+            `;
+        });
+    }
+
+    function renderEvents() {
+        if (!eventsList) {
+            console.error('Elemento events-list não encontrado');
+            return;
+        }
+        
+        renderList(eventsList, events, 'events', (event) => {
+            const eventDate = new Date(event.event_date);
+            const formattedDate = eventDate.toLocaleDateString('pt-BR');
+            const canEdit = isCurrentUserAdmin();
+            const photos = event.photos || [];
+            const mainPhoto = photos.length > 0 ? photos[0] : 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+            
+            return `
+                <div class="card-actions">
+                    ${canEdit ? `
+                        <button class="card-action-btn edit" onclick="editEvent('${event.id}')" title="Editar evento">✏️</button>
+                        <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
+                    ` : ''}
+                </div>
+                <div class="card-image">
+                    <img src="${mainPhoto}" alt="${event.title}" loading="lazy" onclick="openGallery('${event.id}', 0)" style="cursor: pointer;">
+                    ${photos.length > 1 ? `
+                        <div class="image-counter" onclick="openGallery('${event.id}', 0)" style="cursor: pointer;">
+                            +${photos.length - 1}
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="card-header">
+                    <h3>${event.title}</h3>
+                    <div class="event-date">
+                        <span>${formattedDate}</span> • <span>${event.event_time}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p><strong>Local:</strong> ${event.location}</p>
+                    <p>${event.description || 'Sem descrição'}</p>
+                    
+                    ${photos.length > 0 ? `
+                        <div class="photos-info">
+                            <strong>${photos.length} foto(s)</strong>
+                            <button class="view-photos-btn" onclick="openGallery('${event.id}', 0)">
+                                👁️ Ver Fotos
+                            </button>
+                        </div>
+                        
+                        <div class="event-gallery">
+                            ${photos.slice(0, 4).map((photo, index) => `
+                                <div class="event-gallery-item" onclick="openGallery('${event.id}', ${index})">
+                                    <img src="${photo}" alt="Foto ${index + 1} do evento" loading="lazy">
+                                </div>
+                            `).join('')}
+                            ${photos.length > 4 ? `
+                                <div class="event-gallery-item" onclick="openGallery('${event.id}', 0)" style="background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                    +${photos.length - 4}
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : `
+                        <div class="photos-info">
+                            <em>Nenhuma foto cadastrada</em>
+                        </div>
+                    `}
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                        Criado em: ${new Date(event.created_at).toLocaleDateString('pt-BR')}
+                        ${event.updated_at ? `<br>Atualizado em: ${new Date(event.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                    </p>
+                </div>
+                
+                <!-- Chat do Evento -->
+                <div class="event-chat-section">
+                    <div class="event-chat-container" id="event-chat-${event.id}">
+                        <div class="event-chat-header">
+                            <h4>💬 Chat do Evento</h4>
+                            <button class="event-chat-toggle" onclick="toggleEventChat('${event.id}')">Abrir Chat</button>
+                        </div>
+                        <div class="event-chat-messages">
+                            <!-- Mensagens serão carregadas aqui -->
+                        </div>
+                        <div class="event-chat-input-container">
+                            <input type="text" class="event-chat-input" placeholder="Digite sua mensagem sobre o evento...">
+                            <button class="event-chat-send-btn">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        // Configura os chats após renderizar os eventos
+        events.forEach(event => {
+            setupEventChat(event.id);
+        });
+    }
+
+    function renderList(container, data, type, templateFunction) {
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; grid-column: 1/-1; padding: 3rem; color: #666;">
+                    <h3>📝 Nenhum ${getEntityName(type).toLowerCase()} cadastrado ainda</h3>
+                    <p>Use o formulário de cadastro para adicionar o primeiro ${getEntityName(type).toLowerCase()}.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = templateFunction(item);
+            container.appendChild(card);
+        });
+    }
+
+    // ========== FUNÇÃO SALVAR DADOS ==========
+    async function saveData(table, formData, imageFiles, buttonId, editingId = null) {
+        try {
+            showButtonLoading(document.getElementById(buttonId), true);
+            
+            let imageUrls = [];
+            
+            // Faz upload das imagens se existirem
+            if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
+                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
+                                formData.title?.replace(/\s+/g, '_').toLowerCase() || 
+                                'image';
+                
+                console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'}`);
+                
+                if (Array.isArray(imageFiles)) {
+                    // Múltiplas imagens (para eventos)
+                    imageUrls = await uploadMultipleImages(imageFiles, 'events-photos', baseName);
+                    console.log('✅ URLs das fotos do evento:', imageUrls);
+                } else {
+                    // Uma imagem (para membros)
+                    const imageUrl = await uploadImage(imageFiles, 'members-photos', baseName);
+                    imageUrls = [imageUrl];
+                }
+                
+                console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
+            }
+            
+            // Prepara os dados para salvar
+            const dataToSave = { ...formData };
+            
+            // Adiciona as URLs das imagens aos dados
+            if (imageUrls.length > 0) {
+                if (table === 'events') {
+                    // Para eventos, salva array de fotos
+                    dataToSave.photos = imageUrls;
+                    console.log('📸 Fotos a serem salvas no evento:', imageUrls);
+                } else {
+                    // Para membros, salva photo
+                    dataToSave.photo = imageUrls[0];
+                }
+            }
+            
+            if (isOnline) {
+                let result;
+                
+                try {
+                    if (editingId) {
+                        dataToSave.updated_at = new Date().toISOString();
+                        
+                        const { data, error } = await supabase
+                            .from(table)
+                            .update(dataToSave)
+                            .eq('id', editingId)
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data;
+                    } else {
+                        const { data, error } = await supabase
+                            .from(table)
+                            .insert([dataToSave])
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data;
+                    }
+                } catch (dbError) {
+                    console.error(`Erro no banco de dados:`, dbError);
+                    await saveDataLocally(table, dataToSave, editingId);
+                    showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
+                    return true;
+                }
+                
+                // Recarrega os dados
+                switch(table) {
+                    case 'users': await loadUsers(); break;
+                    case 'members': await loadMembers(); break;
+                    case 'events': await loadEvents(); break;
+                }
+                
+                showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
+                return true;
+            } else {
+                await saveDataLocally(table, dataToSave, editingId);
+                return true;
+            }
+            
+        } catch (error) {
+            console.error(`Erro ao salvar ${table}:`, error);
+            showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
+            return false;
+        } finally {
+            showButtonLoading(document.getElementById(buttonId), false);
+        }
+    }
+
+    async function saveDataLocally(table, dataToSave, editingId = null) {
+        if (editingId) {
+            const localData = loadFromLocalStorage(table) || [];
+            const index = localData.findIndex(item => item.id === editingId);
+            if (index !== -1) {
+                localData[index] = { 
+                    ...localData[index], 
+                    ...dataToSave,
+                    id: editingId,
+                    updated_at: new Date().toISOString()
+                };
+                saveToLocalStorage(table, localData);
+            } else {
+                showMessage(`${getEntityName(table)} não encontrado para atualização`, 'error');
+                return;
+            }
+        } else {
+            dataToSave.id = Date.now().toString();
+            dataToSave.created_at = new Date().toISOString();
+            
+            const localData = loadFromLocalStorage(table) || [];
+            localData.unshift(dataToSave);
+            saveToLocalStorage(table, localData);
+        }
+        
+        // Atualiza a interface
+        switch(table) {
+            case 'users': 
+                users = loadFromLocalStorage('users'); 
+                break;
+            case 'members': 
+                members = loadFromLocalStorage('members'); 
+                renderMembers(); 
+                break;
+            case 'events': 
+                events = loadFromLocalStorage('events'); 
+                renderEvents(); 
+                break;
+        }
+        
+        showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
+    }
+
+    function getEntityName(table) {
+        const names = {
+            'users': 'Usuário',
+            'members': 'Membro',
+            'events': 'Evento'
+        };
+        return names[table] || 'Item';
+    }
+
+    // ========== FUNÇÃO DE EXCLUSÃO ==========
+    async function deleteItem(table, itemId) {
+        if (!confirm(`Tem certeza que deseja excluir este ${getEntityName(table).toLowerCase()}?`)) {
+            return;
+        }
+
+        try {
+            showLoading(`Excluindo ${getEntityName(table).toLowerCase()}...`);
+            
+            let currentData;
+            switch(table) {
+                case 'users': currentData = users; break;
+                case 'members': currentData = members; break;
+                case 'events': currentData = events; break;
+            }
+            
+            const itemToDelete = currentData.find(item => item.id == itemId);
+            if (!itemToDelete) {
+                throw new Error('Item não encontrado localmente');
+            }
+
+            if (isOnline) {
+                const { error: dbError } = await supabase
+                    .from(table)
+                    .delete()
+                    .eq('id', itemId);
+                
+                if (dbError) throw dbError;
+            }
+            
+            const updatedData = currentData.filter(item => item.id != itemId);
+            
+            switch(table) {
+                case 'users': users = updatedData; break;
+                case 'members': members = updatedData; break;
+                case 'events': events = updatedData; break;
+            }
+            
+            saveToLocalStorage(table, updatedData);
+            
+            switch(table) {
+                case 'members': renderMembers(); break;
+                case 'events': renderEvents(); break;
+            }
+            
+            showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
+            
+        } catch (error) {
+            console.error(`Erro ao excluir ${table}:`, error);
+            showMessage(`Erro ao excluir ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // ========== FUNÇÕES PARA EDITAR ==========
+    async function editMember(memberId) {
+        const member = members.find(m => m.id == memberId);
+        if (!member) {
+            showMessage('Membro não encontrado', 'error');
+            return;
+        }
+
+        try {
+            document.getElementById('memberName').value = member.name || '';
+            document.getElementById('memberEmail').value = member.email || '';
+            document.getElementById('memberPhone').value = member.phone || '';
+            document.getElementById('memberRole').value = member.role || '';
+            document.getElementById('memberBio').value = member.bio || '';
+
+            // Atualiza o preview da foto
+            const preview = document.getElementById('memberPhotoPreview');
+            if (member.photo) {
+                preview.innerHTML = `<img src="${member.photo}" alt="Preview">`;
+            }
+
+            document.getElementById('memberSubmitText').textContent = 'Atualizar Membro';
+            currentEditingMemberId = memberId;
+
+            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="member"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('member-form').classList.add('active');
+
+            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Membro".', 'success');
+            
+        } catch (error) {
+            console.error('Erro ao preparar formulário de edição:', error);
+            showMessage('Erro ao carregar dados do membro para edição', 'error');
+        }
+    }
+
+    async function editEvent(eventId) {
+        const event = events.find(e => e.id == eventId);
+        if (!event) {
+            showMessage('Evento não encontrado', 'error');
+            return;
+        }
+
+        try {
+            document.getElementById('eventTitle').value = event.title || '';
+            document.getElementById('eventDate').value = event.event_date || '';
+            document.getElementById('eventTime').value = event.event_time || '';
+            document.getElementById('eventLocation').value = event.location || '';
+            document.getElementById('eventDescription').value = event.description || '';
+
+            // Limpa e atualiza as fotos
+            eventPhotosFiles = [];
+            const preview = document.getElementById('eventPhotosPreview');
+            preview.innerHTML = '';
+
+            document.getElementById('eventSubmitText').textContent = 'Atualizar Evento';
+            currentEditingEventId = eventId;
+
+            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="event"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('event-form').classList.add('active');
+
+            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Evento".', 'success');
+            
+        } catch (error) {
+            console.error('Erro ao preparar formulário de edição do evento:', error);
+            showMessage('Erro ao carregar dados do evento para edição', 'error');
+        }
+    }
+
+    // ========== FUNÇÕES DA GALERIA ==========
+    function openGallery(eventId, photoIndex = 0) {
+        const event = events.find(e => e.id == eventId);
+        if (!event || !event.photos || event.photos.length === 0) return;
+        
+        currentGalleryEvent = event;
+        currentPhotoIndex = photoIndex;
+        
+        showPhoto();
+        galleryModal.style.display = 'flex';
+        
+        // Previne scroll do body quando a galeria está aberta
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeGallery() {
+        galleryModal.style.display = 'none';
+        currentGalleryEvent = null;
+        currentPhotoIndex = 0;
+        
+        // Restaura scroll do body
+        document.body.style.overflow = '';
+    }
+
+    function showPhoto() {
+        if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
+        
+        const photos = currentGalleryEvent.photos;
+        if (photos.length === 0) return;
+        
+        galleryImage.src = photos[currentPhotoIndex];
+        galleryCounter.textContent = `${currentPhotoIndex + 1} / ${photos.length}`;
+    }
+
+    function nextPhoto() {
+        if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
+        
+        const photos = currentGalleryEvent.photos;
+        currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+        showPhoto();
+    }
+
+    function prevPhoto() {
+        if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
+        
+        const photos = currentGalleryEvent.photos;
+        currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+        showPhoto();
+    }
+
+    // Fechar galeria com ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && galleryModal.style.display === 'flex') {
+            closeGallery();
+        }
+    });
 
     // ========== FUNÇÕES DO CHAT ==========
     async function loadEventChats() {
@@ -1506,411 +2324,6 @@
         });
     }
 
-    // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
-    function renderMembers() {
-        if (!membersList) {
-            console.error('❌ Elemento members-list não encontrado');
-            return;
-        }
-        
-        console.log('🎯 Renderizando membros:', members);
-        
-        renderList(membersList, members, 'members', (member) => {
-            const canEdit = isCurrentUserAdmin();
-            
-            return `
-                <div class="card-actions">
-                    ${canEdit ? `
-                        <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
-                        <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
-                    ` : ''}
-                </div>
-                <div class="card-image">
-                    <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
-                </div>
-                <div class="card-header">
-                    <h3>${member.name}</h3>
-                    <span class="user-role">${member.role}</span>
-                </div>
-                <div class="card-body">
-                    <p><strong>Email:</strong> ${member.email}</p>
-                    ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
-                    <p>${member.bio || 'Sem descrição'}</p>
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                        Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
-                        ${member.updated_at ? `<br>Atualizado em: ${new Date(member.updated_at).toLocaleDateString('pt-BR')}` : ''}
-                    </p>
-                </div>
-            `;
-        });
-    }
-
-    function renderEvents() {
-        if (!eventsList) {
-            console.error('Elemento events-list não encontrado');
-            return;
-        }
-        
-        renderList(eventsList, events, 'events', (event) => {
-            const eventDate = new Date(event.event_date);
-            const formattedDate = eventDate.toLocaleDateString('pt-BR');
-            const canEdit = isCurrentUserAdmin();
-            
-            return `
-                <div class="card-actions">
-                    ${canEdit ? `
-                        <button class="card-action-btn edit" onclick="editEvent('${event.id}')" title="Editar evento">✏️</button>
-                        <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
-                    ` : ''}
-                </div>
-                <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${event.title}" loading="lazy">
-                </div>
-                <div class="card-header">
-                    <h3>${event.title}</h3>
-                    <div class="event-date">
-                        <span>${formattedDate}</span> • <span>${event.event_time}</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <p><strong>Local:</strong> ${event.location}</p>
-                    <p>${event.description || 'Sem descrição'}</p>
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                        Criado em: ${new Date(event.created_at).toLocaleDateString('pt-BR')}
-                        ${event.updated_at ? `<br>Atualizado em: ${new Date(event.updated_at).toLocaleDateString('pt-BR')}` : ''}
-                    </p>
-                </div>
-                
-                <!-- Chat do Evento -->
-                <div class="event-chat-section">
-                    <div class="event-chat-container" id="event-chat-${event.id}">
-                        <div class="event-chat-header">
-                            <h4>💬 Chat do Evento</h4>
-                            <button class="event-chat-toggle" onclick="toggleEventChat('${event.id}')">Abrir Chat</button>
-                        </div>
-                        <div class="event-chat-messages">
-                            <!-- Mensagens serão carregadas aqui -->
-                        </div>
-                        <div class="event-chat-input-container">
-                            <input type="text" class="event-chat-input" placeholder="Digite sua mensagem sobre o evento...">
-                            <button class="event-chat-send-btn">Enviar</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        // Configura os chats após renderizar os eventos
-        events.forEach(event => {
-            setupEventChat(event.id);
-        });
-    }
-
-    function renderList(container, data, type, templateFunction) {
-        if (!container) return;
-        
-        container.innerHTML = '';
-        
-        if (!data || data.length === 0) {
-            container.innerHTML = `
-                <div style="text-align: center; grid-column: 1/-1; padding: 3rem; color: #666;">
-                    <h3>📝 Nenhum ${getEntityName(type).toLowerCase()} cadastrado ainda</h3>
-                    <p>Use o formulário de cadastro para adicionar o primeiro ${getEntityName(type).toLowerCase()}.</p>
-                </div>
-            `;
-            return;
-        }
-        
-        data.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = templateFunction(item);
-            container.appendChild(card);
-        });
-    }
-
-    // ========== FUNÇÃO SALVAR DADOS ==========
-    async function saveData(table, formData, imageFile = null, buttonId, editingId = null) {
-        try {
-            showButtonLoading(document.getElementById(buttonId), true);
-            
-            // Se há imagem, faz upload
-            if (imageFile) {
-                try {
-                    const imageUrl = await uploadImage(imageFile, 'members-photos', formData.name?.replace(/\s+/g, '_') || 'member');
-                    formData.photo = imageUrl;
-                } catch (error) {
-                    console.error('Erro no upload da imagem:', error);
-                    // Continua sem a imagem
-                }
-            }
-            
-            if (isOnline) {
-                let result;
-                
-                try {
-                    if (editingId) {
-                        formData.updated_at = new Date().toISOString();
-                        
-                        const { data, error } = await supabase
-                            .from(table)
-                            .update(formData)
-                            .eq('id', editingId)
-                            .select();
-                        
-                        if (error) throw error;
-                        result = data;
-                    } else {
-                        const { data, error } = await supabase
-                            .from(table)
-                            .insert([formData])
-                            .select();
-                        
-                        if (error) throw error;
-                        result = data;
-                    }
-                } catch (dbError) {
-                    console.error(`Erro no banco de dados:`, dbError);
-                    await saveDataLocally(table, formData, editingId);
-                    showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
-                    return true;
-                }
-                
-                // Recarrega os dados
-                switch(table) {
-                    case 'users': await loadUsers(); break;
-                    case 'members': await loadMembers(); break;
-                    case 'events': await loadEvents(); break;
-                }
-                
-                showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
-                return true;
-            } else {
-                await saveDataLocally(table, formData, editingId);
-                return true;
-            }
-            
-        } catch (error) {
-            console.error(`Erro ao salvar ${table}:`, error);
-            showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
-            return false;
-        } finally {
-            showButtonLoading(document.getElementById(buttonId), false);
-        }
-    }
-
-    async function saveDataLocally(table, dataToSave, editingId = null) {
-        if (editingId) {
-            const localData = loadFromLocalStorage(table) || [];
-            const index = localData.findIndex(item => item.id === editingId);
-            if (index !== -1) {
-                localData[index] = { 
-                    ...localData[index], 
-                    ...dataToSave,
-                    id: editingId,
-                    updated_at: new Date().toISOString()
-                };
-                saveToLocalStorage(table, localData);
-            } else {
-                showMessage(`${getEntityName(table)} não encontrado para atualização`, 'error');
-                return;
-            }
-        } else {
-            dataToSave.id = Date.now().toString();
-            dataToSave.created_at = new Date().toISOString();
-            
-            const localData = loadFromLocalStorage(table) || [];
-            localData.unshift(dataToSave);
-            saveToLocalStorage(table, localData);
-        }
-        
-        // Atualiza a interface
-        switch(table) {
-            case 'users': 
-                users = loadFromLocalStorage('users'); 
-                break;
-            case 'members': 
-                members = loadFromLocalStorage('members'); 
-                renderMembers(); 
-                break;
-            case 'events': 
-                events = loadFromLocalStorage('events'); 
-                renderEvents(); 
-                break;
-        }
-        
-        showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
-    }
-
-    // ========== FUNÇÃO DE UPLOAD DE IMAGEM ==========
-    async function uploadImage(file, bucket, fileName) {
-        try {
-            if (!isOnline) {
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result);
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            const fileExt = file.name.split('.').pop();
-            const uniqueFileName = `${fileName}_${Date.now()}.${fileExt}`;
-            
-            const { data, error } = await supabase.storage
-                .from(bucket)
-                .upload(uniqueFileName, file);
-
-            if (error) throw error;
-
-            const { data: { publicUrl } } = supabase.storage
-                .from(bucket)
-                .getPublicUrl(uniqueFileName);
-
-            return publicUrl;
-            
-        } catch (error) {
-            console.error('Erro no upload da imagem:', error);
-            throw error;
-        }
-    }
-
-    function getEntityName(table) {
-        const names = {
-            'users': 'Usuário',
-            'members': 'Membro',
-            'events': 'Evento'
-        };
-        return names[table] || 'Item';
-    }
-
-    // ========== FUNÇÃO DE EXCLUSÃO ==========
-    async function deleteItem(table, itemId) {
-        if (!confirm(`Tem certeza que deseja excluir este ${getEntityName(table).toLowerCase()}?`)) {
-            return;
-        }
-
-        try {
-            showLoading(`Excluindo ${getEntityName(table).toLowerCase()}...`);
-            
-            let currentData;
-            switch(table) {
-                case 'users': currentData = users; break;
-                case 'members': currentData = members; break;
-                case 'events': currentData = events; break;
-            }
-            
-            const itemToDelete = currentData.find(item => item.id == itemId);
-            if (!itemToDelete) {
-                throw new Error('Item não encontrado localmente');
-            }
-
-            if (isOnline) {
-                const { error: dbError } = await supabase
-                    .from(table)
-                    .delete()
-                    .eq('id', itemId);
-                
-                if (dbError) throw dbError;
-            }
-            
-            const updatedData = currentData.filter(item => item.id != itemId);
-            
-            switch(table) {
-                case 'users': users = updatedData; break;
-                case 'members': members = updatedData; break;
-                case 'events': events = updatedData; break;
-            }
-            
-            saveToLocalStorage(table, updatedData);
-            
-            switch(table) {
-                case 'members': renderMembers(); break;
-                case 'events': renderEvents(); break;
-            }
-            
-            showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
-            
-        } catch (error) {
-            console.error(`Erro ao excluir ${table}:`, error);
-            showMessage(`Erro ao excluir ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
-        } finally {
-            hideLoading();
-        }
-    }
-
-    // ========== FUNÇÕES PARA EDITAR ==========
-    async function editMember(memberId) {
-        const member = members.find(m => m.id == memberId);
-        if (!member) {
-            showMessage('Membro não encontrado', 'error');
-            return;
-        }
-
-        try {
-            document.getElementById('memberName').value = member.name || '';
-            document.getElementById('memberEmail').value = member.email || '';
-            document.getElementById('memberPhone').value = member.phone || '';
-            document.getElementById('memberRole').value = member.role || '';
-            document.getElementById('memberBio').value = member.bio || '';
-
-            // Atualiza o preview da foto
-            const preview = document.getElementById('memberPhotoPreview');
-            if (member.photo) {
-                preview.innerHTML = `<img src="${member.photo}" alt="Preview">`;
-            }
-
-            document.getElementById('memberSubmitText').textContent = 'Atualizar Membro';
-            currentEditingMemberId = memberId;
-
-            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
-            
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelector('.tab[data-tab="member"]').classList.add('active');
-            
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById('member-form').classList.add('active');
-
-            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Membro".', 'success');
-            
-        } catch (error) {
-            console.error('Erro ao preparar formulário de edição:', error);
-            showMessage('Erro ao carregar dados do membro para edição', 'error');
-        }
-    }
-
-    async function editEvent(eventId) {
-        const event = events.find(e => e.id == eventId);
-        if (!event) {
-            showMessage('Evento não encontrado', 'error');
-            return;
-        }
-
-        try {
-            document.getElementById('eventTitle').value = event.title || '';
-            document.getElementById('eventDate').value = event.event_date || '';
-            document.getElementById('eventTime').value = event.event_time || '';
-            document.getElementById('eventLocation').value = event.location || '';
-            document.getElementById('eventDescription').value = event.description || '';
-
-            document.getElementById('eventSubmitText').textContent = 'Atualizar Evento';
-            currentEditingEventId = eventId;
-
-            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
-            
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelector('.tab[data-tab="event"]').classList.add('active');
-            
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById('event-form').classList.add('active');
-
-            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Evento".', 'success');
-            
-        } catch (error) {
-            console.error('Erro ao preparar formulário de edição do evento:', error);
-            showMessage('Erro ao carregar dados do evento para edição', 'error');
-        }
-    }
-
     // ========== FUNÇÕES AUXILIARES ==========
     function updateSyncStatus(online) {
         isOnline = online;
@@ -1997,8 +2410,18 @@
         }
     }
 
+    function showAdminLoginModal() {
+        const modal = document.getElementById('adminLoginModal');
+        modal.style.display = 'flex';
+    }
+
     function hideUserLoginModal() {
         const modal = document.getElementById('userLoginModal');
+        modal.style.display = 'none';
+    }
+
+    function hideAdminLoginModal() {
+        const modal = document.getElementById('adminLoginModal');
         modal.style.display = 'none';
     }
 
@@ -2073,13 +2496,15 @@
                     return;
                 }
                 
-                await saveData('events', eventData, null, 'eventSubmitBtn', currentEditingEventId);
+                // Usa o array global de fotos do evento
+                await saveData('events', eventData, eventPhotosFiles, 'eventSubmitBtn', currentEditingEventId);
                 resetForm('event');
             });
         }
 
-        // Image upload handler
+        // Image upload handlers
         setupImageUpload('memberPhoto', 'memberPhotoPreview');
+        setupMultiplePhotosUpload();
 
         // User login form
         if (document.getElementById('userLoginForm')) {
@@ -2117,9 +2542,46 @@
             });
         }
 
-        // Admin action form
-        if (document.getElementById('adminSubmitBtn')) {
-            document.getElementById('adminSubmitBtn').addEventListener('click', executeAdminAction);
+        // Admin login form
+        if (document.getElementById('adminLoginForm')) {
+            document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const password = document.getElementById('adminLoginPassword').value;
+                
+                if (!password) {
+                    showMessage('Por favor, digite a senha de administrador.', 'error');
+                    return;
+                }
+                
+                if (password !== adminPassword) {
+                    showMessage('Senha de administrador incorreta.', 'error');
+                    return;
+                }
+                
+                // Se não há usuário atual, cria um
+                if (!currentUser) {
+                    currentUser = {
+                        id: 'admin_' + Date.now(),
+                        name: 'Administrador',
+                        email: 'admin@system.com',
+                        is_admin: true
+                    };
+                } else {
+                    currentUser.is_admin = true;
+                }
+                
+                const currentUsers = loadFromLocalStorage('current_users') || [];
+                currentUsers.push(currentUser);
+                saveToLocalStorage('current_users', currentUsers);
+                
+                showMessage('✅ Acesso de administrador concedido! Agora você pode editar e excluir itens.', 'success');
+                hideAdminLoginModal();
+                
+                // Recarrega para mostrar os botões de edição
+                await loadMembers();
+                await loadEvents();
+            });
         }
 
         // Mobile menu
@@ -2182,8 +2644,108 @@
         });
     }
 
+    function setupMultiplePhotosUpload() {
+        const input = document.getElementById('eventPhotos');
+        const preview = document.getElementById('eventPhotosPreview');
+        const uploadArea = document.getElementById('eventPhotosUploadArea');
+        
+        if (!input || !preview || !uploadArea) return;
+        
+        // Clique na área de upload
+        uploadArea.addEventListener('click', () => {
+            input.click();
+        });
+        
+        // Arrastar e soltar
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#3498db';
+            uploadArea.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.backgroundColor = '';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.backgroundColor = '';
+            
+            const files = e.dataTransfer.files;
+            handleMultiplePhotos(files);
+        });
+        
+        // Mudança no input de arquivo
+        input.addEventListener('change', (e) => {
+            handleMultiplePhotos(e.target.files);
+        });
+        
+        function handleMultiplePhotos(files) {
+            const validFiles = Array.from(files).filter(file => 
+                file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024
+            );
+            
+            if (validFiles.length === 0) {
+                showMessage('Por favor, selecione apenas imagens válidas (máx. 5MB cada).', 'error');
+                return;
+            }
+            
+            // Limita a 10 fotos
+            const filesToProcess = validFiles.slice(0, 10);
+            
+            // Adiciona ao array global
+            eventPhotosFiles = [...eventPhotosFiles, ...filesToProcess].slice(0, 10);
+            
+            // Atualiza o preview
+            preview.innerHTML = '';
+            eventPhotosFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoItem = document.createElement('div');
+                    photoItem.className = 'photo-preview-item';
+                    photoItem.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview">
+                        <button type="button" class="remove-photo" onclick="removeEventPhoto(${index})">×</button>
+                    `;
+                    preview.appendChild(photoItem);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            if (validFiles.length > 10) {
+                showMessage('Apenas as primeiras 10 fotos serão processadas.', 'warning');
+            }
+            
+            showMessage(`${filesToProcess.length} foto(s) adicionada(s) ao evento!`, 'success');
+        }
+    }
+
+    // Função para remover foto do evento
+    function removeEventPhoto(index) {
+        eventPhotosFiles.splice(index, 1);
+        
+        // Atualiza o preview
+        const preview = document.getElementById('eventPhotosPreview');
+        preview.innerHTML = '';
+        eventPhotosFiles.forEach((file, newIndex) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const photoItem = document.createElement('div');
+                photoItem.className = 'photo-preview-item';
+                photoItem.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview">
+                    <button type="button" class="remove-photo" onclick="removeEventPhoto(${newIndex})">×</button>
+                `;
+                preview.appendChild(photoItem);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
     function resetForm(type) {
-        let form, submitText, preview;
+        let form, submitText, preview, photosPreview;
         
         switch(type) {
             case 'member':
@@ -2195,6 +2757,8 @@
             case 'event':
                 form = document.getElementById('eventRegistrationForm');
                 submitText = document.getElementById('eventSubmitText');
+                photosPreview = document.getElementById('eventPhotosPreview');
+                eventPhotosFiles = [];
                 currentEditingEventId = null;
                 break;
         }
@@ -2202,6 +2766,9 @@
         if (form) form.reset();
         if (preview) {
             preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
+        }
+        if (photosPreview) {
+            photosPreview.innerHTML = '';
         }
         if (submitText) submitText.textContent = `Cadastrar ${getEntityName(type)}`;
     }
@@ -2212,75 +2779,6 @@
         
         document.getElementById('memberSubmitText').textContent = 'Cadastrar Membro';
         document.getElementById('eventSubmitText').textContent = 'Cadastrar Evento';
-    }
-
-    // ========== FUNÇÕES DE ADMINISTRAÇÃO ==========
-    async function executeAdminAction() {
-        const password = document.getElementById('adminPassword').value;
-        const action = document.getElementById('adminAction').value;
-        
-        if (!password) {
-            showMessage('Por favor, insira a senha de administrador.', 'error');
-            return;
-        }
-        
-        if (password !== adminPassword) {
-            showMessage('Senha de administrador incorreta.', 'error');
-            return;
-        }
-        
-        if (!action) {
-            showMessage('Por favor, selecione uma ação.', 'error');
-            return;
-        }
-        
-        try {
-            showButtonLoading(document.getElementById('adminSubmitBtn'), true);
-            
-            let success = false;
-            let message = '';
-            
-            switch(action) {
-                case 'promote':
-                    if (!currentUser) {
-                        showMessage('Nenhum usuário logado.', 'error');
-                        return;
-                    }
-                    
-                    currentUser.is_admin = true;
-                    success = await saveData('users', { is_admin: true }, null, 'adminSubmitBtn', currentUser.id);
-                    message = 'Você foi promovido a administrador com sucesso!';
-                    break;
-                    
-                case 'demote':
-                    if (!currentUser) {
-                        showMessage('Nenhum usuário logado.', 'error');
-                        return;
-                    }
-                    
-                    if (!currentUser.is_admin) {
-                        showMessage('Você não é um administrador.', 'warning');
-                        return;
-                    }
-                    
-                    currentUser.is_admin = false;
-                    success = await saveData('users', { is_admin: false }, null, 'adminSubmitBtn', currentUser.id);
-                    message = 'Você foi rebaixado a usuário comum.';
-                    break;
-            }
-            
-            if (success) {
-                showMessage(message, 'success');
-                document.getElementById('adminPassword').value = '';
-                document.getElementById('adminAction').value = '';
-            }
-            
-        } catch (error) {
-            console.error('Erro ao executar ação de administração:', error);
-            showMessage('Erro ao executar ação: ' + error.message, 'error');
-        } finally {
-            showButtonLoading(document.getElementById('adminSubmitBtn'), false);
-        }
     }
 
     // Funções de exclusão específicas
@@ -2302,6 +2800,7 @@
             members = [];
             events = [];
             eventChats = {};
+            eventPhotosFiles = [];
             
             const supabaseInitialized = await initializeSupabase();
             
@@ -2349,4 +2848,3 @@
     
 </body>
 </html>
-
