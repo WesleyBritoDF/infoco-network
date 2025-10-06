@@ -1858,58 +1858,127 @@
             console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
         }
         
+        // Prepara os dados para salvar
+        const dataToSave = { ...formData };
+        
+        // Adiciona as URLs das imagens aos dados
+        if (imageUrls.length > 0) {
+            if (table === 'events') {
+                // Para eventos, salva array de fotos
+                dataToSave.photos = imageUrls;
+                console.log('📸 Fotos a serem salvas no evento:', imageUrls);
+            } else {
+                // Para membros, salva photo
+                dataToSave.photo = imageUrls[0];
+            }
+        }
+        
+        if (isOnline) {
+            let result;
+            
+            try {
+                if (editingId) {
+                    dataToSave.updated_at = new Date().toISOString();
+                    
+                    const { data, error } = await supabase
+                        .from(table)
+                        .update(dataToSave)
+                        .eq('id', editingId)
+                        .select();
+                    
+                    if (error) throw error;
+                    result = data;
+                } else {
+                    const { data, error } = await supabase
+                        .from(table)
+                        .insert([dataToSave])
+                        .select();
+                    
+                    if (error) throw error;
+                    result = data;
+                }
+            } catch (dbError) {
+                console.error(`Erro no banco de dados:`, dbError);
+                await saveDataLocally(table, dataToSave, editingId);
+                showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
+                return true;
+            }
+            
+            // Recarrega os dados
+            switch(table) {
+                case 'users': await loadUsers(); break;
+                case 'members': await loadMembers(); break;
+                case 'events': await loadEvents(); break;
+            }
+            
+            showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
+            return true;
+        } else {
+            await saveDataLocally(table, dataToSave, editingId);
+            return true;
+        }
+        
+    } catch (error) {
+        console.error(`Erro ao salvar ${table}:`, error);
+        showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
+        return false;
+    } finally {
+        showButtonLoading(document.getElementById(buttonId), false);
+    }
+}
+        
         // ... restante do código permanece igual
     async function saveDataLocally(table, dataToSave, editingId = null) {
-        if (editingId) {
-            const localData = loadFromLocalStorage(table) || [];
-            const index = localData.findIndex(item => item.id === editingId);
-            if (index !== -1) {
-                localData[index] = { 
-                    ...localData[index], 
-                    ...dataToSave,
-                    id: editingId,
-                    updated_at: new Date().toISOString()
-                };
-                saveToLocalStorage(table, localData);
-            } else {
-                showMessage(`${getEntityName(table)} não encontrado para atualização`, 'error');
-                return;
-            }
-        } else {
-            dataToSave.id = Date.now().toString();
-            dataToSave.created_at = new Date().toISOString();
-            
-            const localData = loadFromLocalStorage(table) || [];
-            localData.unshift(dataToSave);
+    if (editingId) {
+        const localData = loadFromLocalStorage(table) || [];
+        const index = localData.findIndex(item => item.id === editingId);
+        if (index !== -1) {
+            localData[index] = { 
+                ...localData[index], 
+                ...dataToSave,
+                id: editingId,
+                updated_at: new Date().toISOString()
+            };
             saveToLocalStorage(table, localData);
+        } else {
+            showMessage(`${getEntityName(table)} não encontrado para atualização`, 'error');
+            return;
         }
+    } else {
+        dataToSave.id = Date.now().toString();
+        dataToSave.created_at = new Date().toISOString();
         
-        // Atualiza a interface
-        switch(table) {
-            case 'users': 
-                users = loadFromLocalStorage('users'); 
-                break;
-            case 'members': 
-                members = loadFromLocalStorage('members'); 
-                renderMembers(); 
-                break;
-            case 'events': 
-                events = loadFromLocalStorage('events'); 
-                renderEvents(); 
-                break;
-        }
-        
-        showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
+        const localData = loadFromLocalStorage(table) || [];
+        localData.unshift(dataToSave);
+        saveToLocalStorage(table, localData);
     }
+    
+    // Atualiza a interface
+    switch(table) {
+        case 'users': 
+            users = loadFromLocalStorage('users'); 
+            break;
+        case 'members': 
+            members = loadFromLocalStorage('members'); 
+            renderMembers(); 
+            break;
+        case 'events': 
+            events = loadFromLocalStorage('events'); 
+            renderEvents(); 
+            break;
+    }
+    
+    showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
+}
 
     function getEntityName(table) {
-        const names = {
-            'users': 'Usuário',
-            'members': 'Membro',
-            'events': 'Evento'
-        };
-        return names[table] || 'Item';
-    }
+    const names = {
+        'users': 'Usuário',
+        'members': 'Membro',
+        'events': 'Evento'
+    };
+    return names[table] || 'Item';
+}
 
     // ========== FUNÇÃO DE EXCLUSÃO ==========
     async function deleteItem(table, itemId) {
@@ -2893,4 +2962,5 @@ async function checkBucketStatus() {
     
 </body>
 </html>
+
 
