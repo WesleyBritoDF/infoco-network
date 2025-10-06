@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="NETWORK IN FOCO">
+    <meta name="description" content="NETWORK IN FOCO - Sistema completo de gerenciamento">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0/dist/umd/supabase.min.js"></script>
-    <title>NETWORK IN FOCO</title>
+    <title>NETWORK IN FOCO - Sistema Completo</title>
     <style>
         :root {
             --primary-color: #1a365d;
@@ -523,32 +523,32 @@
             object-fit: contain;
         }
 
-        
-/* Gallery Modal - Botão Fechar Melhorado */
-.gallery-modal-close {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    font-size: 1.5rem;
-    cursor: pointer;
-    z-index: 10003;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-    backdrop-filter: blur(5px);
-}
+        /* Gallery Modal - Botão Fechar Melhorado */
+        .gallery-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10003;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+        }
 
-.gallery-modal-close:hover {
-    background: rgba(0, 0, 0, 0.9);
-    transform: scale(1.1);
-}
+        .gallery-modal-close:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+        }
+
         .gallery-nav {
             position: absolute;
             top: 50%;
@@ -586,6 +586,7 @@
             transform: translateX(-50%);
             color: white;
             font-size: 1rem;
+            text-align: center;
         }
 
         /* Cards */
@@ -1141,6 +1142,20 @@
             .event-chat-messages {
                 height: 250px;
             }
+
+            .gallery-modal-close {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .gallery-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
@@ -1218,9 +1233,9 @@
             <div class="header-content">
                 <div class="logo">
                     <div class="logo-image">
-                        <img src="https://jywmvnxurbtziixntuuq.supabase.co/storage/v1/object/public/Imagens/LogoNet.jpeg" 
+                        <img src="https://jywmvnxurbtziixntuuq.supabase.co/storage/v1/object/public/Imagens/LogotipoS.jpeg" 
                              alt="NETWORK IN FOCO Logo" 
-                             onerror="this.src='https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'">
+                             onerror="handleLogoError(this)">
                     </div>
                     <div class="logo-text">
                         <h1>NETWORK <span>IN FOCO</span></h1>
@@ -1358,7 +1373,7 @@
                             <label>Fotos do Evento (Múltiplas)</label>
                             <div class="photos-upload-area" id="eventPhotosUploadArea">
                                 <p>📷 Clique aqui ou arraste fotos para adicionar</p>
-                                <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos</p>
+                                <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos (máx. 20)</p>
                             </div>
                             <input type="file" id="eventPhotos" class="image-upload-input" accept="image/*" multiple style="display: none;">
                             <div class="photos-preview" id="eventPhotosPreview">
@@ -1635,60 +1650,60 @@
     }
 
     async function uploadMultipleImages(files, bucket, baseName) {
-    try {
-        console.log(`📤 Iniciando upload de ${files.length} imagens para o bucket: ${bucket}`);
-        
-        const uploadPromises = Array.from(files).map(async (file, index) => {
-            const fileExt = file.name.split('.').pop();
-            const uniqueFileName = `${baseName}_${Date.now()}_${index}.${fileExt}`;
+        try {
+            console.log(`📤 Iniciando upload de ${files.length} imagens para o bucket: ${bucket}`);
             
-            console.log(`🔄 Upload ${index + 1}/${files.length}: ${file.name} como ${uniqueFileName}`);
+            const uploadPromises = Array.from(files).map(async (file, index) => {
+                const fileExt = file.name.split('.').pop();
+                const uniqueFileName = `${baseName}_${Date.now()}_${index}.${fileExt}`;
+                
+                console.log(`🔄 Upload ${index + 1}/${files.length}: ${file.name} como ${uniqueFileName}`);
+                
+                if (!isOnline) {
+                    console.log('📴 Modo offline - usando base64');
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            resolve(e.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+
+                // Upload para o Supabase Storage
+                const { data, error } = await supabase.storage
+                    .from(bucket)
+                    .upload(uniqueFileName, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (error) {
+                    console.error(`❌ Erro no upload da imagem ${index + 1}:`, error);
+                    return null;
+                }
+
+                console.log(`✅ Upload concluído para ${uniqueFileName}`);
+
+                // Obtém URL pública
+                const { data: { publicUrl } } = supabase.storage
+                    .from(bucket)
+                    .getPublicUrl(uniqueFileName);
+
+                console.log(`✅ URL pública obtida: ${publicUrl}`);
+                return publicUrl;
+            });
             
-            if (!isOnline) {
-                console.log('📴 Modo offline - usando base64');
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        resolve(e.target.result);
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            // Upload para o Supabase Storage
-            const { data, error } = await supabase.storage
-                .from(bucket)
-                .upload(uniqueFileName, file, {
-                    cacheControl: '3600',
-                    upsert: false
-                });
-
-            if (error) {
-                console.error(`❌ Erro no upload da imagem ${index + 1}:`, error);
-                return null;
-            }
-
-            console.log(`✅ Upload concluído para ${uniqueFileName}`);
-
-            // Obtém URL pública
-            const { data: { publicUrl } } = supabase.storage
-                .from(bucket)
-                .getPublicUrl(uniqueFileName);
-
-            console.log(`✅ URL pública obtida: ${publicUrl}`);
-            return publicUrl;
-        });
-        
-        const urls = await Promise.all(uploadPromises);
-        const successfulUrls = urls.filter(url => url !== null && url !== undefined);
-        
-        console.log(`✅ Upload múltiplo concluído: ${successfulUrls.length}/${files.length} imagens salvas no bucket ${bucket}`);
-        return successfulUrls;
-    } catch (error) {
-        console.error('❌ Erro no upload múltiplo de imagens:', error);
-        throw error;
+            const urls = await Promise.all(uploadPromises);
+            const successfulUrls = urls.filter(url => url !== null && url !== undefined);
+            
+            console.log(`✅ Upload múltiplo concluído: ${successfulUrls.length}/${files.length} imagens salvas no bucket ${bucket}`);
+            return successfulUrls;
+        } catch (error) {
+            console.error('❌ Erro no upload múltiplo de imagens:', error);
+            throw error;
+        }
     }
-}
 
     // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
     function renderMembers() {
@@ -1767,7 +1782,6 @@
                     <p><strong>Local:</strong> ${event.location}</p>
                     <p>${event.description || 'Sem descrição'}</p>
                     
-                    // Na função renderEvents, na parte das fotos:
                     ${photos.length > 0 ? `
                         <div class="photos-info">
                             <strong>${photos.length} foto(s)</strong>
@@ -1775,16 +1789,15 @@
                                 👁️ Ver Galeria
                             </button>
                         </div>
-                    ` : ''}
                         
                         <div class="event-gallery">
                             ${photos.slice(0, 4).map((photo, index) => `
-                                <div class="event-gallery-item" onclick="('${event.id}', ${index})">
+                                <div class="event-gallery-item" onclick="openGallery('${event.id}', ${index})">
                                     <img src="${photo}" alt="Foto ${index + 1} do evento" loading="lazy">
                                 </div>
                             `).join('')}
                             ${photos.length > 4 ? `
-                                <div class="event-gallery-item" onclick="('${event.id}', 0)" style="background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                <div class="event-gallery-item" onclick="openGallery('${event.id}', 0)" style="background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
                                     +${photos.length - 4}
                                 </div>
                             ` : ''}
@@ -1848,156 +1861,156 @@
         });
     }
 
+    // ========== FUNÇÃO SALVAR DADOS ==========
     async function saveData(table, formData, imageFiles, buttonId, editingId = null) {
-    try {
-        showButtonLoading(document.getElementById(buttonId), true);
-        
-        let imageUrls = [];
-        
-        // Faz upload das imagens se existirem
-        if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
-            const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
-                            formData.title?.replace(/\s+/g, '_').toLowerCase() || 
-                            'image';
+        try {
+            showButtonLoading(document.getElementById(buttonId), true);
             
-            console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'} para ${table}`);
+            let imageUrls = [];
             
-            if (Array.isArray(imageFiles)) {
-                // Múltiplas imagens (para eventos) - usa o bucket events-photos
-                const bucketName = 'events-photos';
-                imageUrls = await uploadMultipleImages(imageFiles, bucketName, baseName);
-                console.log('✅ URLs das fotos do evento:', imageUrls);
-            } else {
-                // Uma imagem (para membros) - usa o bucket members-photos
-                const bucketName = 'members-photos';
-                const imageUrl = await uploadImage(imageFiles, bucketName, baseName);
-                imageUrls = [imageUrl];
-            }
-            
-            console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
-        }
-        
-        // Prepara os dados para salvar
-        const dataToSave = { ...formData };
-        
-        // Adiciona as URLs das imagens aos dados
-        if (imageUrls.length > 0) {
-            if (table === 'events') {
-                // Para eventos, salva array de fotos
-                dataToSave.photos = imageUrls;
-                console.log('📸 Fotos a serem salvas no evento:', imageUrls);
-            } else {
-                // Para membros, salva photo
-                dataToSave.photo = imageUrls[0];
-            }
-        }
-        
-        if (isOnline) {
-            let result;
-            
-            try {
-                if (editingId) {
-                    dataToSave.updated_at = new Date().toISOString();
-                    
-                    const { data, error } = await supabase
-                        .from(table)
-                        .update(dataToSave)
-                        .eq('id', editingId)
-                        .select();
-                    
-                    if (error) throw error;
-                    result = data;
+            // Faz upload das imagens se existirem
+            if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
+                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
+                                formData.title?.replace(/\s+/g, '_').toLowerCase() || 
+                                'image';
+                
+                console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'} para ${table}`);
+                
+                if (Array.isArray(imageFiles)) {
+                    // Múltiplas imagens (para eventos) - usa o bucket events-photos
+                    const bucketName = 'events-photos';
+                    imageUrls = await uploadMultipleImages(imageFiles, bucketName, baseName);
+                    console.log('✅ URLs das fotos do evento:', imageUrls);
                 } else {
-                    const { data, error } = await supabase
-                        .from(table)
-                        .insert([dataToSave])
-                        .select();
-                    
-                    if (error) throw error;
-                    result = data;
+                    // Uma imagem (para membros) - usa o bucket members-photos
+                    const bucketName = 'members-photos';
+                    const imageUrl = await uploadImage(imageFiles, bucketName, baseName);
+                    imageUrls = [imageUrl];
                 }
-            } catch (dbError) {
-                console.error(`Erro no banco de dados:`, dbError);
+                
+                console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
+            }
+            
+            // Prepara os dados para salvar
+            const dataToSave = { ...formData };
+            
+            // Adiciona as URLs das imagens aos dados
+            if (imageUrls.length > 0) {
+                if (table === 'events') {
+                    // Para eventos, salva array de fotos
+                    dataToSave.photos = imageUrls;
+                    console.log('📸 Fotos a serem salvas no evento:', imageUrls);
+                } else {
+                    // Para membros, salva photo
+                    dataToSave.photo = imageUrls[0];
+                }
+            }
+            
+            if (isOnline) {
+                let result;
+                
+                try {
+                    if (editingId) {
+                        dataToSave.updated_at = new Date().toISOString();
+                        
+                        const { data, error } = await supabase
+                            .from(table)
+                            .update(dataToSave)
+                            .eq('id', editingId)
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data;
+                    } else {
+                        const { data, error } = await supabase
+                            .from(table)
+                            .insert([dataToSave])
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data;
+                    }
+                } catch (dbError) {
+                    console.error(`Erro no banco de dados:`, dbError);
+                    await saveDataLocally(table, dataToSave, editingId);
+                    showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
+                    return true;
+                }
+                
+                // Recarrega os dados
+                switch(table) {
+                    case 'users': await loadUsers(); break;
+                    case 'members': await loadMembers(); break;
+                    case 'events': await loadEvents(); break;
+                }
+                
+                showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
+                return true;
+            } else {
                 await saveDataLocally(table, dataToSave, editingId);
-                showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
                 return true;
             }
             
-            // Recarrega os dados
-            switch(table) {
-                case 'users': await loadUsers(); break;
-                case 'members': await loadMembers(); break;
-                case 'events': await loadEvents(); break;
-            }
-            
-            showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
-            return true;
-        } else {
-            await saveDataLocally(table, dataToSave, editingId);
-            return true;
+        } catch (error) {
+            console.error(`Erro ao salvar ${table}:`, error);
+            showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
+            return false;
+        } finally {
+            showButtonLoading(document.getElementById(buttonId), false);
         }
-        
-    } catch (error) {
-        console.error(`Erro ao salvar ${table}:`, error);
-        showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
-        return false;
-    } finally {
-        showButtonLoading(document.getElementById(buttonId), false);
     }
-}
-        
-        // ... restante do código permanece igual
+
     async function saveDataLocally(table, dataToSave, editingId = null) {
-    if (editingId) {
-        const localData = loadFromLocalStorage(table) || [];
-        const index = localData.findIndex(item => item.id === editingId);
-        if (index !== -1) {
-            localData[index] = { 
-                ...localData[index], 
-                ...dataToSave,
-                id: editingId,
-                updated_at: new Date().toISOString()
-            };
-            saveToLocalStorage(table, localData);
+        if (editingId) {
+            const localData = loadFromLocalStorage(table) || [];
+            const index = localData.findIndex(item => item.id === editingId);
+            if (index !== -1) {
+                localData[index] = { 
+                    ...localData[index], 
+                    ...dataToSave,
+                    id: editingId,
+                    updated_at: new Date().toISOString()
+                };
+                saveToLocalStorage(table, localData);
+            } else {
+                showMessage(`${getEntityName(table)} não encontrado para atualização`, 'error');
+                return;
+            }
         } else {
-            showMessage(`${getEntityName(table)} não encontrado para atualização`, 'error');
-            return;
+            dataToSave.id = Date.now().toString();
+            dataToSave.created_at = new Date().toISOString();
+            
+            const localData = loadFromLocalStorage(table) || [];
+            localData.unshift(dataToSave);
+            saveToLocalStorage(table, localData);
         }
-    } else {
-        dataToSave.id = Date.now().toString();
-        dataToSave.created_at = new Date().toISOString();
         
-        const localData = loadFromLocalStorage(table) || [];
-        localData.unshift(dataToSave);
-        saveToLocalStorage(table, localData);
+        // Atualiza a interface
+        switch(table) {
+            case 'users': 
+                users = loadFromLocalStorage('users'); 
+                break;
+            case 'members': 
+                members = loadFromLocalStorage('members'); 
+                renderMembers(); 
+                break;
+            case 'events': 
+                events = loadFromLocalStorage('events'); 
+                renderEvents(); 
+                break;
+        }
+        
+        showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
     }
-    
-    // Atualiza a interface
-    switch(table) {
-        case 'users': 
-            users = loadFromLocalStorage('users'); 
-            break;
-        case 'members': 
-            members = loadFromLocalStorage('members'); 
-            renderMembers(); 
-            break;
-        case 'events': 
-            events = loadFromLocalStorage('events'); 
-            renderEvents(); 
-            break;
-    }
-    
-    showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
-}
 
     function getEntityName(table) {
-    const names = {
-        'users': 'Usuário',
-        'members': 'Membro',
-        'events': 'Evento'
-    };
-    return names[table] || 'Item';
-}
+        const names = {
+            'users': 'Usuário',
+            'members': 'Membro',
+            'events': 'Evento'
+        };
+        return names[table] || 'Item';
+    }
 
     // ========== FUNÇÃO DE EXCLUSÃO ==========
     async function deleteItem(table, itemId) {
@@ -2132,98 +2145,100 @@
         }
     }
 
-   // ========== FUNÇÕES DA GALERIA ==========
-function openGallery(eventId, photoIndex = 0) {
-    const event = events.find(e => e.id == eventId);
-    if (!event || !event.photos || event.photos.length === 0) {
-        showMessage('Este evento não possui fotos.', 'warning');
-        return;
+    // ========== FUNÇÕES DA GALERIA ==========
+    function openGallery(eventId, photoIndex = 0) {
+        const event = events.find(e => e.id == eventId);
+        if (!event || !event.photos || event.photos.length === 0) {
+            showMessage('Este evento não possui fotos.', 'warning');
+            return;
+        }
+        
+        currentGalleryEvent = event;
+        currentPhotoIndex = photoIndex;
+        
+        showPhoto();
+        galleryModal.style.display = 'flex';
+        
+        // Previne scroll do body quando a galeria está aberta
+        document.body.style.overflow = 'hidden';
+        
+        // Foco no botão fechar para melhor acessibilidade
+        setTimeout(() => {
+            const closeBtn = document.querySelector('.gallery-modal-close');
+            if (closeBtn) closeBtn.focus();
+        }, 100);
+        
+        console.log('🖼️ Galeria aberta:', event.title, '- Fotos:', event.photos.length);
     }
-    
-    currentGalleryEvent = event;
-    currentPhotoIndex = photoIndex;
-    
-    showPhoto();
-    galleryModal.style.display = 'flex';
-    
-    // Previne scroll do body quando a galeria está aberta
-    document.body.style.overflow = 'hidden';
-    
-    // Foco no botão fechar para melhor acessibilidade
-    setTimeout(() => {
-        const closeBtn = document.querySelector('.gallery-modal-close');
-        if (closeBtn) closeBtn.focus();
-    }, 100);
-    
-    console.log('🖼️ Galeria aberta:', event.title, '- Fotos:', event.photos.length);
-}
 
-function closeGallery() {
-    galleryModal.style.display = 'none';
-    currentGalleryEvent = null;
-    currentPhotoIndex = 0;
-    
-    // Restaura scroll do body
-    document.body.style.overflow = '';
-    
-    console.log('🚪 Galeria fechada');
-}
-
-function showPhoto() {
-    if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
-    
-    const photos = currentGalleryEvent.photos;
-    if (photos.length === 0) return;
-    
-    galleryImage.src = photos[currentPhotoIndex];
-    galleryCounter.innerHTML = `
-        ${currentPhotoIndex + 1} / ${photos.length}
-        <div style="font-size: 0.7rem; margin-top: 5px; opacity: 0.7;">
-            Use ← → ou ESC para fechar
-        </div>
-    `;
-    
-    galleryImage.onload = function() {
-        this.style.opacity = '1';
-    };
-    galleryImage.style.opacity = '0.7';
-}
-
-function nextPhoto() {
-    if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
-    
-    const photos = currentGalleryEvent.photos;
-    currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
-    showPhoto();
-}
-
-function prevPhoto() {
-    if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
-    
-    const photos = currentGalleryEvent.photos;
-    currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
-    showPhoto();
-}
-
-// Fechar galeria com ESC ou clicando fora da imagem
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && galleryModal.style.display === 'flex') {
-        closeGallery();
+    function closeGallery() {
+        galleryModal.style.display = 'none';
+        currentGalleryEvent = null;
+        currentPhotoIndex = 0;
+        
+        // Restaura scroll do body
+        document.body.style.overflow = '';
+        
+        console.log('🚪 Galeria fechada');
     }
-    
-    // Navegação com teclado
-    if (galleryModal.style.display === 'flex') {
-        if (e.key === 'ArrowRight') nextPhoto();
-        if (e.key === 'ArrowLeft') prevPhoto();
-    }
-});
 
-// Fechar ao clicar no fundo escuro (fora da imagem)
-galleryModal.addEventListener('click', (e) => {
-    if (e.target === galleryModal) {
-        closeGallery();
+    function showPhoto() {
+        if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
+        
+        const photos = currentGalleryEvent.photos;
+        if (photos.length === 0) return;
+        
+        galleryImage.src = photos[currentPhotoIndex];
+        galleryCounter.innerHTML = `
+            ${currentPhotoIndex + 1} / ${photos.length}
+            <div style="font-size: 0.7rem; margin-top: 5px; opacity: 0.7;">
+                Use ← → ou ESC para fechar
+            </div>
+        `;
+        
+        // Adiciona loading state
+        galleryImage.onload = function() {
+            this.style.opacity = '1';
+        };
+        galleryImage.style.opacity = '0.7';
+        galleryImage.style.transition = 'opacity 0.3s ease';
     }
-});
+
+    function nextPhoto() {
+        if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
+        
+        const photos = currentGalleryEvent.photos;
+        currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+        showPhoto();
+    }
+
+    function prevPhoto() {
+        if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
+        
+        const photos = currentGalleryEvent.photos;
+        currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+        showPhoto();
+    }
+
+    // Fechar galeria com ESC ou clicando fora da imagem
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && galleryModal.style.display === 'flex') {
+            closeGallery();
+        }
+        
+        // Navegação com teclado
+        if (galleryModal.style.display === 'flex') {
+            if (e.key === 'ArrowRight') nextPhoto();
+            if (e.key === 'ArrowLeft') prevPhoto();
+        }
+    });
+
+    // Fechar ao clicar no fundo escuro (fora da imagem)
+    galleryModal.addEventListener('click', (e) => {
+        if (e.target === galleryModal) {
+            closeGallery();
+        }
+    });
 
     // ========== FUNÇÕES DO CHAT ==========
     async function loadEventChats() {
@@ -2572,38 +2587,38 @@ galleryModal.addEventListener('click', (e) => {
         }
 
         if (document.getElementById('eventRegistrationForm')) {
-    document.getElementById('eventRegistrationForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const eventData = {
-            title: document.getElementById('eventTitle')?.value || '',
-            event_date: document.getElementById('eventDate')?.value || '',
-            event_time: document.getElementById('eventTime')?.value || '',
-            location: document.getElementById('eventLocation')?.value || '',
-            description: document.getElementById('eventDescription')?.value || ''
-        };
-        
-        if (!eventData.title || !eventData.event_date || !eventData.event_time || !eventData.location) {
-            showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
-            return;
+            document.getElementById('eventRegistrationForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const eventData = {
+                    title: document.getElementById('eventTitle')?.value || '',
+                    event_date: document.getElementById('eventDate')?.value || '',
+                    event_time: document.getElementById('eventTime')?.value || '',
+                    location: document.getElementById('eventLocation')?.value || '',
+                    description: document.getElementById('eventDescription')?.value || ''
+                };
+                
+                if (!eventData.title || !eventData.event_date || !eventData.event_time || !eventData.location) {
+                    showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
+                    return;
+                }
+                
+                // Verifica se há fotos selecionadas
+                if (eventPhotosFiles.length === 0) {
+                    if (!confirm('Nenhuma foto foi selecionada para o evento. Deseja continuar sem fotos?')) {
+                        return;
+                    }
+                }
+                
+                console.log(`📝 Salvando evento com ${eventPhotosFiles.length} fotos`);
+                
+                const success = await saveData('events', eventData, eventPhotosFiles, 'eventSubmitBtn', currentEditingEventId);
+                
+                if (success) {
+                    resetForm('event');
+                }
+            });
         }
-        
-        // Verifica se há fotos selecionadas
-        if (eventPhotosFiles.length === 0) {
-            if (!confirm('Nenhuma foto foi selecionada para o evento. Deseja continuar sem fotos?')) {
-                return;
-            }
-        }
-        
-        console.log(`📝 Salvando evento com ${eventPhotosFiles.length} fotos`);
-        
-        const success = await saveData('events', eventData, eventPhotosFiles, 'eventSubmitBtn', currentEditingEventId);
-        
-        if (success) {
-            resetForm('event');
-        }
-    });
-}
 
         // Image upload handlers
         setupImageUpload('memberPhoto', 'memberPhotoPreview');
@@ -2748,113 +2763,113 @@ galleryModal.addEventListener('click', (e) => {
     }
 
     function setupMultiplePhotosUpload() {
-    const input = document.getElementById('eventPhotos');
-    const preview = document.getElementById('eventPhotosPreview');
-    const uploadArea = document.getElementById('eventPhotosUploadArea');
-    
-    if (!input || !preview || !uploadArea) return;
-    
-    // Clique na área de upload
-    uploadArea.addEventListener('click', () => {
-        input.click();
-    });
-    
-    // Arrastar e soltar
-    uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.style.borderColor = '#3498db';
-        uploadArea.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
-    });
-    
-    uploadArea.addEventListener('dragleave', () => {
-        uploadArea.style.borderColor = '#ddd';
-        uploadArea.style.backgroundColor = '';
-    });
-    
-    uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.style.borderColor = '#ddd';
-        uploadArea.style.backgroundColor = '';
+        const input = document.getElementById('eventPhotos');
+        const preview = document.getElementById('eventPhotosPreview');
+        const uploadArea = document.getElementById('eventPhotosUploadArea');
         
-        const files = e.dataTransfer.files;
-        handleMultiplePhotos(files);
-    });
-    
-    // Mudança no input de arquivo
-    input.addEventListener('change', (e) => {
-        handleMultiplePhotos(e.target.files);
-    });
-    
-    function handleMultiplePhotos(files) {
-        if (!files || files.length === 0) return;
+        if (!input || !preview || !uploadArea) return;
         
-        const validFiles = Array.from(files).filter(file => {
-            const isValid = file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024;
-            if (!isValid) {
-                console.warn(`Arquivo inválido: ${file.name} - Tipo: ${file.type} - Tamanho: ${file.size}`);
+        // Clique na área de upload
+        uploadArea.addEventListener('click', () => {
+            input.click();
+        });
+        
+        // Arrastar e soltar
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#3498db';
+            uploadArea.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.backgroundColor = '';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.backgroundColor = '';
+            
+            const files = e.dataTransfer.files;
+            handleMultiplePhotos(files);
+        });
+        
+        // Mudança no input de arquivo
+        input.addEventListener('change', (e) => {
+            handleMultiplePhotos(e.target.files);
+        });
+        
+        function handleMultiplePhotos(files) {
+            if (!files || files.length === 0) return;
+            
+            const validFiles = Array.from(files).filter(file => {
+                const isValid = file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024;
+                if (!isValid) {
+                    console.warn(`Arquivo inválido: ${file.name} - Tipo: ${file.type} - Tamanho: ${file.size}`);
+                }
+                return isValid;
+            });
+            
+            if (validFiles.length === 0) {
+                showMessage('Por favor, selecione apenas imagens válidas (JPG, PNG, etc. - máx. 5MB cada).', 'error');
+                return;
             }
-            return isValid;
-        });
-        
-        if (validFiles.length === 0) {
-            showMessage('Por favor, selecione apenas imagens válidas (JPG, PNG, etc. - máx. 5MB cada).', 'error');
-            return;
+            
+            // Limita a 20 fotos
+            const filesToProcess = validFiles.slice(0, 20);
+            const totalAfterAdd = eventPhotosFiles.length + filesToProcess.length;
+            
+            if (totalAfterAdd > 20) {
+                showMessage(`Máximo de 20 fotos permitido. Você já tem ${eventPhotosFiles.length} fotos selecionadas.`, 'warning');
+                return;
+            }
+            
+            // Adiciona ao array global
+            eventPhotosFiles = [...eventPhotosFiles, ...filesToProcess];
+            
+            // Atualiza o preview
+            updatePhotosPreview();
+            
+            // Atualiza o texto da área de upload
+            uploadArea.innerHTML = `
+                <p>📷 ${eventPhotosFiles.length} foto(s) selecionada(s)</p>
+                <p style="font-size: 0.8rem; color: #666;">Clique ou arraste para adicionar mais fotos</p>
+            `;
+            
+            showMessage(`${filesToProcess.length} foto(s) adicionada(s) ao evento! Total: ${eventPhotosFiles.length}`, 'success');
+            
+            if (validFiles.length > filesToProcess.length) {
+                showMessage(`Apenas as primeiras ${filesToProcess.length} fotos foram processadas (limite: 20).`, 'warning');
+            }
         }
         
-        // Limita a 20 fotos
-        const filesToProcess = validFiles.slice(0, 20);
-        const totalAfterAdd = eventPhotosFiles.length + filesToProcess.length;
-        
-        if (totalAfterAdd > 20) {
-            showMessage(`Máximo de 20 fotos permitido. Você já tem ${eventPhotosFiles.length} fotos selecionadas.`, 'warning');
-            return;
+        function updatePhotosPreview() {
+            preview.innerHTML = '';
+            eventPhotosFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoItem = document.createElement('div');
+                    photoItem.className = 'photo-preview-item';
+                    photoItem.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview ${index + 1}">
+                        <button type="button" class="remove-photo" onclick="removeEventPhoto(${index})" title="Remover foto">×</button>
+                        <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem;">
+                            ${index + 1}
+                        </div>
+                    `;
+                    preview.appendChild(photoItem);
+                };
+                reader.readAsDataURL(file);
+            });
         }
         
-        // Adiciona ao array global
-        eventPhotosFiles = [...eventPhotosFiles, ...filesToProcess];
-        
-        // Atualiza o preview
-        updatePhotosPreview();
-        
-        // Atualiza o texto da área de upload
+        // Inicializa o texto da área de upload
         uploadArea.innerHTML = `
-            <p>📷 ${eventPhotosFiles.length} foto(s) selecionada(s)</p>
-            <p style="font-size: 0.8rem; color: #666;">Clique ou arraste para adicionar mais fotos</p>
+            <p>📷 Clique aqui ou arraste fotos para adicionar</p>
+            <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos (máx. 20)</p>
         `;
-        
-        showMessage(`${filesToProcess.length} foto(s) adicionada(s) ao evento! Total: ${eventPhotosFiles.length}`, 'success');
-        
-        if (validFiles.length > filesToProcess.length) {
-            showMessage(`Apenas as primeiras ${filesToProcess.length} fotos foram processadas (limite: 20).`, 'warning');
-        }
     }
-    
-    function updatePhotosPreview() {
-        preview.innerHTML = '';
-        eventPhotosFiles.forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const photoItem = document.createElement('div');
-                photoItem.className = 'photo-preview-item';
-                photoItem.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview ${index + 1}">
-                    <button type="button" class="remove-photo" onclick="removeEventPhoto(${index})" title="Remover foto">×</button>
-                    <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem;">
-                        ${index + 1}
-                    </div>
-                `;
-                preview.appendChild(photoItem);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-    
-    // Inicializa o texto da área de upload
-    uploadArea.innerHTML = `
-        <p>📷 Clique aqui ou arraste fotos para adicionar</p>
-        <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos (máx. 20)</p>
-    `;
-}
 
     // Função para remover foto do evento
     function removeEventPhoto(index) {
@@ -2871,11 +2886,28 @@ galleryModal.addEventListener('click', (e) => {
                 photoItem.innerHTML = `
                     <img src="${e.target.result}" alt="Preview">
                     <button type="button" class="remove-photo" onclick="removeEventPhoto(${newIndex})">×</button>
+                    <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem;">
+                        ${newIndex + 1}
+                    </div>
                 `;
                 preview.appendChild(photoItem);
             };
             reader.readAsDataURL(file);
         });
+        
+        // Atualiza o texto da área de upload
+        const uploadArea = document.getElementById('eventPhotosUploadArea');
+        if (eventPhotosFiles.length === 0) {
+            uploadArea.innerHTML = `
+                <p>📷 Clique aqui ou arraste fotos para adicionar</p>
+                <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos (máx. 20)</p>
+            `;
+        } else {
+            uploadArea.innerHTML = `
+                <p>📷 ${eventPhotosFiles.length} foto(s) selecionada(s)</p>
+                <p style="font-size: 0.8rem; color: #666;">Clique ou arraste para adicionar mais fotos</p>
+            `;
+        }
     }
 
     function resetForm(type) {
@@ -2924,6 +2956,66 @@ galleryModal.addEventListener('click', (e) => {
         await deleteItem('events', eventId);
     }
 
+    // Função para lidar com erro de carregamento da logo
+    function handleLogoError(img) {
+        console.log('❌ Erro ao carregar logo principal, tentando alternativas...');
+        
+        const alternatives = [
+            'https://jywmvnxurbtziixntuuq.supabase.co/storage/v1/object/public/Imagens/LogoNet.jpeg',
+            'https://jywmvnxurbtziixntuuq.supabase.co/storage/v1/object/public/Imagens/LogoS.jpeg',
+            'https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+        ];
+        
+        let currentIndex = 0;
+        
+        function tryNext() {
+            if (currentIndex < alternatives.length) {
+                img.src = alternatives[currentIndex];
+                currentIndex++;
+            }
+        }
+        
+        img.onerror = tryNext;
+        tryNext();
+    }
+
+    // Função para verificar o status do bucket (opcional - para debug)
+    async function checkBucketStatus() {
+        try {
+            console.log('🔍 Verificando status dos buckets...');
+            
+            if (!isOnline) {
+                console.log('📴 Modo offline - não é possível verificar buckets');
+                return;
+            }
+            
+            // Verifica bucket de eventos
+            const { data: eventsData, error: eventsError } = await supabase.storage
+                .from('events-photos')
+                .list();
+                
+            if (eventsError) {
+                console.error('❌ Erro ao acessar bucket events-photos:', eventsError);
+            } else {
+                console.log('✅ Bucket events-photos acessível. Arquivos:', eventsData);
+            }
+            
+            // Verifica bucket de membros
+            const { data: membersData, error: membersError } = await supabase.storage
+                .from('members-photos')
+                .list();
+                
+            if (membersError) {
+                console.error('❌ Erro ao acessar bucket members-photos:', membersError);
+            } else {
+                console.log('✅ Bucket members-photos acessível. Arquivos:', membersData);
+            }
+            
+        } catch (error) {
+            console.error('❌ Erro ao verificar buckets:', error);
+        }
+    }
+
     // ========== INICIALIZAÇÃO ==========
     async function initializeApp() {
         try {
@@ -2956,7 +3048,9 @@ galleryModal.addEventListener('click', (e) => {
                 loadEventChats()
             ]);
             
+            // Verifica status dos buckets (apenas para debug)
             if (supabaseInitialized) {
+                await checkBucketStatus();
                 showMessage('✅ Sistema conectado ao PostgreSQL!', 'success');
             } else {
                 showMessage('📴 Sistema em modo offline. Dados salvos localmente.', 'warning');
@@ -2978,49 +3072,7 @@ galleryModal.addEventListener('click', (e) => {
     } else {
         setTimeout(initializeApp, 100);
     }
-
-        // Função para verificar o status do bucket
-async function checkBucketStatus() {
-    try {
-        console.log('🔍 Verificando status dos buckets...');
-        
-        // Verifica bucket de eventos
-        const { data: eventsData, error: eventsError } = await supabase.storage
-            .from('events-photos')
-            .list();
-            
-        if (eventsError) {
-            console.error('❌ Erro ao acessar bucket events-photos:', eventsError);
-        } else {
-            console.log('✅ Bucket events-photos acessível. Arquivos:', eventsData);
-        }
-        
-        // Verifica bucket de membros
-        const { data: membersData, error: membersError } = await supabase.storage
-            .from('members-photos')
-            .list();
-            
-        if (membersError) {
-            console.error('❌ Erro ao acessar bucket members-photos:', membersError);
-        } else {
-            console.log('✅ Bucket members-photos acessível. Arquivos:', membersData);
-        }
-        
-    } catch (error) {
-        console.error('❌ Erro ao verificar buckets:', error);
-    }
-}
-
-// Chame esta função durante a inicialização para debug
-// await checkBucketStatus();
 </script>
     
 </body>
 </html>
-
-
-
-
-
-
-
