@@ -307,6 +307,68 @@
             flex: 1;
         }
 
+        /* Image Upload */
+        .image-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .image-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border: 4px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            box-shadow: var(--shadow);
+        }
+
+        .image-preview.sponsor {
+            border-radius: var(--radius);
+            width: 200px;
+            height: 120px;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview .placeholder {
+            color: #a0aec0;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .image-upload-btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.7rem 1.4rem;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-upload-btn:hover {
+            background-color: #2c5282;
+            transform: translateY(-1px);
+        }
+
+        .image-upload-input {
+            display: none;
+        }
+
         /* Cards */
         .cards-grid {
             display: grid;
@@ -906,6 +968,7 @@
                     <ul>
                         <li><a href="#" class="active">Início</a></li>
                         <li><a href="#usuarios">Usuários</a></li>
+                        <li><a href="#membros">Membros</a></li>
                         <li><a href="#eventos">Eventos</a></li>
                         <li><a href="#cadastro">Cadastro</a></li>
                     </ul>
@@ -918,7 +981,7 @@
     <section class="hero">
         <div class="container">
             <h2>Conecte-se. Compartilhe. Cresça.</h2>
-            <p>Uma plataforma completa para gerenciar usuários, eventos e conversas.</p>
+            <p>Uma plataforma completa para gerenciar usuários, membros, eventos e conversas.</p>
             <a href="#cadastro" class="btn">Começar Agora</a>
             <a href="#eventos" class="btn btn-secondary">Ver Eventos</a>
         </div>
@@ -931,6 +994,14 @@
             <h2 class="section-title">Nossos Usuários</h2>
             <div class="cards-grid" id="users-list">
                 <!-- Users will be dynamically added here -->
+            </div>
+        </section>
+
+        <!-- Members Section -->
+        <section id="membros">
+            <h2 class="section-title">Nossos Membros</h2>
+            <div class="cards-grid" id="members-list">
+                <!-- Members will be dynamically added here -->
             </div>
         </section>
 
@@ -947,6 +1018,7 @@
             <h2 class="section-title">Cadastro</h2>
             <div class="tabs">
                 <div class="tab active" data-tab="user">Cadastrar Usuário</div>
+                <div class="tab" data-tab="member">Cadastrar Membro</div>
                 <div class="tab" data-tab="event">Cadastrar Evento</div>
                 <div class="tab admin" data-tab="admin">Administradores</div>
             </div>
@@ -981,6 +1053,49 @@
                         </div>
                         <button type="submit" class="btn btn-user" id="userSubmitBtn">
                             <span id="userSubmitText">Cadastrar Usuário</span>
+                            <div class="btn-loading">Enviando...</div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Member Form -->
+            <div class="tab-content" id="member-form">
+                <div class="form-container">
+                    <form id="memberRegistrationForm">
+                        <div class="image-upload-container">
+                            <div class="image-preview" id="memberPhotoPreview">
+                                <div class="placeholder">Foto do Membro</div>
+                            </div>
+                            <input type="file" id="memberPhoto" class="image-upload-input" accept="image/*">
+                            <label for="memberPhoto" class="image-upload-btn">Selecionar Foto</label>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="memberName">Nome Completo *</label>
+                                <input type="text" id="memberName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="memberEmail">E-mail *</label>
+                                <input type="email" id="memberEmail" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="memberPhone">Telefone</label>
+                                <input type="tel" id="memberPhone" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="memberRole">Cargo/Função *</label>
+                                <input type="text" id="memberRole" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="memberBio">Biografia/Descrição *</label>
+                            <textarea id="memberBio" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn" id="memberSubmitBtn">
+                            <span id="memberSubmitText">Cadastrar Membro</span>
                             <div class="btn-loading">Enviando...</div>
                         </button>
                     </form>
@@ -1093,23 +1208,20 @@
     // ========== VARIÁVEIS GLOBAIS ==========
     let supabase;
     let users = [];
-    let events = [];
     let members = [];
-    let darceiros = [];
-    let sponsors = [];
+    let events = [];
     let isOnline = true;
     let currentUser = null;
     let currentEditingUserId = null;
+    let currentEditingMemberId = null;
     let currentEditingEventId = null;
     let eventChats = {};
     let adminPassword = "admin123";
 
     // ========== DOM ELEMENTS ==========
     const usersList = document.getElementById('users-list');
-    const eventsList = document.getElementById('events-list');
     const membersList = document.getElementById('members-list');
-    const darceirosList = document.getElementById('darceiros-list');
-    const sponsorsList = document.getElementById('sponsors-list');
+    const eventsList = document.getElementById('events-list');
     const syncStatus = document.getElementById('syncStatus');
     const loadingOverlay = document.getElementById('loadingOverlay');
 
@@ -1118,18 +1230,13 @@
         try {
             if (typeof window.supabase !== 'undefined') {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('Supabase inicializado com sucesso!');
-                
-                // Testa a conexão
-                const { data, error } = await supabase.from('users').select('count').limit(1);
-                if (error) throw error;
-                
+                console.log('✅ Supabase inicializado com sucesso!');
                 return true;
             } else {
                 throw new Error('Biblioteca Supabase não carregada');
             }
         } catch (error) {
-            console.error('Erro ao inicializar Supabase:', error);
+            console.error('❌ Erro ao inicializar Supabase:', error);
             setupOfflineMode();
             return false;
         }
@@ -1244,6 +1351,18 @@
         }
     }
 
+    async function loadMembers() {
+        try {
+            members = await loadData('members');
+            console.log('📋 Membros carregados:', members);
+            if (membersList) {
+                renderMembers();
+            }
+        } catch (error) {
+            console.error('Erro ao carregar membros:', error);
+        }
+    }
+
     async function loadEvents() {
         try {
             events = await loadData('events');
@@ -1255,242 +1374,166 @@
         }
     }
 
-    async function loadMembers() {
-        try {
-            members = await loadData('members');
-            if (membersList) {
-                renderMembers();
-            }
-        } catch (error) {
-            console.error('Erro ao carregar membros:', error);
+    // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
+    function renderUsers() {
+        if (!usersList) {
+            console.error('Elemento users-list não encontrado');
+            return;
         }
+        
+        renderList(usersList, users, 'users', (user) => {
+            const isAdmin = user.is_admin;
+            const canEdit = isCurrentUserAdmin();
+            
+            return `
+                <div class="card-actions">
+                    ${canEdit ? `
+                        <button class="card-action-btn edit" onclick="editUser('${user.id}')" title="Editar usuário">✏️</button>
+                        <button class="card-action-btn delete" onclick="deleteUser('${user.id}')" title="Excluir usuário">🗑️</button>
+                    ` : ''}
+                </div>
+                <div class="card-image">
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${user.name}" loading="lazy">
+                </div>
+                <div class="card-header ${isAdmin ? 'admin' : 'user'}">
+                    <h3>${user.name}</h3>
+                    <span class="${isAdmin ? 'admin-badge' : 'user-badge'}">${isAdmin ? 'Administrador' : 'Usuário'}</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    ${user.phone ? `<p><strong>Telefone:</strong> ${user.phone}</p>` : ''}
+                    <p><strong>Cargo:</strong> ${user.role}</p>
+                    <p>${user.bio || 'Sem descrição'}</p>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                        Cadastrado em: ${new Date(user.created_at).toLocaleDateString('pt-BR')}
+                        ${user.updated_at ? `<br>Atualizado em: ${new Date(user.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                    </p>
+                </div>
+            `;
+        });
     }
 
-    async function loadDarceiros() {
-        try {
-            darceiros = await loadData('darceiros');
-            if (darceirosList) {
-                renderDarceiros();
-            }
-        } catch (error) {
-            console.error('Erro ao carregar parceiros:', error);
+    function renderMembers() {
+        if (!membersList) {
+            console.error('❌ Elemento members-list não encontrado no DOM');
+            return;
         }
+        
+        console.log('🎯 Renderizando membros:', members);
+        
+        renderList(membersList, members, 'members', (member) => {
+            const canEdit = isCurrentUserAdmin();
+            
+            return `
+                <div class="card-actions">
+                    ${canEdit ? `
+                        <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
+                        <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
+                    ` : ''}
+                </div>
+                <div class="card-image">
+                    <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
+                </div>
+                <div class="card-header">
+                    <h3>${member.name}</h3>
+                    <span class="user-role">${member.role}</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Email:</strong> ${member.email}</p>
+                    ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                    <p>${member.bio || 'Sem descrição'}</p>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                        Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
+                        ${member.updated_at ? `<br>Atualizado em: ${new Date(member.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                    </p>
+                </div>
+            `;
+        });
     }
 
-    async function loadSponsors() {
-        try {
-            sponsors = await loadData('sponsors');
-            if (sponsorsList) {
-                renderSponsors();
-            }
-        } catch (error) {
-            console.error('Erro ao carregar patrocinadores:', error);
+    function renderEvents() {
+        if (!eventsList) {
+            console.error('Elemento events-list não encontrado');
+            return;
         }
+        
+        renderList(eventsList, events, 'events', (event) => {
+            const eventDate = new Date(event.event_date);
+            const formattedDate = eventDate.toLocaleDateString('pt-BR');
+            const canEdit = isCurrentUserAdmin();
+            
+            return `
+                <div class="card-actions">
+                    ${canEdit ? `
+                        <button class="card-action-btn edit" onclick="editEvent('${event.id}')" title="Editar evento">✏️</button>
+                        <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
+                    ` : ''}
+                </div>
+                <div class="card-image">
+                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${event.title}" loading="lazy">
+                </div>
+                <div class="card-header">
+                    <h3>${event.title}</h3>
+                    <div class="event-date">
+                        <span>${formattedDate}</span> • <span>${event.event_time}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p><strong>Local:</strong> ${event.location}</p>
+                    <p>${event.description || 'Sem descrição'}</p>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                        Criado em: ${new Date(event.created_at).toLocaleDateString('pt-BR')}
+                        ${event.updated_at ? `<br>Atualizado em: ${new Date(event.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-success">Participar</button>
+                </div>
+            `;
+        });
     }
 
-    // ========== FUNÇÕES DO CHAT POR EVENTO ==========
-    async function loadEventChats() {
-        try {
-            if (isOnline) {
-                const { data, error } = await supabase
-                    .from('event_chats')
-                    .select('*')
-                    .order('created_at', { ascending: true });
-                
-                if (error) throw error;
-                
-                eventChats = {};
-                data.forEach(message => {
-                    if (!eventChats[message.event_id]) {
-                        eventChats[message.event_id] = [];
-                    }
-                    eventChats[message.event_id].push(message);
-                });
-                
-                saveToLocalStorage('event_chats', data);
-            } else {
-                const allChats = loadFromLocalStorage('event_chats') || [];
-                eventChats = {};
-                allChats.forEach(message => {
-                    if (!eventChats[message.event_id]) {
-                        eventChats[message.event_id] = [];
-                    }
-                    eventChats[message.event_id].push(message);
-                });
-            }
-        } catch (error) {
-            console.error('Erro ao carregar chats:', error);
-            const allChats = loadFromLocalStorage('event_chats') || [];
-            eventChats = {};
-            allChats.forEach(message => {
-                if (!eventChats[message.event_id]) {
-                    eventChats[message.event_id] = [];
-                }
-                eventChats[message.event_id].push(message);
-            });
+    function renderList(container, data, type, templateFunction) {
+        if (!container) {
+            console.error(`❌ Container não encontrado para: ${type}`);
+            return;
         }
-    }
-
-    async function sendEventMessage(eventId, messageText) {
-        try {
-            if (!currentUser) {
-                showUserLoginModal(eventId);
-                return false;
-            }
-
-            const newMessage = {
-                event_id: eventId,
-                sender_id: currentUser.id,
-                sender_name: currentUser.name,
-                sender_email: currentUser.email,
-                message: messageText,
-                created_at: new Date().toISOString()
-            };
-
-            if (isOnline) {
-                const { data, error } = await supabase
-                    .from('event_chats')
-                    .insert([newMessage])
-                    .select();
-                
-                if (error) throw error;
-                
-                if (!eventChats[eventId]) {
-                    eventChats[eventId] = [];
-                }
-                eventChats[eventId].push(data[0]);
-                
-                const allChats = loadFromLocalStorage('event_chats') || [];
-                allChats.push(data[0]);
-                saveToLocalStorage('event_chats', allChats);
-            } else {
-                newMessage.id = 'msg_' + Date.now();
-                if (!eventChats[eventId]) {
-                    eventChats[eventId] = [];
-                }
-                eventChats[eventId].push(newMessage);
-                
-                const allChats = loadFromLocalStorage('event_chats') || [];
-                allChats.push(newMessage);
-                saveToLocalStorage('event_chats', allChats);
-            }
-
-            renderEventChat(eventId);
-            return true;
-        } catch (error) {
-            console.error('Erro ao enviar mensagem:', error);
-            showMessage('Erro ao enviar mensagem: ' + error.message, 'error');
-            return false;
-        }
-    }
-
-    function renderEventChat(eventId) {
-        const chatContainer = document.getElementById(`event-chat-${eventId}`);
-        if (!chatContainer) return;
-
-        const messagesContainer = chatContainer.querySelector('.event-chat-messages');
-        const messages = eventChats[eventId] || [];
-
-        messagesContainer.innerHTML = '';
-
-        if (messages.length === 0) {
-            messagesContainer.innerHTML = `
-                <div class="no-chat-messages">
-                    Nenhuma mensagem ainda. Seja o primeiro a comentar sobre este evento!
+        
+        container.innerHTML = '';
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; grid-column: 1/-1; padding: 3rem; color: #666;">
+                    <h3>📝 Nenhum ${getEntityName(type).toLowerCase()} cadastrado ainda</h3>
+                    <p>Use o formulário de cadastro para adicionar o primeiro ${getEntityName(type).toLowerCase()}.</p>
                 </div>
             `;
             return;
         }
-
-        messages.forEach(message => {
-            const messageDiv = document.createElement('div');
-            const isCurrentUser = message.sender_id === currentUser?.id;
-            
-            messageDiv.className = `event-message ${isCurrentUser ? 'sent' : 'received'}`;
-            
-            const messageDate = new Date(message.created_at);
-            const timeString = messageDate.toLocaleTimeString('pt-BR', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
-            
-            messageDiv.innerHTML = `
-                <div class="event-message-bubble">
-                    ${message.message}
-                </div>
-                <div class="event-message-info">
-                    ${message.sender_name} • ${timeString}
-                </div>
-            `;
-            
-            messagesContainer.appendChild(messageDiv);
-        });
-
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-
-    function toggleEventChat(eventId) {
-        const chatContainer = document.getElementById(`event-chat-${eventId}`);
-        if (!chatContainer) return;
-
-        const messagesContainer = chatContainer.querySelector('.event-chat-messages');
-        const inputContainer = chatContainer.querySelector('.event-chat-input-container');
-        const toggleButton = chatContainer.querySelector('.event-chat-toggle');
-
-        const isOpen = messagesContainer.classList.contains('open');
         
-        if (isOpen) {
-            messagesContainer.classList.remove('open');
-            inputContainer.classList.remove('open');
-            toggleButton.textContent = 'Abrir Chat';
-        } else {
-            messagesContainer.classList.add('open');
-            inputContainer.classList.add('open');
-            toggleButton.textContent = 'Fechar Chat';
-            
-            if (!eventChats[eventId]) {
-                loadEventChats().then(() => {
-                    renderEventChat(eventId);
-                });
-            } else {
-                renderEventChat(eventId);
-            }
-            
-            const input = inputContainer.querySelector('.event-chat-input');
-            setTimeout(() => input.focus(), 100);
-        }
-    }
-
-    function setupEventChat(eventId) {
-        const chatContainer = document.getElementById(`event-chat-${eventId}`);
-        if (!chatContainer) return;
-
-        const input = chatContainer.querySelector('.event-chat-input');
-        const sendButton = chatContainer.querySelector('.event-chat-send-btn');
-
-        const sendMessageHandler = () => {
-            const messageText = input.value.trim();
-            if (!messageText) return;
-
-            sendEventMessage(eventId, messageText).then(success => {
-                if (success) {
-                    input.value = '';
-                }
-            });
-        };
-
-        sendButton.addEventListener('click', sendMessageHandler);
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessageHandler();
-            }
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = templateFunction(item);
+            container.appendChild(card);
         });
     }
 
     // ========== FUNÇÃO SALVAR DADOS ==========
-    async function saveData(table, formData, buttonId, editingId = null) {
+    async function saveData(table, formData, imageFile = null, buttonId, editingId = null) {
         try {
             showButtonLoading(document.getElementById(buttonId), true);
+            
+            // Se há imagem, faz upload
+            if (imageFile) {
+                try {
+                    const imageUrl = await uploadImage(imageFile, 'members-photos', formData.name?.replace(/\s+/g, '_') || 'member');
+                    formData.photo = imageUrl;
+                } catch (error) {
+                    console.error('Erro no upload da imagem:', error);
+                    // Continua sem a imagem
+                }
+            }
             
             if (isOnline) {
                 let result;
@@ -1523,12 +1566,11 @@
                     return true;
                 }
                 
+                // Recarrega os dados
                 switch(table) {
                     case 'users': await loadUsers(); break;
-                    case 'events': await loadEvents(); break;
                     case 'members': await loadMembers(); break;
-                    case 'darceiros': await loadDarceiros(); break;
-                    case 'sponsors': await loadSponsors(); break;
+                    case 'events': await loadEvents(); break;
                 }
                 
                 showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
@@ -1572,40 +1614,63 @@
             saveToLocalStorage(table, localData);
         }
         
+        // Atualiza a interface
         switch(table) {
             case 'users': 
                 users = loadFromLocalStorage('users'); 
                 renderUsers(); 
                 populateUserSelect();
                 break;
-            case 'events': 
-                events = loadFromLocalStorage('events'); 
-                renderEvents(); 
-                break;
             case 'members': 
                 members = loadFromLocalStorage('members'); 
                 renderMembers(); 
                 break;
-            case 'darceiros': 
-                darceiros = loadFromLocalStorage('darceiros'); 
-                renderDarceiros(); 
-                break;
-            case 'sponsors': 
-                sponsors = loadFromLocalStorage('sponsors'); 
-                renderSponsors(); 
+            case 'events': 
+                events = loadFromLocalStorage('events'); 
+                renderEvents(); 
                 break;
         }
         
         showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
     }
 
+    // ========== FUNÇÃO DE UPLOAD DE IMAGEM ==========
+    async function uploadImage(file, bucket, fileName) {
+        try {
+            if (!isOnline) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            const fileExt = file.name.split('.').pop();
+            const uniqueFileName = `${fileName}_${Date.now()}.${fileExt}`;
+            
+            const { data, error } = await supabase.storage
+                .from(bucket)
+                .upload(uniqueFileName, file);
+
+            if (error) throw error;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from(bucket)
+                .getPublicUrl(uniqueFileName);
+
+            return publicUrl;
+            
+        } catch (error) {
+            console.error('Erro no upload da imagem:', error);
+            throw error;
+        }
+    }
+
     function getEntityName(table) {
         const names = {
             'users': 'Usuário',
-            'events': 'Evento',
             'members': 'Membro',
-            'darceiros': 'Parceiro',
-            'sponsors': 'Patrocinador'
+            'events': 'Evento'
         };
         return names[table] || 'Item';
     }
@@ -1622,10 +1687,8 @@
             let currentData;
             switch(table) {
                 case 'users': currentData = users; break;
-                case 'events': currentData = events; break;
                 case 'members': currentData = members; break;
-                case 'darceiros': currentData = darceiros; break;
-                case 'sponsors': currentData = sponsors; break;
+                case 'events': currentData = events; break;
             }
             
             const itemToDelete = currentData.find(item => item.id == itemId);
@@ -1646,10 +1709,8 @@
             
             switch(table) {
                 case 'users': users = updatedData; break;
-                case 'events': events = updatedData; break;
                 case 'members': members = updatedData; break;
-                case 'darceiros': darceiros = updatedData; break;
-                case 'sponsors': sponsors = updatedData; break;
+                case 'events': events = updatedData; break;
             }
             
             saveToLocalStorage(table, updatedData);
@@ -1659,10 +1720,8 @@
                     renderUsers(); 
                     populateUserSelect();
                     break;
-                case 'events': renderEvents(); break;
                 case 'members': renderMembers(); break;
-                case 'darceiros': renderDarceiros(); break;
-                case 'sponsors': renderSponsors(); break;
+                case 'events': renderEvents(); break;
             }
             
             showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
@@ -1709,6 +1768,45 @@
         }
     }
 
+    async function editMember(memberId) {
+        const member = members.find(m => m.id == memberId);
+        if (!member) {
+            showMessage('Membro não encontrado', 'error');
+            return;
+        }
+
+        try {
+            document.getElementById('memberName').value = member.name || '';
+            document.getElementById('memberEmail').value = member.email || '';
+            document.getElementById('memberPhone').value = member.phone || '';
+            document.getElementById('memberRole').value = member.role || '';
+            document.getElementById('memberBio').value = member.bio || '';
+
+            // Atualiza o preview da foto
+            const preview = document.getElementById('memberPhotoPreview');
+            if (member.photo) {
+                preview.innerHTML = `<img src="${member.photo}" alt="Preview">`;
+            }
+
+            document.getElementById('memberSubmitText').textContent = 'Atualizar Membro';
+            currentEditingMemberId = memberId;
+
+            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="member"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('member-form').classList.add('active');
+
+            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Membro".', 'success');
+            
+        } catch (error) {
+            console.error('Erro ao preparar formulário de edição:', error);
+            showMessage('Erro ao carregar dados do membro para edição', 'error');
+        }
+    }
+
     async function editEvent(eventId) {
         const event = events.find(e => e.id == eventId);
         if (!event) {
@@ -1740,192 +1838,6 @@
             console.error('Erro ao preparar formulário de edição do evento:', error);
             showMessage('Erro ao carregar dados do evento para edição', 'error');
         }
-    }
-
-    // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
-    function renderUsers() {
-        if (!usersList) {
-            console.error('Elemento users-list não encontrado');
-            return;
-        }
-        
-        renderList(usersList, users, 'users', (user) => {
-            const isAdmin = user.is_admin;
-            const canEdit = isCurrentUserAdmin();
-            
-            return `
-                <div class="card-actions">
-                    ${canEdit ? `
-                        <button class="card-action-btn edit" onclick="editUser('${user.id}')" title="Editar usuário">✏️</button>
-                        <button class="card-action-btn delete" onclick="deleteUser('${user.id}')" title="Excluir usuário">🗑️</button>
-                    ` : ''}
-                </div>
-                <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${user.name}" loading="lazy">
-                </div>
-                <div class="card-header ${isAdmin ? 'admin' : 'user'}">
-                    <h3>${user.name}</h3>
-                    <span class="${isAdmin ? 'admin-badge' : 'user-badge'}">${isAdmin ? 'Administrador' : 'Usuário'}</span>
-                </div>
-                <div class="card-body">
-                    <p><strong>Email:</strong> ${user.email}</p>
-                    ${user.phone ? `<p><strong>Telefone:</strong> ${user.phone}</p>` : ''}
-                    <p><strong>Cargo:</strong> ${user.role}</p>
-                    <p>${user.bio || 'Sem descrição'}</p>
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                        Cadastrado em: ${new Date(user.created_at).toLocaleDateString('pt-BR')}
-                        ${user.updated_at ? `<br>Atualizado em: ${new Date(user.updated_at).toLocaleDateString('pt-BR')}` : ''}
-                    </p>
-                </div>
-            `;
-        });
-    }
-
-    function renderEvents() {
-        if (!eventsList) {
-            console.error('Elemento events-list não encontrado');
-            return;
-        }
-        
-        renderList(eventsList, events, 'events', (event) => {
-            const eventDate = new Date(event.event_date);
-            const formattedDate = eventDate.toLocaleDateString('pt-BR');
-            const canEdit = isCurrentUserAdmin();
-            
-            return `
-                <div class="card-actions">
-                    ${canEdit ? `
-                        <button class="card-action-btn edit" onclick="editEvent('${event.id}')" title="Editar evento">✏️</button>
-                        <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
-                    ` : ''}
-                </div>
-                <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${event.title}" loading="lazy">
-                </div>
-                <div class="card-header">
-                    <h3>${event.title}</h3>
-                    <div class="event-date">
-                        <span>${formattedDate}</span> • <span>${event.event_time}</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <p><strong>Local:</strong> ${event.location}</p>
-                    <p>${event.description || 'Sem descrição'}</p>
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                        Criado em: ${new Date(event.created_at).toLocaleDateString('pt-BR')}
-                        ${event.updated_at ? `<br>Atualizado em: ${new Date(event.updated_at).toLocaleDateString('pt-BR')}` : ''}
-                    </p>
-                </div>
-                <div class="card-footer">
-                    <button class="btn btn-success">Participar</button>
-                </div>
-                
-                <!-- Chat do Evento -->
-                <div class="event-chat-section">
-                    <div class="event-chat-container" id="event-chat-${event.id}">
-                        <div class="event-chat-header">
-                            <h4>💬 Chat do Evento</h4>
-                            <button class="event-chat-toggle" onclick="toggleEventChat('${event.id}')">Abrir Chat</button>
-                        </div>
-                        <div class="event-chat-messages">
-                            <!-- Mensagens serão carregadas aqui -->
-                        </div>
-                        <div class="event-chat-input-container">
-                            <input type="text" class="event-chat-input" placeholder="Digite sua mensagem sobre o evento...">
-                            <button class="event-chat-send-btn">Enviar</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        events.forEach(event => {
-            setupEventChat(event.id);
-        });
-    }
-
-    function renderMembers() {
-        if (!membersList) return;
-        renderList(membersList, members, 'members', (member) => `
-            <div class="card-actions">
-                <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
-                <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
-            </div>
-            <div class="card-image">
-                <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
-            </div>
-            <div class="card-header">
-                <h3>${member.name}</h3>
-                <span class="user-role">${member.role}</span>
-            </div>
-            <div class="card-body">
-                <p><strong>Email:</strong> ${member.email}</p>
-                ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
-                <p>${member.bio || 'Sem descrição'}</p>
-            </div>
-        `);
-    }
-
-    function renderDarceiros() {
-        if (!darceirosList) return;
-        renderList(darceirosList, darceiros, 'darceiros', (darceiro) => `
-            <div class="card-actions">
-                <button class="card-action-btn edit" onclick="editDarceiro('${darceiro.id}')" title="Editar parceiro">✏️</button>
-                <button class="card-action-btn delete" onclick="deleteDarceiro('${darceiro.id}')" title="Excluir parceiro">🗑️</button>
-            </div>
-            <div class="card-image">
-                <img src="${darceiro.photo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${darceiro.name}" loading="lazy">
-            </div>
-            <div class="card-header user">
-                <h3>${darceiro.name}</h3>
-                <span class="user-badge">${darceiro.type}</span>
-            </div>
-            <div class="card-body">
-                <p><strong>Contato:</strong> ${darceiro.contact}</p>
-                ${darceiro.website ? `<p><strong>Website:</strong> <a href="${darceiro.website}" target="_blank">${darceiro.website}</a></p>` : ''}
-                <p>${darceiro.description || 'Sem descrição'}</p>
-            </div>
-        `);
-    }
-
-    function renderSponsors() {
-        if (!sponsorsList) return;
-        renderList(sponsorsList, sponsors, 'sponsors', (sponsor) => `
-            <div class="card-actions">
-                <button class="card-action-btn edit" onclick="editSponsor('${sponsor.id}')" title="Editar patrocinador">✏️</button>
-                <button class="card-action-btn delete" onclick="deleteSponsor('${sponsor.id}')" title="Excluir patrocinador">🗑️</button>
-            </div>
-            <div class="card-image">
-                <img src="${sponsor.logo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${sponsor.name}" loading="lazy">
-            </div>
-            <div class="card-header admin">
-                <h3>${sponsor.name}</h3>
-                <span class="admin-badge">${sponsor.level}</span>
-            </div>
-            <div class="card-body">
-                <p><strong>Contato:</strong> ${sponsor.contact}</p>
-                ${sponsor.website ? `<p><strong>Website:</strong> <a href="${sponsor.website}" target="_blank">${sponsor.website}</a></p>` : ''}
-                <p>${sponsor.description || 'Sem descrição'}</p>
-            </div>
-        `);
-    }
-
-    function renderList(container, data, type, templateFunction) {
-        if (!container) return;
-        
-        container.innerHTML = '';
-        
-        if (!data || data.length === 0) {
-            container.innerHTML = `<p style="text-align: center; grid-column: 1/-1;">Nenhum ${getEntityName(type).toLowerCase()} cadastrado ainda.</p>`;
-            return;
-        }
-        
-        data.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = templateFunction(item);
-            container.appendChild(card);
-        });
     }
 
     // ========== FUNÇÕES AUXILIARES ==========
@@ -2037,90 +1949,6 @@
         });
     }
 
-    // ========== FUNÇÕES DE ADMINISTRAÇÃO ==========
-    async function executeAdminAction() {
-        const password = document.getElementById('adminPassword').value;
-        const action = document.getElementById('adminAction').value;
-        const userId = document.getElementById('userSelect').value;
-        
-        if (!password) {
-            showMessage('Por favor, insira a senha de administrador.', 'error');
-            return;
-        }
-        
-        if (password !== adminPassword) {
-            showMessage('Senha de administrador incorreta.', 'error');
-            return;
-        }
-        
-        if (!action) {
-            showMessage('Por favor, selecione uma ação.', 'error');
-            return;
-        }
-        
-        if (!userId) {
-            showMessage('Por favor, selecione um usuário.', 'error');
-            return;
-        }
-        
-        const user = users.find(u => u.id == userId);
-        if (!user) {
-            showMessage('Usuário não encontrado.', 'error');
-            return;
-        }
-        
-        try {
-            showButtonLoading(document.getElementById('adminSubmitBtn'), true);
-            
-            let success = false;
-            let message = '';
-            
-            switch(action) {
-                case 'promote':
-                    if (user.is_admin) {
-                        showMessage('Este usuário já é um administrador.', 'warning');
-                        return;
-                    }
-                    
-                    user.is_admin = true;
-                    success = await saveData('users', { is_admin: true }, 'adminSubmitBtn', userId);
-                    message = 'Usuário promovido a administrador com sucesso!';
-                    break;
-                    
-                case 'demote':
-                    if (!user.is_admin) {
-                        showMessage('Este usuário não é um administrador.', 'warning');
-                        return;
-                    }
-                    
-                    user.is_admin = false;
-                    success = await saveData('users', { is_admin: false }, 'adminSubmitBtn', userId);
-                    message = 'Administrador rebaixado a usuário com sucesso!';
-                    break;
-                    
-                case 'delete':
-                    await deleteItem('users', userId);
-                    success = true;
-                    message = 'Usuário excluído com sucesso!';
-                    break;
-            }
-            
-            if (success) {
-                showMessage(message, 'success');
-                document.getElementById('adminPassword').value = '';
-                document.getElementById('adminAction').value = '';
-                document.getElementById('userSelect').value = '';
-                document.getElementById('userSelectContainer').style.display = 'none';
-            }
-            
-        } catch (error) {
-            console.error('Erro ao executar ação de administração:', error);
-            showMessage('Erro ao executar ação: ' + error.message, 'error');
-        } finally {
-            showButtonLoading(document.getElementById('adminSubmitBtn'), false);
-        }
-    }
-
     // ========== CONFIGURAÇÃO DE EVENTOS ==========
     function setupEventListeners() {
         // Tab switching
@@ -2161,10 +1989,38 @@
                     return;
                 }
                 
-                const success = await saveData('users', userData, 'userSubmitBtn', currentEditingUserId);
+                const success = await saveData('users', userData, null, 'userSubmitBtn', currentEditingUserId);
                 
                 if (success) {
                     resetForm('user');
+                }
+            });
+        }
+
+        if (document.getElementById('memberRegistrationForm')) {
+            document.getElementById('memberRegistrationForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const memberPhotoInput = document.getElementById('memberPhoto');
+                const memberPhotoFile = memberPhotoInput.files[0];
+                
+                const memberData = {
+                    name: document.getElementById('memberName')?.value || '',
+                    email: document.getElementById('memberEmail')?.value || '',
+                    phone: document.getElementById('memberPhone')?.value || '',
+                    role: document.getElementById('memberRole')?.value || '',
+                    bio: document.getElementById('memberBio')?.value || ''
+                };
+                
+                if (!memberData.name || !memberData.email || !memberData.role) {
+                    showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Email e Cargo).', 'error');
+                    return;
+                }
+                
+                const success = await saveData('members', memberData, memberPhotoFile, 'memberSubmitBtn', currentEditingMemberId);
+                
+                if (success) {
+                    resetForm('member');
                 }
             });
         }
@@ -2186,10 +2042,13 @@
                     return;
                 }
                 
-                await saveData('events', eventData, 'eventSubmitBtn', currentEditingEventId);
+                await saveData('events', eventData, null, 'eventSubmitBtn', currentEditingEventId);
                 resetForm('event');
             });
         }
+
+        // Image upload handler
+        setupImageUpload('memberPhoto', 'memberPhotoPreview');
 
         // User login form
         if (document.getElementById('userLoginForm')) {
@@ -2217,13 +2076,6 @@
                 
                 showMessage(`Bem-vindo, ${userName}!`, 'success');
                 hideUserLoginModal();
-                
-                const modal = document.getElementById('userLoginModal');
-                if (modal.dataset.eventId) {
-                    const eventId = modal.dataset.eventId;
-                    toggleEventChat(eventId);
-                    delete modal.dataset.eventId;
-                }
             });
         }
 
@@ -2274,14 +2126,51 @@
         });
     }
 
+    function setupImageUpload(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        
+        if (!input || !preview) return;
+        
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (!file.type.startsWith('image/')) {
+                    showMessage('Por favor, selecione um arquivo de imagem.', 'error');
+                    return;
+                }
+                
+                if (file.size > 5 * 1024 * 1024) {
+                    showMessage('A imagem deve ter menos de 5MB.', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.onerror = function() {
+                    showMessage('Erro ao carregar a imagem.', 'error');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
     function resetForm(type) {
-        let form, submitText;
+        let form, submitText, preview;
         
         switch(type) {
             case 'user':
                 form = document.getElementById('userRegistrationForm');
                 submitText = document.getElementById('userSubmitText');
                 currentEditingUserId = null;
+                break;
+            case 'member':
+                form = document.getElementById('memberRegistrationForm');
+                submitText = document.getElementById('memberSubmitText');
+                preview = document.getElementById('memberPhotoPreview');
+                currentEditingMemberId = null;
                 break;
             case 'event':
                 form = document.getElementById('eventRegistrationForm');
@@ -2291,15 +2180,104 @@
         }
         
         if (form) form.reset();
+        if (preview) {
+            preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
+        }
         if (submitText) submitText.textContent = `Cadastrar ${getEntityName(type)}`;
     }
 
     function resetEditingIds() {
         currentEditingUserId = null;
+        currentEditingMemberId = null;
         currentEditingEventId = null;
         
         document.getElementById('userSubmitText').textContent = 'Cadastrar Usuário';
+        document.getElementById('memberSubmitText').textContent = 'Cadastrar Membro';
         document.getElementById('eventSubmitText').textContent = 'Cadastrar Evento';
+    }
+
+    // ========== FUNÇÕES DE ADMINISTRAÇÃO ==========
+    async function executeAdminAction() {
+        const password = document.getElementById('adminPassword').value;
+        const action = document.getElementById('adminAction').value;
+        const userId = document.getElementById('userSelect').value;
+        
+        if (!password) {
+            showMessage('Por favor, insira a senha de administrador.', 'error');
+            return;
+        }
+        
+        if (password !== adminPassword) {
+            showMessage('Senha de administrador incorreta.', 'error');
+            return;
+        }
+        
+        if (!action) {
+            showMessage('Por favor, selecione uma ação.', 'error');
+            return;
+        }
+        
+        if (!userId) {
+            showMessage('Por favor, selecione um usuário.', 'error');
+            return;
+        }
+        
+        const user = users.find(u => u.id == userId);
+        if (!user) {
+            showMessage('Usuário não encontrado.', 'error');
+            return;
+        }
+        
+        try {
+            showButtonLoading(document.getElementById('adminSubmitBtn'), true);
+            
+            let success = false;
+            let message = '';
+            
+            switch(action) {
+                case 'promote':
+                    if (user.is_admin) {
+                        showMessage('Este usuário já é um administrador.', 'warning');
+                        return;
+                    }
+                    
+                    user.is_admin = true;
+                    success = await saveData('users', { is_admin: true }, null, 'adminSubmitBtn', userId);
+                    message = 'Usuário promovido a administrador com sucesso!';
+                    break;
+                    
+                case 'demote':
+                    if (!user.is_admin) {
+                        showMessage('Este usuário não é um administrador.', 'warning');
+                        return;
+                    }
+                    
+                    user.is_admin = false;
+                    success = await saveData('users', { is_admin: false }, null, 'adminSubmitBtn', userId);
+                    message = 'Administrador rebaixado a usuário com sucesso!';
+                    break;
+                    
+                case 'delete':
+                    await deleteItem('users', userId);
+                    success = true;
+                    message = 'Usuário excluído com sucesso!';
+                    break;
+            }
+            
+            if (success) {
+                showMessage(message, 'success');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminAction').value = '';
+                document.getElementById('userSelect').value = '';
+                document.getElementById('userSelectContainer').style.display = 'none';
+            }
+            
+        } catch (error) {
+            console.error('Erro ao executar ação de administração:', error);
+            showMessage('Erro ao executar ação: ' + error.message, 'error');
+        } finally {
+            showButtonLoading(document.getElementById('adminSubmitBtn'), false);
+        }
     }
 
     // Funções de exclusão específicas
@@ -2307,46 +2285,23 @@
         await deleteItem('users', userId);
     }
 
-    async function deleteEvent(eventId) {
-        await deleteItem('events', eventId);
-    }
-
     async function deleteMember(memberId) {
         await deleteItem('members', memberId);
     }
 
-    async function deleteDarceiro(darceiroId) {
-        await deleteItem('darceiros', darceiroId);
-    }
-
-    async function deleteSponsor(sponsorId) {
-        await deleteItem('sponsors', sponsorId);
-    }
-
-    // Funções de edição para outras entidades
-    async function editMember(memberId) {
-        // Implementação similar às outras funções de edição
-    }
-
-    async function editDarceiro(darceiroId) {
-        // Implementação similar às outras funções de edição
-    }
-
-    async function editSponsor(sponsorId) {
-        // Implementação similar às outras funções de edição
+    async function deleteEvent(eventId) {
+        await deleteItem('events', eventId);
     }
 
     // ========== INICIALIZAÇÃO ==========
     async function initializeApp() {
         try {
-            console.log('Inicializando aplicação...');
+            console.log('🚀 Inicializando aplicação...');
             
             // Inicializa variáveis globais
             users = [];
-            events = [];
             members = [];
-            darceiros = [];
-            sponsors = [];
+            events = [];
             eventChats = {};
             
             const supabaseInitialized = await initializeSupabase();
@@ -2355,46 +2310,30 @@
             const currentUsers = loadFromLocalStorage('current_users') || [];
             if (currentUsers.length > 0) {
                 currentUser = currentUsers[currentUsers.length - 1];
-                console.log('Usuário atual recuperado:', currentUser);
+                console.log('👤 Usuário atual recuperado:', currentUser);
             }
             
             setupEventListeners();
             
-            // Carrega dados e chats com tratamento de erro individual
+            // Carrega dados
+            console.log('📥 Carregando dados...');
             await Promise.all([
-                loadUsers().catch(e => console.error('Erro usuários:', e)),
-                loadEvents().catch(e => console.error('Erro eventos:', e)),
-                loadMembers().catch(e => console.error('Erro membros:', e)),
-                loadDarceiros().catch(e => console.error('Erro parceiros:', e)),
-                loadSponsors().catch(e => console.error('Erro patrocinadores:', e)),
-                loadEventChats().catch(e => console.error('Erro chats:', e))
+                loadUsers(),
+                loadMembers(),
+                loadEvents()
             ]);
             
             if (supabaseInitialized) {
-                showMessage('Sistema conectado ao PostgreSQL!', 'success');
+                showMessage('✅ Sistema conectado ao PostgreSQL!', 'success');
             } else {
-                showMessage('Sistema em modo offline. Dados salvos localmente.', 'warning');
+                showMessage('📴 Sistema em modo offline. Dados salvos localmente.', 'warning');
             }
             
-            // Configura listeners de conectividade
-            window.addEventListener('online', async () => {
-                if (!isOnline) {
-                    isOnline = true;
-                    updateSyncStatus(true);
-                    showMessage('Conexão restaurada!', 'success');
-                    await initializeSupabase();
-                }
-            });
-            
-            window.addEventListener('offline', () => {
-                isOnline = false;
-                updateSyncStatus(false);
-                showMessage('Conexão perdida. Modo offline ativado.', 'warning');
-            });
+            console.log('🎉 Aplicação inicializada com sucesso!');
             
         } catch (error) {
-            console.error('Erro na inicialização do app:', error);
-            showMessage('Erro ao inicializar o sistema: ' + error.message, 'error');
+            console.error('❌ Erro na inicialização do app:', error);
+            showMessage('❌ Erro ao inicializar o sistema: ' + error.message, 'error');
         }
     }
 
