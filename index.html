@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="NETWORK IN FOCO - Conecte-se, compartilhe e cresça com nossa comunidade de membros e eventos">
-    <meta name="keywords" content="rede, membros, eventos, networking, comunidade, IN FOCO">
+    <meta name="description" content="NETWORK IN FOCO - Sistema completo com usuários e chat">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0/dist/umd/supabase.min.js"></script>
-    <title>NETWORK IN FOCO - Rede de Membros e Eventos</title>
+    <title>NETWORK IN FOCO - Sistema Completo</title>
     <style>
         :root {
             --primary-color: #1a365d;
@@ -16,9 +15,8 @@
             --dark-color: #2d3748;
             --success-color: #38a169;
             --warning-color: #d69e2e;
-            --sponsor-color: #805ad5;
-            --darceiro-color: #319795;
-            --chat-color: #4a5568;
+            --admin-color: #805ad5;
+            --user-color: #319795;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
             --radius: 8px;
@@ -148,117 +146,6 @@
             font-size: 1.5rem;
             cursor: pointer;
         }
-        :root {
-            --primary-color: #1a365d;
-            --secondary-color: #2b6cb0;
-            --accent-color: #e53e3e;
-            --light-color: #f7fafc;
-            --dark-color: #2d3748;
-            --success-color: #38a169;
-            --warning-color: #d69e2e;
-            --sponsor-color: #805ad5;
-            --darceiro-color: #319795;
-            --chat-color: #4a5568;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-            --radius: 8px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #f8f9fa;
-            color: var(--dark-color);
-            line-height: 1.6;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
-
-        /* Header Styles */
-        header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
-            color: white;
-            padding: 1rem 0;
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: white;
-            letter-spacing: 0.5px;
-        }
-
-        .logo span {
-            color: #63b3ed;
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 1.5rem;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: var(--transition);
-            padding: 0.5rem 0;
-            position: relative;
-        }
-
-        nav a:hover {
-            color: #90cdf4;
-        }
-
-        nav a.active {
-            color: #90cdf4;
-        }
-
-        nav a.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: #90cdf4;
-        }
-
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
 
         /* Hero Section */
         .hero {
@@ -325,48 +212,19 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
 
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
+        .btn-admin {
+            background-color: var(--admin-color);
         }
 
-        .btn-success {
-            background-color: var(--success-color);
-        }
-
-        .btn-success:hover {
-            background-color: #2f855a;
-        }
-
-        .btn-danger {
-            background-color: #e53e3e;
-        }
-
-        .btn-danger:hover {
-            background-color: #c53030;
-        }
-
-        .btn-warning {
-            background-color: #d69e2e;
-        }
-
-        .btn-warning:hover {
-            background-color: #b7791f;
-        }
-
-        .btn-sponsor {
-            background-color: var(--sponsor-color);
-        }
-
-        .btn-sponsor:hover {
+        .btn-admin:hover {
             background-color: #6b46c1;
         }
 
-        .btn-darceiro {
-            background-color: var(--darceiro-color);
+        .btn-user {
+            background-color: var(--user-color);
         }
 
-        .btn-darceiro:hover {
+        .btn-user:hover {
             background-color: #2c7a7b;
         }
 
@@ -394,12 +252,12 @@
             border-radius: 2px;
         }
 
-        .section-title.sponsor::after {
-            background: linear-gradient(to right, var(--sponsor-color), #9f7aea);
+        .section-title.admin::after {
+            background: linear-gradient(to right, var(--admin-color), #9f7aea);
         }
 
-        .section-title.darceiro::after {
-            background: linear-gradient(to right, var(--darceiro-color), #4fd1c7);
+        .section-title.user::after {
+            background: linear-gradient(to right, var(--user-color), #4fd1c7);
         }
 
         /* Forms */
@@ -447,68 +305,6 @@
 
         .form-row .form-group {
             flex: 1;
-        }
-
-        /* Image Upload */
-        .image-upload-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .image-preview {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin-bottom: 1rem;
-            border: 4px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f8f9fa;
-            box-shadow: var(--shadow);
-        }
-
-        .image-preview.sponsor {
-            border-radius: var(--radius);
-            width: 200px;
-            height: 120px;
-        }
-
-        .image-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .image-preview .placeholder {
-            color: #a0aec0;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-
-        .image-upload-btn {
-            display: inline-block;
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 0.7rem 1.4rem;
-            border: none;
-            border-radius: var(--radius);
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .image-upload-btn:hover {
-            background-color: #2c5282;
-            transform: translateY(-1px);
-        }
-
-        .image-upload-input {
-            display: none;
         }
 
         /* Cards */
@@ -603,12 +399,12 @@
             color: white;
         }
 
-        .card-header.sponsor {
-            background: linear-gradient(135deg, var(--sponsor-color) 0%, #9f7aea 100%);
+        .card-header.admin {
+            background: linear-gradient(135deg, var(--admin-color) 0%, #9f7aea 100%);
         }
 
-        .card-header.darceiro {
-            background: linear-gradient(135deg, var(--darceiro-color) 0%, #4fd1c7 100%);
+        .card-header.user {
+            background: linear-gradient(135deg, var(--user-color) 0%, #4fd1c7 100%);
         }
 
         .card-body {
@@ -623,15 +419,7 @@
             justify-content: space-between;
         }
 
-        .event-date {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--secondary-color);
-            font-weight: 500;
-        }
-
-        .member-role {
+        .user-role {
             display: inline-block;
             padding: 0.3rem 0.8rem;
             background-color: #e2e8f0;
@@ -641,20 +429,20 @@
             color: var(--dark-color);
         }
 
-        .sponsor-level {
+        .admin-badge {
             display: inline-block;
             padding: 0.3rem 0.8rem;
-            background-color: var(--sponsor-color);
+            background-color: var(--admin-color);
             color: white;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 500;
         }
 
-        .darceiro-type {
+        .user-badge {
             display: inline-block;
             padding: 0.3rem 0.8rem;
-            background-color: var(--darceiro-color);
+            background-color: var(--user-color);
             color: white;
             border-radius: 20px;
             font-size: 0.8rem;
@@ -687,14 +475,14 @@
             border-bottom-color: var(--secondary-color);
         }
 
-        .tab.sponsor.active {
-            color: var(--sponsor-color);
-            border-bottom-color: var(--sponsor-color);
+        .tab.admin.active {
+            color: var(--admin-color);
+            border-bottom-color: var(--admin-color);
         }
 
-        .tab.darceiro.active {
-            color: var(--darceiro-color);
-            border-bottom-color: var(--darceiro-color);
+        .tab.user.active {
+            color: var(--user-color);
+            border-bottom-color: var(--user-color);
         }
 
         .tab-content {
@@ -785,194 +573,7 @@
             to { transform: translateX(100%); opacity: 0; }
         }
 
-        /* Estilos para múltiplas fotos */
-        .multiple-photos-container {
-            margin-bottom: 1.5rem;
-        }
-
-        .photos-upload-area {
-            border: 2px dashed #cbd5e0;
-            border-radius: var(--radius);
-            padding: 2rem;
-            text-align: center;
-            margin-top: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            background-color: #f8f9fa;
-        }
-
-        .photos-upload-area:hover {
-            border-color: var(--secondary-color);
-            background-color: rgba(66, 153, 225, 0.05);
-        }
-
-        .photos-preview {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 1rem;
-        }
-
-        .photo-preview-item {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .photo-preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .remove-photo {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: rgba(229, 62, 62, 0.8);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        /* Galeria de fotos */
-        .event-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
-            margin-top: 1rem;
-        }
-
-        .event-gallery-item {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            border-radius: var(--radius);
-            overflow: hidden;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .event-gallery-item:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .event-gallery-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .gallery-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10002;
-        }
-
-        .gallery-modal-content {
-            max-width: 90%;
-            max-height: 90%;
-            position: relative;
-        }
-
-        .gallery-modal-content img {
-            max-width: 100%;
-            max-height: 90vh;
-            object-fit: contain;
-        }
-
-        .gallery-modal-close {
-            position: absolute;
-            top: -40px;
-            right: 0;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 2rem;
-            cursor: pointer;
-        }
-
-        .gallery-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-
-        .gallery-nav:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .gallery-nav.prev {
-            left: 20px;
-        }
-
-        .gallery-nav.next {
-            right: 20px;
-        }
-
-        .gallery-counter {
-            position: absolute;
-            bottom: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-size: 1rem;
-        }
-
-        .photos-info {
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .view-photos-btn {
-            background: var(--secondary-color);
-            color: white;
-            border: none;
-            padding: 0.3rem 0.8rem;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 0.8rem;
-            margin-top: 0.5rem;
-            transition: var(--transition);
-        }
-
-        .view-photos-btn:hover {
-            background: #2c5282;
-        }
-
-        /* Chat Styles - NOVO CHAT POR EVENTO */
+        /* Chat Styles */
         .event-chat-section {
             margin-top: 3rem;
             padding-top: 2rem;
@@ -1110,6 +711,39 @@
             font-style: italic;
         }
 
+        /* User Login Modal */
+        .user-login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+        }
+
+        .user-login-content {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow);
+        }
+
+        .user-login-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .user-login-header h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
         /* Footer */
         footer {
             background: var(--primary-color);
@@ -1192,12 +826,12 @@
                 border-bottom-color: #e2e8f0;
             }
 
-            .tab.sponsor.active {
-                border-left-color: var(--sponsor-color);
+            .tab.admin.active {
+                border-left-color: var(--admin-color);
             }
 
-            .tab.darceiro.active {
-                border-left-color: var(--darceiro-color);
+            .tab.user.active {
+                border-left-color: var(--user-color);
             }
 
             .global-notification {
@@ -1228,8 +862,32 @@
         <div>Carregando...</div>
     </div>
 
+    <!-- User Login Modal -->
+    <div class="user-login-modal" id="userLoginModal">
+        <div class="user-login-content">
+            <div class="user-login-header">
+                <h3>Identifique-se para o Chat</h3>
+                <p>Digite seu nome para participar da conversa</p>
+            </div>
+            <form id="userLoginForm">
+                <div class="form-group">
+                    <label for="userName">Seu Nome *</label>
+                    <input type="text" id="userName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Seu E-mail</label>
+                    <input type="email" id="userEmail" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-user" style="width: 100%;">
+                    <span id="userLoginText">Entrar no Chat</span>
+                    <div class="btn-loading">Entrando...</div>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Header -->
-     <header>
+    <header>
         <div class="container">
             <div class="header-content">
                 <div class="logo">
@@ -1247,10 +905,8 @@
                 <nav>
                     <ul>
                         <li><a href="#" class="active">Início</a></li>
-                        <li><a href="#membros">Membros</a></li>
+                        <li><a href="#usuarios">Usuários</a></li>
                         <li><a href="#eventos">Eventos</a></li>
-                        <li><a href="#darceiros">Parceiros</a></li>
-                        <li><a href="#patrocinadores">Patrocinadores</a></li>
                         <li><a href="#cadastro">Cadastro</a></li>
                     </ul>
                 </nav>
@@ -1262,7 +918,7 @@
     <section class="hero">
         <div class="container">
             <h2>Conecte-se. Compartilhe. Cresça.</h2>
-            <p>Uma plataforma completa para gerenciar membros, eventos, parceiros e patrocinadores.</p>
+            <p>Uma plataforma completa para gerenciar usuários, eventos e conversas.</p>
             <a href="#cadastro" class="btn">Começar Agora</a>
             <a href="#eventos" class="btn btn-secondary">Ver Eventos</a>
         </div>
@@ -1270,11 +926,11 @@
 
     <!-- Main Content -->
     <main class="container">
-        <!-- Members Section -->
-        <section id="membros">
-            <h2 class="section-title">Nossos Membros</h2>
-            <div class="cards-grid" id="members-list">
-                <!-- Members will be dynamically added here -->
+        <!-- Users Section -->
+        <section id="usuarios">
+            <h2 class="section-title">Nossos Usuários</h2>
+            <div class="cards-grid" id="users-list">
+                <!-- Users will be dynamically added here -->
             </div>
         </section>
 
@@ -1286,69 +942,45 @@
             </div>
         </section>
 
-        <!-- Darceiros Section -->
-        <section id="darceiros">
-            <h2 class="section-title darceiro">Nossos Parceiros</h2>
-            <div class="cards-grid" id="darceiros-list">
-                <!-- Parceiros will be dynamically added here -->
-            </div>
-        </section>
-
-        <!-- Sponsors Section -->
-        <section id="patrocinadores">
-            <h2 class="section-title sponsor">Nossos Patrocinadores</h2>
-            <div class="cards-grid" id="sponsors-list">
-                <!-- Sponsors will be dynamically added here -->
-            </div>
-        </section>
-
         <!-- Registration Section -->
         <section id="cadastro">
             <h2 class="section-title">Cadastro</h2>
             <div class="tabs">
-                <div class="tab active" data-tab="member">Cadastrar Membro</div>
+                <div class="tab active" data-tab="user">Cadastrar Usuário</div>
                 <div class="tab" data-tab="event">Cadastrar Evento</div>
-                <div class="tab darceiro" data-tab="darceiro">Cadastrar Parceiro</div>
-                <div class="tab sponsor" data-tab="sponsor">Cadastrar Patrocinador</div>
+                <div class="tab admin" data-tab="admin">Administradores</div>
             </div>
 
-            <!-- Member Form -->
-            <div class="tab-content active" id="member-form">
+            <!-- User Form -->
+            <div class="tab-content active" id="user-form">
                 <div class="form-container">
-                    <form id="memberRegistrationForm">
-                        <div class="image-upload-container">
-                            <div class="image-preview" id="memberPhotoPreview">
-                                <div class="placeholder">Foto do Membro</div>
-                            </div>
-                            <input type="file" id="memberPhoto" class="image-upload-input" accept="image/*">
-                            <label for="memberPhoto" class="image-upload-btn">Selecionar Foto</label>
-                        </div>
+                    <form id="userRegistrationForm">
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="memberName">Nome Completo *</label>
-                                <input type="text" id="memberName" class="form-control" required>
+                                <label for="userName">Nome Completo *</label>
+                                <input type="text" id="userName" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label for="memberEmail">E-mail *</label>
-                                <input type="email" id="memberEmail" class="form-control" required>
+                                <label for="userEmail">E-mail *</label>
+                                <input type="email" id="userEmail" class="form-control" required>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="memberPhone">Telefone</label>
-                                <input type="tel" id="memberPhone" class="form-control">
+                                <label for="userPhone">Telefone</label>
+                                <input type="tel" id="userPhone" class="form-control">
                             </div>
                             <div class="form-group">
-                                <label for="memberRole">Cargo/Função *</label>
-                                <input type="text" id="memberRole" class="form-control" required>
+                                <label for="userRole">Cargo/Função *</label>
+                                <input type="text" id="userRole" class="form-control" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="memberBio">Biografia/Descrição *</label>
-                            <textarea id="memberBio" class="form-control" rows="4" required></textarea>
+                            <label for="userBio">Biografia/Descrição *</label>
+                            <textarea id="userBio" class="form-control" rows="4" required></textarea>
                         </div>
-                        <button type="submit" class="btn" id="memberSubmitBtn">
-                            <span id="memberSubmitText">Cadastrar Membro</span>
+                        <button type="submit" class="btn btn-user" id="userSubmitBtn">
+                            <span id="userSubmitText">Cadastrar Usuário</span>
                             <div class="btn-loading">Enviando...</div>
                         </button>
                     </form>
@@ -1383,20 +1015,6 @@
                             <label for="eventDescription">Descrição do Evento *</label>
                             <textarea id="eventDescription" class="form-control" rows="4" required></textarea>
                         </div>
-                        
-                        <!-- Área para múltiplas fotos do evento -->
-                        <div class="multiple-photos-container">
-                            <label>Fotos do Evento (Múltiplas)</label>
-                            <div class="photos-upload-area" id="eventPhotosUploadArea">
-                                <p>📷 Clique aqui ou arraste fotos para adicionar</p>
-                                <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos</p>
-                            </div>
-                            <input type="file" id="eventPhotos" class="image-upload-input" accept="image/*" multiple style="display: none;">
-                            <div class="photos-preview" id="eventPhotosPreview">
-                                <!-- Preview das fotos será adicionado aqui -->
-                            </div>
-                        </div>
-
                         <button type="submit" class="btn" id="eventSubmitBtn">
                             <span id="eventSubmitText">Cadastrar Evento</span>
                             <div class="btn-loading">Enviando...</div>
@@ -1405,101 +1023,38 @@
                 </div>
             </div>
 
-            <!-- Darceiro Form -->
-            <div class="tab-content" id="darceiro-form">
+            <!-- Admin Section -->
+            <div class="tab-content" id="admin-form">
                 <div class="form-container">
-                    <form id="darceiroRegistrationForm">
-                        <div class="image-upload-container">
-                            <div class="image-preview" id="darceiroPhotoPreview">
-                                <div class="placeholder">Logo/Foto</div>
-                            </div>
-                            <input type="file" id="darceiroPhoto" class="image-upload-input" accept="image/*">
-                            <label for="darceiroPhoto" class="image-upload-btn">Selecionar Imagem</label>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="darceiroName">Nome/Razão Social *</label>
-                                <input type="text" id="darceiroName" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="darceiroType">Tipo de Darceiro *</label>
-                                <select id="darceiroType" class="form-control" required>
-                                    <option value="">Selecione...</option>
-                                    <option value="Ouro">Ouro</option>
-                                    <option value="Prata">Prata</option>
-                                    <option value="Bronze">Bronze</option>
-                                    <option value="Apoiador">Apoiador</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="darceiroContact">Contato *</label>
-                                <input type="text" id="darceiroContact" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="darceiroWebsite">Website</label>
-                                <input type="url" id="darceiroWebsite" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="darceiroDescription">Descrição *</label>
-                            <textarea id="darceiroDescription" class="form-control" rows="4" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-darceiro" id="darceiroSubmitBtn">
-                            <span id="darceiroSubmitText">Cadastrar Parceiro</span>
-                            <div class="btn-loading">Enviando...</div>
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Sponsor Form -->
-            <div class="tab-content" id="sponsor-form">
-                <div class="form-container">
-                    <form id="sponsorRegistrationForm">
-                        <div class="image-upload-container">
-                            <div class="image-preview sponsor" id="sponsorLogoPreview">
-                                <div class="placeholder">Logo do Patrocinador</div>
-                            </div>
-                            <input type="file" id="sponsorLogo" class="image-upload-input" accept="image/*">
-                            <label for="sponsorLogo" class="image-upload-btn">Selecionar Logo</label>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="sponsorName">Nome da Empresa *</label>
-                                <input type="text" id="sponsorName" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="sponsorLevel">Nível de Patrocínio *</label>
-                                <select id="sponsorLevel" class="form-control" required>
-                                    <option value="">Selecione...</option>
-                                    <option value="Diamante">Diamante</option>
-                                    <option value="Ouro">Ouro</option>
-                                    <option value="Prata">Prata</option>
-                                    <option value="Bronze">Bronze</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="sponsorContact">Contato *</label>
-                                <input type="text" id="sponsorContact" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="sponsorWebsite">Website</label>
-                                <input type="url" id="sponsorWebsite" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="sponsorDescription">Descrição *</label>
-                            <textarea id="sponsorDescription" class="form-control" rows="4" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-sponsor" id="sponsorSubmitBtn">
-                            <span id="sponsorSubmitText">Cadastrar Patrocinador</span>
-                            <div class="btn-loading">Enviando...</div>
-                        </button>
-                    </form>
+                    <h3 style="margin-bottom: 1.5rem; color: var(--admin-color);">Painel de Administração</h3>
+                    <p style="margin-bottom: 1.5rem;">Aqui você pode gerenciar usuários e permissões do sistema.</p>
+                    
+                    <div class="form-group">
+                        <label for="adminPassword">Senha de Administrador *</label>
+                        <input type="password" id="adminPassword" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="adminAction">Ação</label>
+                        <select id="adminAction" class="form-control">
+                            <option value="">Selecione uma ação...</option>
+                            <option value="promote">Promover usuário a administrador</option>
+                            <option value="demote">Rebaixar administrador a usuário</option>
+                            <option value="delete">Excluir usuário</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="userSelectContainer" style="display: none;">
+                        <label for="userSelect">Selecionar Usuário</label>
+                        <select id="userSelect" class="form-control">
+                            <option value="">Selecione um usuário...</option>
+                        </select>
+                    </div>
+                    
+                    <button type="button" class="btn btn-admin" id="adminSubmitBtn">
+                        <span id="adminSubmitText">Executar Ação</span>
+                        <div class="btn-loading">Processando...</div>
+                    </button>
                 </div>
             </div>
         </section>
@@ -1530,74 +1085,21 @@
         </div>
     </footer>
 
-    <!-- Modal para galeria de fotos -->
-    <div class="gallery-modal" id="galleryModal">
-        <button class="gallery-modal-close" onclick="closeGallery()">×</button>
-        <button class="gallery-nav prev" onclick="prevPhoto()">‹</button>
-        <div class="gallery-modal-content">
-            <img id="galleryImage" src="" alt="Foto do evento">
-        </div>
-        <button class="gallery-nav next" onclick="nextPhoto()">›</button>
-        <div class="gallery-counter" id="galleryCounter"></div>
-    </div>
-
 <script>
     // ========== CONFIGURAÇÃO DO SUPABASE ==========
     const SUPABASE_URL = 'https://jywmvnxurbtziixntuuq.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5d212bnh1cmJ0emlpeG50dXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0OTQ4NzMsImV4cCI6MjA3NTA3MDg3M30.XQ_nZV8E-ifNzFmNggRtlhKETIIt-Kw3skjOsE56xFk';
     
-    const STORAGE_BUCKETS = {
-        MEMBERS: 'members-photos',
-        DARCEIROS: 'darceiros-photos',
-        SPONSORS: 'sponsors-logos',
-        EVENTS: 'events-photos',
-        IMAGENS: 'Imagens' // Novo bucket para imagens gerais
-    };
-
-    // URL do logotipo
-    const LOGO_URL = 'https://jywmvnxurbtziixntuuq.supabase.co/storage/v1/object/public/Imagens/Logotipo.jpeg';
-
     // Variáveis globais
     let supabase;
-    let members = [];
+    let users = [];
     let events = [];
-    let darceiros = [];
-    let sponsors = [];
     let isOnline = true;
-    let currentEditingMemberId = null;
-    let currentEditingEventId = null;
-    let currentEditingDarceiroId = null;
-    let currentEditingSponsorId = null;
-    let eventPhotosFiles = [];
-    
-    // Variáveis para galeria
-    let currentGalleryEvent = null;
-    let currentPhotoIndex = 0;
-
-    // Variáveis para chat
-    let eventChats = {};
     let currentUser = null;
-
-    // ========== FUNÇÃO PARA CARREGAR LOGOTIPO ==========
-    async function loadLogo() {
-        try {
-            const logoImg = document.querySelector('.logo-image img');
-            if (logoImg) {
-                // Testa se a imagem carrega corretamente
-                logoImg.onerror = function() {
-                    console.log('❌ Logotipo não encontrado, usando imagem padrão');
-                    this.src = 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
-                };
-                
-                // Força o carregamento da imagem
-                logoImg.src = LOGO_URL + '?t=' + new Date().getTime();
-                
-                console.log('✅ Tentando carregar logotipo:', LOGO_URL);
-            }
-        } catch (error) {
-            console.error('Erro ao carregar logotipo:', error);
-        }
-    }
+    let currentEditingUserId = null;
+    let currentEditingEventId = null;
+    let eventChats = {};
+    let adminPassword = "admin123"; // Senha padrão do administrador
 
     // ========== INICIALIZAÇÃO DO SUPABASE ==========
     async function initializeSupabase() {
@@ -1607,108 +1109,7 @@
                 console.log('Supabase inicializado com sucesso!');
                 
                 // Testa a conexão
-                const { data, error } = await supabase.from('members').select('count').limit(1);
-                if (error) throw error;
-                
-                return true;
-            } else {
-                throw new Error('Biblioteca Supabase não carregada');
-            }
-        } catch (error) {
-            console.error('Erro ao inicializar Supabase:', error);
-            setupOfflineMode();
-            return false;
-        }
-    }
-
-    // ========== INICIALIZAÇÃO ==========
-    async function initializeApp() {
-        try {
-            console.log('Inicializando aplicação...');
-            const supabaseInitialized = await initializeSupabase();
-            
-            // Carrega o logotipo
-            await loadLogo();
-            
-            // Inicializa o usuário atual
-            currentUser = {
-                id: 'user_' + Date.now(),
-                name: 'Usuário Anônimo',
-                photo: null
-            };
-            
-            setupEventListeners();
-            
-            // Carrega dados e chats
-            await Promise.all([
-                loadMembers(),
-                loadEvents(),
-                loadDarceiros(),
-                loadSponsors(),
-                loadEventChats()
-            ]);
-            
-            if (supabaseInitialized) {
-                showMessage('Sistema conectado ao PostgreSQL!', 'success');
-            } else {
-                showMessage('Sistema em modo offline. Dados salvos localmente.', 'warning');
-            }
-            
-            setInterval(async () => {
-                if (isOnline && navigator.onLine) {
-                    await loadMembers();
-                    await loadEvents();
-                    await loadDarceiros();
-                    await loadSponsors();
-                    await loadEventChats();
-                }
-            }, 30000);
-            
-            window.addEventListener('online', async () => {
-                if (!isOnline) {
-                    isOnline = true;
-                    updateSyncStatus(true);
-                    showMessage('Conexão restaurada!', 'success');
-                    await initializeSupabase();
-                }
-            });
-            
-            window.addEventListener('offline', () => {
-                isOnline = false;
-                updateSyncStatus(false);
-                showMessage('Conexão perdida. Modo offline ativado.', 'warning');
-            });
-            
-        } catch (error) {
-            console.error('Erro na inicialização do app:', error);
-            showMessage('Erro ao inicializar o sistema.', 'error');
-        }
-    }
-
-    // ========== DOM ELEMENTS ==========
-    const membersList = document.getElementById('members-list');
-    const eventsList = document.getElementById('events-list');
-    const darceirosList = document.getElementById('darceiros-list');
-    const sponsorsList = document.getElementById('sponsors-list');
-    const memberForm = document.getElementById('memberRegistrationForm');
-    const eventForm = document.getElementById('eventRegistrationForm');
-    const darceiroForm = document.getElementById('darceiroRegistrationForm');
-    const sponsorForm = document.getElementById('sponsorRegistrationForm');
-    const syncStatus = document.getElementById('syncStatus');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const galleryModal = document.getElementById('galleryModal');
-    const galleryImage = document.getElementById('galleryImage');
-    const galleryCounter = document.getElementById('galleryCounter');
-
-    // ========== INICIALIZAÇÃO DO SUPABASE ==========
-    async function initializeSupabase() {
-        try {
-            if (typeof window.supabase !== 'undefined') {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('Supabase inicializado com sucesso!');
-                
-                // Testa a conexão
-                const { data, error } = await supabase.from('members').select('count').limit(1);
+                const { data, error } = await supabase.from('users').select('count').limit(1);
                 if (error) throw error;
                 
                 return true;
@@ -1768,14 +1169,7 @@
                         return Promise.resolve({ error: null });
                     }
                 })
-            }),
-            storage: {
-                from: () => ({
-                    upload: () => Promise.resolve({ data: null, error: null }),
-                    getPublicUrl: () => ({ data: { publicUrl: '' } }),
-                    remove: () => Promise.resolve({ error: null })
-                })
-            }
+            })
         };
         
         supabase = window.supabase;
@@ -1827,24 +1221,15 @@
         }
     }
 
-    async function loadMembers() {
-        members = await loadData('members');
-        renderMembers();
+    async function loadUsers() {
+        users = await loadData('users');
+        renderUsers();
+        populateUserSelect();
     }
 
     async function loadEvents() {
         events = await loadData('events');
         renderEvents();
-    }
-
-    async function loadDarceiros() {
-        darceiros = await loadData('darceiros');
-        renderDarceiros();
-    }
-
-    async function loadSponsors() {
-        sponsors = await loadData('sponsors');
-        renderSponsors();
     }
 
     // ========== FUNÇÕES DO CHAT POR EVENTO ==========
@@ -1894,18 +1279,15 @@
     async function sendEventMessage(eventId, messageText) {
         try {
             if (!currentUser) {
-                // Se não há usuário atual, cria um anônimo
-                currentUser = {
-                    id: 'user_' + Date.now(),
-                    name: 'Usuário Anônimo',
-                    photo: null
-                };
+                showUserLoginModal(eventId);
+                return false;
             }
 
             const newMessage = {
                 event_id: eventId,
                 sender_id: currentUser.id,
                 sender_name: currentUser.name,
+                sender_email: currentUser.email,
                 message: messageText,
                 created_at: new Date().toISOString()
             };
@@ -2059,151 +1441,13 @@
         });
     }
 
-    // ========== FUNÇÃO DE UPLOAD DE IMAGENS ==========
-    async function uploadImage(file, bucket, fileName) {
-        try {
-            console.log(`📤 Iniciando upload para bucket: ${bucket}, arquivo: ${fileName}`);
-            
-            if (!isOnline) {
-                console.log('📴 Modo offline - usando base64');
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        console.log('✅ Imagem convertida para base64');
-                        resolve(e.target.result);
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            const fileExt = file.name.split('.').pop();
-            const uniqueFileName = `${fileName}_${Date.now()}.${fileExt}`;
-            
-            console.log(`🔄 Fazendo upload do arquivo: ${uniqueFileName}`);
-            
-            const { data, error } = await supabase.storage
-                .from(bucket)
-                .upload(uniqueFileName, file, {
-                    cacheControl: '3600',
-                    upsert: false
-                });
-
-            if (error) {
-                console.error('❌ Erro no upload:', error);
-                throw error;
-            }
-
-            console.log('✅ Upload concluído, obtendo URL pública...');
-
-            const { data: { publicUrl } } = supabase.storage
-                .from(bucket)
-                .getPublicUrl(uniqueFileName);
-
-            console.log('✅ URL pública obtida:', publicUrl);
-            return publicUrl;
-            
-        } catch (error) {
-            console.error('❌ Erro completo no upload da imagem:', error);
-            throw new Error('Falha no upload da imagem: ' + error.message);
-        }
-    }
-
-    // ========== FUNÇÃO PARA UPLOAD DE MÚLTIPLAS IMAGENS ==========
-    async function uploadMultipleImages(files, bucket, baseName) {
-        try {
-            console.log(`📤 Iniciando upload de ${files.length} imagens`);
-            
-            const uploadPromises = Array.from(files).map((file, index) => {
-                const fileName = `${baseName}_${Date.now()}_${index}`;
-                console.log(`🔄 Upload ${index + 1}/${files.length}: ${file.name}`);
-                return uploadImage(file, bucket, fileName);
-            });
-            
-            const urls = await Promise.all(uploadPromises);
-            const successfulUrls = urls.filter(url => url !== null && url !== undefined);
-            
-            console.log(`✅ Upload concluído: ${successfulUrls.length}/${files.length} imagens salvas`);
-            return successfulUrls;
-        } catch (error) {
-            console.error('❌ Erro no upload múltiplo de imagens:', error);
-            throw error;
-        }
-    }
-
-    // ========== FUNÇÃO PARA EXCLUIR IMAGEM DO STORAGE ==========
-    async function deleteImageFromStorage(imageUrl, bucket) {
-        try {
-            if (!isOnline || !imageUrl) return true;
-            
-            const fileName = imageUrl.split('/').pop();
-            
-            if (!fileName || fileName.includes('unsplash.com') || fileName.includes('data:')) {
-                return true;
-            }
-            
-            const { error } = await supabase.storage
-                .from(bucket)
-                .remove([fileName]);
-            
-            if (error) {
-                console.warn('Aviso ao excluir imagem do storage:', error);
-            }
-            
-            return true;
-        } catch (error) {
-            console.error('Erro ao excluir imagem do storage:', error);
-            return false;
-        }
-    }
-
-    // ========== FUNÇÃO SALVAR DADOS CORRIGIDA ==========
-    async function saveData(table, formData, imageFiles, bucket, buttonId, editingId = null) {
+    // ========== FUNÇÃO SALVAR DADOS ==========
+    async function saveData(table, formData, buttonId, editingId = null) {
         try {
             showButtonLoading(document.getElementById(buttonId), true);
             console.log(`💾 Iniciando salvamento de ${table}`, formData);
             
-            let imageUrls = [];
-            
-            // Faz upload das imagens se existirem
-            if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
-                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
-                                formData.title?.replace(/\s+/g, '_').toLowerCase() || 
-                                'image';
-                
-                console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'}`);
-                
-                if (Array.isArray(imageFiles)) {
-                    // Múltiplas imagens (para eventos)
-                    imageUrls = await uploadMultipleImages(imageFiles, bucket, baseName);
-                    console.log('✅ URLs das fotos do evento:', imageUrls);
-                } else {
-                    // Uma imagem (para membros, darceiros, sponsors)
-                    const imageUrl = await uploadImage(imageFiles, bucket, baseName);
-                    imageUrls = [imageUrl];
-                }
-                
-                console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
-            }
-            
-            // Prepara os dados para salvar
-            const dataToSave = { ...formData };
-            
-            // Adiciona as URLs das imagens aos dados
-            if (imageUrls.length > 0) {
-                if (table === 'events') {
-                    // Para eventos, salva array de fotos
-                    dataToSave.photos = imageUrls;
-                    console.log('📸 Fotos a serem salvas no evento:', imageUrls);
-                } else if (table === 'sponsors') {
-                    // Para sponsors, salva logo
-                    dataToSave.logo = imageUrls[0];
-                } else {
-                    // Para membros e darceiros, salva photo
-                    dataToSave.photo = imageUrls[0];
-                }
-            }
-            
-            console.log(`📝 Dados preparados para salvar:`, dataToSave);
+            console.log(`📝 Dados preparados para salvar:`, formData);
             console.log(`🆔 Editing ID:`, editingId);
             console.log(`📊 Tabela:`, table);
             
@@ -2215,20 +1459,20 @@
                         console.log(`🔄 Atualizando ${table} existente: ${editingId}`);
                         
                         // Remove campos vazios para evitar sobrescrever com null
-                        Object.keys(dataToSave).forEach(key => {
-                            if (dataToSave[key] === '' || dataToSave[key] === null) {
-                                delete dataToSave[key];
+                        Object.keys(formData).forEach(key => {
+                            if (formData[key] === '' || formData[key] === null) {
+                                delete formData[key];
                             }
                         });
                         
                         // Adiciona timestamp de atualização
-                        dataToSave.updated_at = new Date().toISOString();
+                        formData.updated_at = new Date().toISOString();
                         
-                        console.log(`📝 Dados para atualização:`, dataToSave);
+                        console.log(`📝 Dados para atualização:`, formData);
                         
                         const { data, error } = await supabase
                             .from(table)
-                            .update(dataToSave)
+                            .update(formData)
                             .eq('id', editingId)
                             .select();
                         
@@ -2245,29 +1489,11 @@
                         console.log(`🆕 Inserindo novo registro`);
                         const { data, error } = await supabase
                             .from(table)
-                            .insert([dataToSave])
+                            .insert([formData])
                             .select();
                         
                         if (error) {
-                            // SE DER ERRO POR FALTA DA COLUNA PHOTOS, TENTA SEM AS FOTOS
-                            if (error.message.includes("photos") && table === 'events') {
-                                console.log('⚠️ Coluna photos não encontrada, tentando salvar sem fotos...');
-                                
-                                // Remove as fotos dos dados
-                                const { photos, ...dataWithoutPhotos } = dataToSave;
-                                
-                                const { data: retryData, error: retryError } = await supabase
-                                    .from(table)
-                                    .insert([dataWithoutPhotos])
-                                    .select();
-                                
-                                if (retryError) throw retryError;
-                                result = retryData;
-                                
-                                showMessage('Evento salvo, mas fotos não foram salvas (coluna photos não existe). Configure a coluna no Supabase.', 'warning');
-                            } else {
-                                throw error;
-                            }
+                            throw error;
                         } else {
                             result = data;
                         }
@@ -2277,7 +1503,7 @@
                     
                     // SE DER ERRO, SALVA APENAS LOCALMENTE
                     console.log('💾 Salvando localmente devido ao erro...');
-                    await saveDataLocally(table, dataToSave, editingId);
+                    await saveDataLocally(table, formData, editingId);
                     showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
                     return true;
                 }
@@ -2285,10 +1511,8 @@
                 // Recarrega os dados atualizados
                 console.log('🔄 Recarregando dados...');
                 switch(table) {
-                    case 'members': await loadMembers(); break;
+                    case 'users': await loadUsers(); break;
                     case 'events': await loadEvents(); break;
-                    case 'darceiros': await loadDarceiros(); break;
-                    case 'sponsors': await loadSponsors(); break;
                 }
                 
                 showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
@@ -2296,7 +1520,7 @@
             } else {
                 // Modo offline - salva localmente
                 console.log('📴 Modo offline - salvando localmente');
-                await saveDataLocally(table, dataToSave, editingId);
+                await saveDataLocally(table, formData, editingId);
                 return true;
             }
             
@@ -2350,21 +1574,14 @@
         // Atualiza a interface
         console.log('🔄 Atualizando interface...');
         switch(table) {
-            case 'members': 
-                members = loadFromLocalStorage('members'); 
-                renderMembers(); 
+            case 'users': 
+                users = loadFromLocalStorage('users'); 
+                renderUsers(); 
+                populateUserSelect();
                 break;
             case 'events': 
                 events = loadFromLocalStorage('events'); 
                 renderEvents(); 
-                break;
-            case 'darceiros': 
-                darceiros = loadFromLocalStorage('darceiros'); 
-                renderDarceiros(); 
-                break;
-            case 'sponsors': 
-                sponsors = loadFromLocalStorage('sponsors'); 
-                renderSponsors(); 
                 break;
         }
         
@@ -2373,22 +1590,10 @@
 
     function getEntityName(table) {
         const names = {
-            'members': 'Membro',
-            'events': 'Evento',
-            'darceiros': 'Parceiro',
-            'sponsors': 'Patrocinador'
+            'users': 'Usuário',
+            'events': 'Evento'
         };
         return names[table] || 'Item';
-    }
-
-    function getBucketForTable(table) {
-        const buckets = {
-            'members': STORAGE_BUCKETS.MEMBERS,
-            'darceiros': STORAGE_BUCKETS.DARCEIROS,
-            'sponsors': STORAGE_BUCKETS.SPONSORS,
-            'events': STORAGE_BUCKETS.EVENTS
-        };
-        return buckets[table] || STORAGE_BUCKETS.MEMBERS;
     }
 
     // ========== FUNÇÃO DE EXCLUSÃO ==========
@@ -2402,10 +1607,8 @@
             
             let currentData;
             switch(table) {
-                case 'members': currentData = members; break;
+                case 'users': currentData = users; break;
                 case 'events': currentData = events; break;
-                case 'darceiros': currentData = darceiros; break;
-                case 'sponsors': currentData = sponsors; break;
             }
             
             const itemToDelete = currentData.find(item => item.id == itemId);
@@ -2423,42 +1626,25 @@
                     console.error(`Erro ao excluir do banco:`, dbError);
                     throw new Error(`Falha na exclusão do banco: ${dbError.message}`);
                 }
-                
-                // Exclui imagens do storage se existirem
-                const bucket = getBucketForTable(table);
-                if (table === 'events' && itemToDelete.photos) {
-                    // Exclui múltiplas fotos de eventos
-                    for (const photoUrl of itemToDelete.photos) {
-                        await deleteImageFromStorage(photoUrl, bucket);
-                    }
-                } else {
-                    // Exclui uma única imagem
-                    const imageField = table === 'sponsors' ? 'logo' : 'photo';
-                    const imageUrl = itemToDelete[imageField];
-                    if (imageUrl) {
-                        await deleteImageFromStorage(imageUrl, bucket);
-                    }
-                }
             }
             
             // Atualização local
             const updatedData = currentData.filter(item => item.id != itemId);
             
             switch(table) {
-                case 'members': members = updatedData; break;
+                case 'users': users = updatedData; break;
                 case 'events': events = updatedData; break;
-                case 'darceiros': darceiros = updatedData; break;
-                case 'sponsors': sponsors = updatedData; break;
             }
             
             saveToLocalStorage(table, updatedData);
             
             // Atualiza a interface
             switch(table) {
-                case 'members': renderMembers(); break;
+                case 'users': 
+                    renderUsers(); 
+                    populateUserSelect();
+                    break;
                 case 'events': renderEvents(); break;
-                case 'darceiros': renderDarceiros(); break;
-                case 'sponsors': renderSponsors(); break;
             }
             
             showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
@@ -2472,58 +1658,46 @@
     }
 
     // ========== FUNÇÕES PARA EDITAR ==========
-    async function editMember(memberId) {
-        console.log(`✏️ Editando membro: ${memberId}`);
-        const member = members.find(m => m.id == memberId);
-        if (!member) {
-            console.error('❌ Membro não encontrado');
-            showMessage('Membro não encontrado', 'error');
+    async function editUser(userId) {
+        console.log(`✏️ Editando usuário: ${userId}`);
+        const user = users.find(u => u.id == userId);
+        if (!user) {
+            console.error('❌ Usuário não encontrado');
+            showMessage('Usuário não encontrado', 'error');
             return;
         }
 
         try {
-            // Preenche o formulário com os dados do membro
-            document.getElementById('memberName').value = member.name || '';
-            document.getElementById('memberEmail').value = member.email || '';
-            document.getElementById('memberPhone').value = member.phone || '';
-            document.getElementById('memberRole').value = member.role || '';
-            document.getElementById('memberBio').value = member.bio || '';
-
-            // Atualiza o preview da foto
-            const preview = document.getElementById('memberPhotoPreview');
-            if (member.photo) {
-                preview.innerHTML = `<img src="${member.photo}" alt="Preview">`;
-            } else {
-                preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
-            }
-
-            // Limpa o input de arquivo para permitir nova seleção
-            const memberPhotoInput = document.getElementById('memberPhoto');
-            memberPhotoInput.value = '';
+            // Preenche o formulário com os dados do usuário
+            document.getElementById('userName').value = user.name || '';
+            document.getElementById('userEmail').value = user.email || '';
+            document.getElementById('userPhone').value = user.phone || '';
+            document.getElementById('userRole').value = user.role || '';
+            document.getElementById('userBio').value = user.bio || '';
 
             // Altera o texto do botão
-            document.getElementById('memberSubmitText').textContent = 'Atualizar Membro';
+            document.getElementById('userSubmitText').textContent = 'Atualizar Usuário';
 
-            // Armazena o ID do membro sendo editado
-            currentEditingMemberId = memberId;
-            console.log(`✅ currentEditingMemberId definido como: ${currentEditingMemberId}`);
+            // Armazena o ID do usuário sendo editado
+            currentEditingUserId = userId;
+            console.log(`✅ currentEditingUserId definido como: ${currentEditingUserId}`);
 
             // Rola até o formulário
             document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
             
-            // Ativa a tab de membros
+            // Ativa a tab de usuários
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelector('.tab[data-tab="member"]').classList.add('active');
+            document.querySelector('.tab[data-tab="user"]').classList.add('active');
             
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById('member-form').classList.add('active');
+            document.getElementById('user-form').classList.add('active');
 
             console.log('✅ Formulário de edição preparado');
-            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Membro".', 'success');
+            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Usuário".', 'success');
             
         } catch (error) {
             console.error('❌ Erro ao preparar formulário de edição:', error);
-            showMessage('Erro ao carregar dados do membro para edição', 'error');
+            showMessage('Erro ao carregar dados do usuário para edição', 'error');
         }
     }
 
@@ -2543,11 +1717,6 @@
             document.getElementById('eventTime').value = event.event_time || '';
             document.getElementById('eventLocation').value = event.location || '';
             document.getElementById('eventDescription').value = event.description || '';
-
-            // Limpa e atualiza as fotos
-            eventPhotosFiles = [];
-            const preview = document.getElementById('eventPhotosPreview');
-            preview.innerHTML = '';
 
             // Altera o texto do botão
             document.getElementById('eventSubmitText').textContent = 'Atualizar Evento';
@@ -2575,161 +1744,55 @@
         }
     }
 
-    async function editDarceiro(darceiroId) {
-        console.log(`✏️ Editando parceiro: ${darceiroId}`);
-        const darceiro = darceiros.find(d => d.id == darceiroId);
-        if (!darceiro) {
-            console.error('❌ Parceiro não encontrado');
-            showMessage('Parceiro não encontrado', 'error');
-            return;
-        }
-
-        try {
-            // Preenche o formulário com os dados do parceiro
-            document.getElementById('darceiroName').value = darceiro.name || '';
-            document.getElementById('darceiroType').value = darceiro.type || '';
-            document.getElementById('darceiroContact').value = darceiro.contact || '';
-            document.getElementById('darceiroWebsite').value = darceiro.website || '';
-            document.getElementById('darceiroDescription').value = darceiro.description || '';
-
-            // Atualiza o preview da foto
-            const preview = document.getElementById('darceiroPhotoPreview');
-            if (darceiro.photo) {
-                preview.innerHTML = `<img src="${darceiro.photo}" alt="Preview">`;
-            } else {
-                preview.innerHTML = '<div class="placeholder">Logo/Foto</div>';
-            }
-
-            // Limpa o input de arquivo para permitir nova seleção
-            const darceiroPhotoInput = document.getElementById('darceiroPhoto');
-            darceiroPhotoInput.value = '';
-
-            // Altera o texto do botão
-            document.getElementById('darceiroSubmitText').textContent = 'Atualizar Parceiro';
-
-            // Armazena o ID do parceiro sendo editado
-            currentEditingDarceiroId = darceiroId;
-            console.log(`✅ currentEditingDarceiroId definido como: ${currentEditingDarceiroId}`);
-
-            // Rola até o formulário
-            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
-            
-            // Ativa a tab de parceiros
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelector('.tab[data-tab="darceiro"]').classList.add('active');
-            
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById('darceiro-form').classList.add('active');
-
-            console.log('✅ Formulário de edição do parceiro preparado');
-            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Parceiro".', 'success');
-            
-        } catch (error) {
-            console.error('❌ Erro ao preparar formulário de edição do parceiro:', error);
-            showMessage('Erro ao carregar dados do parceiro para edição', 'error');
-        }
-    }
-
-    async function editSponsor(sponsorId) {
-        console.log(`✏️ Editando patrocinador: ${sponsorId}`);
-        const sponsor = sponsors.find(s => s.id == sponsorId);
-        if (!sponsor) {
-            console.error('❌ Patrocinador não encontrado');
-            showMessage('Patrocinador não encontrado', 'error');
-            return;
-        }
-
-        try {
-            // Preenche o formulário com os dados do patrocinador
-            document.getElementById('sponsorName').value = sponsor.name || '';
-            document.getElementById('sponsorLevel').value = sponsor.level || '';
-            document.getElementById('sponsorContact').value = sponsor.contact || '';
-            document.getElementById('sponsorWebsite').value = sponsor.website || '';
-            document.getElementById('sponsorDescription').value = sponsor.description || '';
-
-            // Atualiza o preview do logo
-            const preview = document.getElementById('sponsorLogoPreview');
-            if (sponsor.logo) {
-                preview.innerHTML = `<img src="${sponsor.logo}" alt="Preview">`;
-            } else {
-                preview.innerHTML = '<div class="placeholder">Logo do Patrocinador</div>';
-            }
-
-            // Limpa o input de arquivo para permitir nova seleção
-            const sponsorLogoInput = document.getElementById('sponsorLogo');
-            sponsorLogoInput.value = '';
-
-            // Altera o texto do botão
-            document.getElementById('sponsorSubmitText').textContent = 'Atualizar Patrocinador';
-
-            // Armazena o ID do patrocinador sendo editado
-            currentEditingSponsorId = sponsorId;
-            console.log(`✅ currentEditingSponsorId definido como: ${currentEditingSponsorId}`);
-
-            // Rola até o formulário
-            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
-            
-            // Ativa a tab de patrocinadores
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelector('.tab[data-tab="sponsor"]').classList.add('active');
-            
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById('sponsor-form').classList.add('active');
-
-            console.log('✅ Formulário de edição do patrocinador preparado');
-            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Patrocinador".', 'success');
-            
-        } catch (error) {
-            console.error('❌ Erro ao preparar formulário de edição do patrocinador:', error);
-            showMessage('Erro ao carregar dados do patrocinador para edição', 'error');
-        }
-    }
-
     // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
-    function renderMembers() {
-        renderList(membersList, members, 'members', (member) => `
-            <div class="card-actions">
-                <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
-                <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
-            </div>
-            <div class="card-image">
-                <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
-            </div>
-            <div class="card-header">
-                <h3>${member.name}</h3>
-                <span class="member-role">${member.role}</span>
-            </div>
-            <div class="card-body">
-                <p><strong>Email:</strong> ${member.email}</p>
-                ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
-                <p>${member.bio || 'Sem descrição'}</p>
-                <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                    Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
-                    ${member.updated_at ? `<br>Atualizado em: ${new Date(member.updated_at).toLocaleDateString('pt-BR')}` : ''}
-                </p>
-            </div>
-        `);
+    function renderUsers() {
+        renderList(usersList, users, 'users', (user) => {
+            const isAdmin = user.is_admin;
+            const canEdit = isCurrentUserAdmin();
+            
+            return `
+                <div class="card-actions">
+                    ${canEdit ? `
+                        <button class="card-action-btn edit" onclick="editUser('${user.id}')" title="Editar usuário">✏️</button>
+                        <button class="card-action-btn delete" onclick="deleteUser('${user.id}')" title="Excluir usuário">🗑️</button>
+                    ` : ''}
+                </div>
+                <div class="card-image">
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${user.name}" loading="lazy">
+                </div>
+                <div class="card-header ${isAdmin ? 'admin' : 'user'}">
+                    <h3>${user.name}</h3>
+                    <span class="${isAdmin ? 'admin-badge' : 'user-badge'}">${isAdmin ? 'Administrador' : 'Usuário'}</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    ${user.phone ? `<p><strong>Telefone:</strong> ${user.phone}</p>` : ''}
+                    <p><strong>Cargo:</strong> ${user.role}</p>
+                    <p>${user.bio || 'Sem descrição'}</p>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                        Cadastrado em: ${new Date(user.created_at).toLocaleDateString('pt-BR')}
+                        ${user.updated_at ? `<br>Atualizado em: ${new Date(user.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                    </p>
+                </div>
+            `;
+        });
     }
 
     function renderEvents() {
         renderList(eventsList, events, 'events', (event) => {
             const eventDate = new Date(event.event_date);
             const formattedDate = eventDate.toLocaleDateString('pt-BR');
-            const photos = event.photos || [];
-            const mainPhoto = photos.length > 0 ? photos[0] : 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+            const canEdit = isCurrentUserAdmin();
             
             return `
                 <div class="card-actions">
-                    <button class="card-action-btn edit" onclick="editEvent('${event.id}')" title="Editar evento">✏️</button>
-                    <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
+                    ${canEdit ? `
+                        <button class="card-action-btn edit" onclick="editEvent('${event.id}')" title="Editar evento">✏️</button>
+                        <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
+                    ` : ''}
                 </div>
                 <div class="card-image">
-                    <img src="${mainPhoto}" alt="${event.title}" loading="lazy" onclick="openGallery('${event.id}', 0)" style="cursor: pointer;">
-                    ${photos.length > 1 ? `
-                        <div class="image-counter" onclick="openGallery('${event.id}', 0)" style="cursor: pointer;">
-                            +${photos.length - 1}
-                        </div>
-                    ` : ''}
+                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="${event.title}" loading="lazy">
                 </div>
                 <div class="card-header">
                     <h3>${event.title}</h3>
@@ -2740,32 +1803,6 @@
                 <div class="card-body">
                     <p><strong>Local:</strong> ${event.location}</p>
                     <p>${event.description || 'Sem descrição'}</p>
-                    
-                    ${photos.length > 0 ? `
-                        <div class="photos-info">
-                            <strong>${photos.length} foto(s)</strong>
-                            <button class="view-photos-btn" onclick="openGallery('${event.id}', 0)">
-                                👁️ Ver Fotos
-                            </button>
-                        </div>
-                        
-                        <div class="event-gallery">
-                            ${photos.slice(0, 4).map((photo, index) => `
-                                <div class="event-gallery-item" onclick="openGallery('${event.id}', ${index})">
-                                    <img src="${photo}" alt="Foto ${index + 1} do evento" loading="lazy">
-                                </div>
-                            `).join('')}
-                            ${photos.length > 4 ? `
-                                <div class="event-gallery-item" onclick="openGallery('${event.id}', 0)" style="background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                                    +${photos.length - 4}
-                                </div>
-                            ` : ''}
-                        </div>
-                    ` : `
-                        <div class="photos-info">
-                            <em>Nenhuma foto cadastrada</em>
-                        </div>
-                    `}
                     <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
                         Criado em: ${new Date(event.created_at).toLocaleDateString('pt-BR')}
                         ${event.updated_at ? `<br>Atualizado em: ${new Date(event.updated_at).toLocaleDateString('pt-BR')}` : ''}
@@ -2800,56 +1837,6 @@
         });
     }
 
-    function renderDarceiros() {
-        renderList(darceirosList, darceiros, 'darceiros', (darceiro) => `
-            <div class="card-actions">
-                <button class="card-action-btn edit" onclick="editDarceiro('${darceiro.id}')" title="Editar parceiro">✏️</button>
-                <button class="card-action-btn delete" onclick="deleteDarceiro('${darceiro.id}')" title="Excluir parceiro">🗑️</button>
-            </div>
-            <div class="card-image">
-                <img src="${darceiro.photo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${darceiro.name}" loading="lazy">
-            </div>
-            <div class="card-header darceiro">
-                <h3>${darceiro.name}</h3>
-                <span class="darceiro-type">${darceiro.type}</span>
-            </div>
-            <div class="card-body">
-                <p><strong>Contato:</strong> ${darceiro.contact}</p>
-                ${darceiro.website ? `<p><strong>Website:</strong> <a href="${darceiro.website}" target="_blank">${darceiro.website}</a></p>` : ''}
-                <p>${darceiro.description || 'Sem descrição'}</p>
-                <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                    Cadastrado em: ${new Date(darceiro.created_at).toLocaleDateString('pt-BR')}
-                    ${darceiro.updated_at ? `<br>Atualizado em: ${new Date(darceiro.updated_at).toLocaleDateString('pt-BR')}` : ''}
-                </p>
-            </div>
-        `);
-    }
-
-    function renderSponsors() {
-        renderList(sponsorsList, sponsors, 'sponsors', (sponsor) => `
-            <div class="card-actions">
-                <button class="card-action-btn edit" onclick="editSponsor('${sponsor.id}')" title="Editar patrocinador">✏️</button>
-                <button class="card-action-btn delete" onclick="deleteSponsor('${sponsor.id}')" title="Excluir patrocinador">🗑️</button>
-            </div>
-            <div class="card-image">
-                <img src="${sponsor.logo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${sponsor.name}" loading="lazy">
-            </div>
-            <div class="card-header sponsor">
-                <h3>${sponsor.name}</h3>
-                <span class="sponsor-level">${sponsor.level}</span>
-            </div>
-            <div class="card-body">
-                <p><strong>Contato:</strong> ${sponsor.contact}</p>
-                ${sponsor.website ? `<p><strong>Website:</strong> <a href="${sponsor.website}" target="_blank">${sponsor.website}</a></p>` : ''}
-                <p>${sponsor.description || 'Sem descrição'}</p>
-                <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                    Cadastrado em: ${new Date(sponsor.created_at).toLocaleDateString('pt-BR')}
-                    ${sponsor.updated_at ? `<br>Atualizado em: ${new Date(sponsor.updated_at).toLocaleDateString('pt-BR')}` : ''}
-                </p>
-            </div>
-        `);
-    }
-
     function renderList(container, data, type, templateFunction) {
         if (!container) {
             console.error(`Container não encontrado para: ${type}`);
@@ -2870,63 +1857,6 @@
             container.appendChild(card);
         });
     }
-
-    // ========== FUNÇÕES DA GALERIA ==========
-    function openGallery(eventId, photoIndex = 0) {
-        const event = events.find(e => e.id == eventId);
-        if (!event || !event.photos || event.photos.length === 0) return;
-        
-        currentGalleryEvent = event;
-        currentPhotoIndex = photoIndex;
-        
-        showPhoto();
-        galleryModal.style.display = 'flex';
-        
-        // Previne scroll do body quando a galeria está aberta
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeGallery() {
-        galleryModal.style.display = 'none';
-        currentGalleryEvent = null;
-        currentPhotoIndex = 0;
-        
-        // Restaura scroll do body
-        document.body.style.overflow = '';
-    }
-
-    function showPhoto() {
-        if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
-        
-        const photos = currentGalleryEvent.photos;
-        if (photos.length === 0) return;
-        
-        galleryImage.src = photos[currentPhotoIndex];
-        galleryCounter.textContent = `${currentPhotoIndex + 1} / ${photos.length}`;
-    }
-
-    function nextPhoto() {
-        if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
-        
-        const photos = currentGalleryEvent.photos;
-        currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
-        showPhoto();
-    }
-
-    function prevPhoto() {
-        if (!currentGalleryEvent || !currentGalleryEvent.photos) return;
-        
-        const photos = currentGalleryEvent.photos;
-        currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
-        showPhoto();
-    }
-
-    // Fechar galeria com ESC
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && galleryModal.style.display === 'flex') {
-            closeGallery();
-        }
-    });
 
     // ========== FUNÇÕES AUXILIARES ==========
     function updateSyncStatus(online) {
@@ -3004,6 +1934,124 @@
         }, 5000);
     }
 
+    // ========== FUNÇÕES DE USUÁRIO E LOGIN ==========
+    function showUserLoginModal(eventId = null) {
+        const modal = document.getElementById('userLoginModal');
+        modal.style.display = 'flex';
+        
+        // Armazena o ID do evento para usar após o login
+        if (eventId) {
+            modal.dataset.eventId = eventId;
+        }
+    }
+
+    function hideUserLoginModal() {
+        const modal = document.getElementById('userLoginModal');
+        modal.style.display = 'none';
+    }
+
+    function isCurrentUserAdmin() {
+        return currentUser && currentUser.is_admin === true;
+    }
+
+    function populateUserSelect() {
+        const userSelect = document.getElementById('userSelect');
+        if (!userSelect) return;
+        
+        userSelect.innerHTML = '<option value="">Selecione um usuário...</option>';
+        
+        users.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.id;
+            option.textContent = `${user.name} (${user.is_admin ? 'Admin' : 'Usuário'})`;
+            userSelect.appendChild(option);
+        });
+    }
+
+    // ========== FUNÇÕES DE ADMINISTRAÇÃO ==========
+    async function executeAdminAction() {
+        const password = document.getElementById('adminPassword').value;
+        const action = document.getElementById('adminAction').value;
+        const userId = document.getElementById('userSelect').value;
+        
+        if (!password) {
+            showMessage('Por favor, insira a senha de administrador.', 'error');
+            return;
+        }
+        
+        if (password !== adminPassword) {
+            showMessage('Senha de administrador incorreta.', 'error');
+            return;
+        }
+        
+        if (!action) {
+            showMessage('Por favor, selecione uma ação.', 'error');
+            return;
+        }
+        
+        if (!userId) {
+            showMessage('Por favor, selecione um usuário.', 'error');
+            return;
+        }
+        
+        const user = users.find(u => u.id == userId);
+        if (!user) {
+            showMessage('Usuário não encontrado.', 'error');
+            return;
+        }
+        
+        try {
+            showButtonLoading(document.getElementById('adminSubmitBtn'), true);
+            
+            let success = false;
+            let message = '';
+            
+            switch(action) {
+                case 'promote':
+                    if (user.is_admin) {
+                        showMessage('Este usuário já é um administrador.', 'warning');
+                        return;
+                    }
+                    
+                    user.is_admin = true;
+                    success = await saveData('users', { is_admin: true }, 'adminSubmitBtn', userId);
+                    message = 'Usuário promovido a administrador com sucesso!';
+                    break;
+                    
+                case 'demote':
+                    if (!user.is_admin) {
+                        showMessage('Este usuário não é um administrador.', 'warning');
+                        return;
+                    }
+                    
+                    user.is_admin = false;
+                    success = await saveData('users', { is_admin: false }, 'adminSubmitBtn', userId);
+                    message = 'Administrador rebaixado a usuário com sucesso!';
+                    break;
+                    
+                case 'delete':
+                    await deleteItem('users', userId);
+                    success = true;
+                    message = 'Usuário excluído com sucesso!';
+                    break;
+            }
+            
+            if (success) {
+                showMessage(message, 'success');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminAction').value = '';
+                document.getElementById('userSelect').value = '';
+                document.getElementById('userSelectContainer').style.display = 'none';
+            }
+            
+        } catch (error) {
+            console.error('Erro ao executar ação de administração:', error);
+            showMessage('Erro ao executar ação: ' + error.message, 'error');
+        } finally {
+            showButtonLoading(document.getElementById('adminSubmitBtn'), false);
+        }
+    }
+
     // ========== CONFIGURAÇÃO DE EVENTOS ==========
     function setupEventListeners() {
         // Tab switching
@@ -3026,49 +2074,41 @@
             });
         });
 
-        // Image upload handlers
-        setupImageUpload('memberPhoto', 'memberPhotoPreview');
-        setupImageUpload('darceiroPhoto', 'darceiroPhotoPreview');
-        setupImageUpload('sponsorLogo', 'sponsorLogoPreview');
-        setupMultiplePhotosUpload();
-
         // Form submissions
-        if (memberForm) {
-            memberForm.addEventListener('submit', async function(e) {
+        if (document.getElementById('userRegistrationForm')) {
+            document.getElementById('userRegistrationForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                console.log('📝 Enviando formulário de membro');
-                console.log(`🆔 currentEditingMemberId: ${currentEditingMemberId}`);
+                console.log('📝 Enviando formulário de usuário');
+                console.log(`🆔 currentEditingUserId: ${currentEditingUserId}`);
                 
-                const memberPhotoInput = document.getElementById('memberPhoto');
-                const memberPhotoFile = memberPhotoInput.files[0];
-                
-                const memberData = {
-                    name: document.getElementById('memberName')?.value || '',
-                    email: document.getElementById('memberEmail')?.value || '',
-                    phone: document.getElementById('memberPhone')?.value || '',
-                    role: document.getElementById('memberRole')?.value || '',
-                    bio: document.getElementById('memberBio')?.value || ''
+                const userData = {
+                    name: document.getElementById('userName')?.value || '',
+                    email: document.getElementById('userEmail')?.value || '',
+                    phone: document.getElementById('userPhone')?.value || '',
+                    role: document.getElementById('userRole')?.value || '',
+                    bio: document.getElementById('userBio')?.value || '',
+                    is_admin: false // Por padrão, novos usuários não são administradores
                 };
                 
-                console.log('📊 Dados do membro:', memberData);
+                console.log('📊 Dados do usuário:', userData);
                 
                 // Verifica se todos os campos obrigatórios estão preenchidos
-                if (!memberData.name || !memberData.email || !memberData.role) {
+                if (!userData.name || !userData.email || !userData.role) {
                     showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Email e Cargo).', 'error');
                     return;
                 }
                 
-                const success = await saveData('members', memberData, memberPhotoFile, STORAGE_BUCKETS.MEMBERS, 'memberSubmitBtn', currentEditingMemberId);
+                const success = await saveData('users', userData, 'userSubmitBtn', currentEditingUserId);
                 
                 if (success) {
-                    resetForm('member');
+                    resetForm('user');
                 }
             });
         }
 
-        if (eventForm) {
-            eventForm.addEventListener('submit', async function(e) {
+        if (document.getElementById('eventRegistrationForm')) {
+            document.getElementById('eventRegistrationForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const eventData = {
@@ -3085,62 +2125,66 @@
                     return;
                 }
                 
-                // Usa o array global de fotos do evento
-                await saveData('events', eventData, eventPhotosFiles, STORAGE_BUCKETS.EVENTS, 'eventSubmitBtn', currentEditingEventId);
+                await saveData('events', eventData, 'eventSubmitBtn', currentEditingEventId);
                 resetForm('event');
             });
         }
 
-        if (darceiroForm) {
-            darceiroForm.addEventListener('submit', async function(e) {
+        // User login form
+        if (document.getElementById('userLoginForm')) {
+            document.getElementById('userLoginForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const darceiroPhotoInput = document.getElementById('darceiroPhoto');
-                const darceiroPhotoFile = darceiroPhotoInput.files[0];
+                const userName = document.getElementById('userName').value;
+                const userEmail = document.getElementById('userEmail').value;
                 
-                const darceiroData = {
-                    name: document.getElementById('darceiroName')?.value || '',
-                    type: document.getElementById('darceiroType')?.value || '',
-                    contact: document.getElementById('darceiroContact')?.value || '',
-                    website: document.getElementById('darceiroWebsite')?.value || '',
-                    description: document.getElementById('darceiroDescription')?.value || ''
-                };
-                
-                // Verifica se todos os campos obrigatórios estão preenchidos
-                if (!darceiroData.name || !darceiroData.type || !darceiroData.contact) {
-                    showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
+                if (!userName) {
+                    showMessage('Por favor, digite seu nome.', 'error');
                     return;
                 }
                 
-                await saveData('darceiros', darceiroData, darceiroPhotoFile, STORAGE_BUCKETS.DARCEIROS, 'darceiroSubmitBtn', currentEditingDarceiroId);
-                resetForm('darceiro');
+                // Cria o usuário atual
+                currentUser = {
+                    id: 'user_' + Date.now(),
+                    name: userName,
+                    email: userEmail,
+                    is_admin: false
+                };
+                
+                // Salva no localStorage
+                const currentUsers = loadFromLocalStorage('current_users') || [];
+                currentUsers.push(currentUser);
+                saveToLocalStorage('current_users', currentUsers);
+                
+                showMessage(`Bem-vindo, ${userName}!`, 'success');
+                hideUserLoginModal();
+                
+                // Se havia um evento para o chat, abre o chat
+                const modal = document.getElementById('userLoginModal');
+                if (modal.dataset.eventId) {
+                    const eventId = modal.dataset.eventId;
+                    toggleEventChat(eventId);
+                    delete modal.dataset.eventId;
+                }
             });
         }
 
-        if (sponsorForm) {
-            sponsorForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
+        // Admin action form
+        if (document.getElementById('adminAction')) {
+            document.getElementById('adminAction').addEventListener('change', function() {
+                const action = this.value;
+                const userSelectContainer = document.getElementById('userSelectContainer');
                 
-                const sponsorLogoInput = document.getElementById('sponsorLogo');
-                const sponsorLogoFile = sponsorLogoInput.files[0];
-                
-                const sponsorData = {
-                    name: document.getElementById('sponsorName')?.value || '',
-                    level: document.getElementById('sponsorLevel')?.value || '',
-                    contact: document.getElementById('sponsorContact')?.value || '',
-                    website: document.getElementById('sponsorWebsite')?.value || '',
-                    description: document.getElementById('sponsorDescription')?.value || ''
-                };
-                
-                // Verifica se todos os campos obrigatórios estão preenchidos
-                if (!sponsorData.name || !sponsorData.level || !sponsorData.contact) {
-                    showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
-                    return;
+                if (action) {
+                    userSelectContainer.style.display = 'block';
+                } else {
+                    userSelectContainer.style.display = 'none';
                 }
-                
-                await saveData('sponsors', sponsorData, sponsorLogoFile, STORAGE_BUCKETS.SPONSORS, 'sponsorSubmitBtn', currentEditingSponsorId);
-                resetForm('sponsor');
             });
+        }
+
+        if (document.getElementById('adminSubmitBtn')) {
+            document.getElementById('adminSubmitBtn').addEventListener('click', executeAdminAction);
         }
 
         // Mobile menu
@@ -3173,213 +2217,43 @@
     }
 
     function resetForm(type) {
-        let form, preview, fileInput, submitText, photosPreview;
+        let form, submitText;
         
         switch(type) {
-            case 'member':
-                form = memberForm;
-                preview = document.getElementById('memberPhotoPreview');
-                fileInput = document.getElementById('memberPhoto');
-                submitText = document.getElementById('memberSubmitText');
-                currentEditingMemberId = null;
+            case 'user':
+                form = document.getElementById('userRegistrationForm');
+                submitText = document.getElementById('userSubmitText');
+                currentEditingUserId = null;
                 break;
             case 'event':
-                form = eventForm;
-                preview = document.getElementById('eventPhotosPreview');
-                fileInput = document.getElementById('eventPhotos');
+                form = document.getElementById('eventRegistrationForm');
                 submitText = document.getElementById('eventSubmitText');
-                eventPhotosFiles = [];
                 currentEditingEventId = null;
-                break;
-            case 'darceiro':
-                form = darceiroForm;
-                preview = document.getElementById('darceiroPhotoPreview');
-                fileInput = document.getElementById('darceiroPhoto');
-                submitText = document.getElementById('darceiroSubmitText');
-                currentEditingDarceiroId = null;
-                break;
-            case 'sponsor':
-                form = sponsorForm;
-                preview = document.getElementById('sponsorLogoPreview');
-                fileInput = document.getElementById('sponsorLogo');
-                submitText = document.getElementById('sponsorSubmitText');
-                currentEditingSponsorId = null;
                 break;
         }
         
         if (form) form.reset();
-        if (preview) {
-            if (type === 'event') {
-                preview.innerHTML = '';
-            } else {
-                preview.innerHTML = `<div class="placeholder">${type === 'sponsor' ? 'Logo do Patrocinador' : type === 'darceiro' ? 'Logo/Foto' : 'Foto do Membro'}</div>`;
-            }
-        }
-        if (fileInput) fileInput.value = '';
         if (submitText) submitText.textContent = `Cadastrar ${getEntityName(type)}`;
         
         console.log(`✅ Formulário ${type} resetado e IDs de edição limpos`);
     }
 
     function resetEditingIds() {
-        currentEditingMemberId = null;
+        currentEditingUserId = null;
         currentEditingEventId = null;
-        currentEditingDarceiroId = null;
-        currentEditingSponsorId = null;
         
         // Reseta os textos dos botões
-        document.getElementById('memberSubmitText').textContent = 'Cadastrar Membro';
+        document.getElementById('userSubmitText').textContent = 'Cadastrar Usuário';
         document.getElementById('eventSubmitText').textContent = 'Cadastrar Evento';
-        document.getElementById('darceiroSubmitText').textContent = 'Cadastrar Parceiro';
-        document.getElementById('sponsorSubmitText').textContent = 'Cadastrar Patrocinador';
-    }
-
-    function setupImageUpload(inputId, previewId) {
-        const input = document.getElementById(inputId);
-        const preview = document.getElementById(previewId);
-        
-        if (!input || !preview) return;
-        
-        input.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                if (!file.type.startsWith('image/')) {
-                    showMessage('Por favor, selecione um arquivo de imagem.', 'error');
-                    return;
-                }
-                
-                if (file.size > 5 * 1024 * 1024) {
-                    showMessage('A imagem deve ter menos de 5MB.', 'error');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                };
-                reader.onerror = function() {
-                    showMessage('Erro ao carregar a imagem.', 'error');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    function setupMultiplePhotosUpload() {
-        const input = document.getElementById('eventPhotos');
-        const preview = document.getElementById('eventPhotosPreview');
-        const uploadArea = document.getElementById('eventPhotosUploadArea');
-        
-        if (!input || !preview || !uploadArea) return;
-        
-        // Clique na área de upload
-        uploadArea.addEventListener('click', () => {
-            input.click();
-        });
-        
-        // Arrastar e soltar
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#3498db';
-            uploadArea.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
-        });
-        
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = '#ddd';
-            uploadArea.style.backgroundColor = '';
-        });
-        
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#ddd';
-            uploadArea.style.backgroundColor = '';
-            
-            const files = e.dataTransfer.files;
-            handleMultiplePhotos(files);
-        });
-        
-        // Mudança no input de arquivo
-        input.addEventListener('change', (e) => {
-            handleMultiplePhotos(e.target.files);
-        });
-        
-        function handleMultiplePhotos(files) {
-            const validFiles = Array.from(files).filter(file => 
-                file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024
-            );
-            
-            if (validFiles.length === 0) {
-                showMessage('Por favor, selecione apenas imagens válidas (máx. 5MB cada).', 'error');
-                return;
-            }
-            
-            // Limita a 10 fotos
-            const filesToProcess = validFiles.slice(0, 10);
-            
-            // Adiciona ao array global
-            eventPhotosFiles = [...eventPhotosFiles, ...filesToProcess].slice(0, 10);
-            
-            // Atualiza o preview
-            preview.innerHTML = '';
-            eventPhotosFiles.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const photoItem = document.createElement('div');
-                    photoItem.className = 'photo-preview-item';
-                    photoItem.innerHTML = `
-                        <img src="${e.target.result}" alt="Preview">
-                        <button type="button" class="remove-photo" onclick="removeEventPhoto(${index})">×</button>
-                    `;
-                    preview.appendChild(photoItem);
-                };
-                reader.readAsDataURL(file);
-            });
-            
-            if (validFiles.length > 10) {
-                showMessage('Apenas as primeiras 10 fotos serão processadas.', 'warning');
-            }
-            
-            showMessage(`${filesToProcess.length} foto(s) adicionada(s) ao evento!`, 'success');
-        }
-    }
-
-    // Função para remover foto do evento
-    function removeEventPhoto(index) {
-        eventPhotosFiles.splice(index, 1);
-        
-        // Atualiza o preview
-        const preview = document.getElementById('eventPhotosPreview');
-        preview.innerHTML = '';
-        eventPhotosFiles.forEach((file, newIndex) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const photoItem = document.createElement('div');
-                photoItem.className = 'photo-preview-item';
-                photoItem.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview">
-                    <button type="button" class="remove-photo" onclick="removeEventPhoto(${newIndex})">×</button>
-                `;
-                preview.appendChild(photoItem);
-            };
-            reader.readAsDataURL(file);
-        });
     }
 
     // Funções de exclusão específicas
-    async function deleteMember(memberId) {
-        await deleteItem('members', memberId);
+    async function deleteUser(userId) {
+        await deleteItem('users', userId);
     }
 
     async function deleteEvent(eventId) {
         await deleteItem('events', eventId);
-    }
-
-    async function deleteDarceiro(darceiroId) {
-        await deleteItem('darceiros', darceiroId);
-    }
-
-    async function deleteSponsor(sponsorId) {
-        await deleteItem('sponsors', sponsorId);
     }
 
     // ========== INICIALIZAÇÃO ==========
@@ -3388,21 +2262,19 @@
             console.log('Inicializando aplicação...');
             const supabaseInitialized = await initializeSupabase();
             
-            // Inicializa o usuário atual
-            currentUser = {
-                id: 'user_' + Date.now(),
-                name: 'Usuário Anônimo',
-                photo: null
-            };
+            // Verifica se há usuário atual salvo
+            const currentUsers = loadFromLocalStorage('current_users') || [];
+            if (currentUsers.length > 0) {
+                currentUser = currentUsers[currentUsers.length - 1];
+                console.log('Usuário atual recuperado:', currentUser);
+            }
             
             setupEventListeners();
             
             // Carrega dados e chats
             await Promise.all([
-                loadMembers(),
+                loadUsers(),
                 loadEvents(),
-                loadDarceiros(),
-                loadSponsors(),
                 loadEventChats()
             ]);
             
@@ -3414,10 +2286,8 @@
             
             setInterval(async () => {
                 if (isOnline && navigator.onLine) {
-                    await loadMembers();
+                    await loadUsers();
                     await loadEvents();
-                    await loadDarceiros();
-                    await loadSponsors();
                     await loadEventChats();
                 }
             }, 30000);
@@ -3453,11 +2323,3 @@
     
 </body>
 </html>
-
-
-
-
-
-
-
-
