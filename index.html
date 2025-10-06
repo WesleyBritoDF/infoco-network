@@ -1157,6 +1157,14 @@
                 font-size: 1.2rem;
             }
         }
+        /* Adicione ao seu CSS existente */
+            .admin-access-btn.logout {
+                background-color: var(--accent-color);
+            }
+            
+            .admin-access-btn.logout:hover {
+                background-color: #c53030;
+            }
     </style>
 </head>
 <body>
@@ -1289,7 +1297,7 @@
         </section>
 
         <!-- Registration Section -->
-        <section id="cadastro">
+        <section id="cadastro" style="display: none;">
             <h2 class="section-title">Cadastro</h2>
             <div class="tabs">
                 <div class="tab active" data-tab="member">Cadastrar Membro</div>
@@ -3017,52 +3025,59 @@
     }
 
     // ========== INICIALIZAÇÃO ==========
-    async function initializeApp() {
-        try {
-            console.log('🚀 Inicializando aplicação...');
-            
-            // Inicializa variáveis globais
-            users = [];
-            members = [];
-            events = [];
-            eventChats = {};
-            eventPhotosFiles = [];
-            
-            const supabaseInitialized = await initializeSupabase();
-            
-            // Verifica se há usuário atual salvo
-            const currentUsers = loadFromLocalStorage('current_users') || [];
-            if (currentUsers.length > 0) {
-                currentUser = currentUsers[currentUsers.length - 1];
-                console.log('👤 Usuário atual recuperado:', currentUser);
-            }
-            
-            setupEventListeners();
-            
-            // Carrega dados
-            console.log('📥 Carregando dados...');
-            await Promise.all([
-                loadUsers(),
-                loadMembers(),
-                loadEvents(),
-                loadEventChats()
-            ]);
-            
-            // Verifica status dos buckets (apenas para debug)
-            if (supabaseInitialized) {
-                await checkBucketStatus();
-                showMessage('✅ Sistema conectado ao PostgreSQL!', 'success');
-            } else {
-                showMessage('📴 Sistema em modo offline. Dados salvos localmente.', 'warning');
-            }
-            
-            console.log('🎉 Aplicação inicializada com sucesso!');
-            
-        } catch (error) {
-            console.error('❌ Erro na inicialização do app:', error);
-            showMessage('❌ Erro ao inicializar o sistema: ' + error.message, 'error');
+    // ========== INICIALIZAÇÃO ==========
+async function initializeApp() {
+    try {
+        console.log('🚀 Inicializando aplicação...');
+        
+        // Inicializa variáveis globais
+        users = [];
+        members = [];
+        events = [];
+        eventChats = {};
+        eventPhotosFiles = [];
+        
+        const supabaseInitialized = await initializeSupabase();
+        
+        // Verifica se há usuário atual salvo
+        const currentUsers = loadFromLocalStorage('current_users') || [];
+        if (currentUsers.length > 0) {
+            currentUser = currentUsers[currentUsers.length - 1];
+            console.log('👤 Usuário atual recuperado:', currentUser);
         }
+        
+        // Adiciona botão de logout
+        addLogoutButton();
+        
+        setupEventListeners();
+        
+        // Carrega dados
+        console.log('📥 Carregando dados...');
+        await Promise.all([
+            loadUsers(),
+            loadMembers(),
+            loadEvents(),
+            loadEventChats()
+        ]);
+        
+        // Atualiza a UI baseado no tipo de usuário
+        updateUIForAdmin();
+        
+        // Verifica status dos buckets (apenas para debug)
+        if (supabaseInitialized) {
+            await checkBucketStatus();
+            showMessage('✅ Sistema conectado ao PostgreSQL!', 'success');
+        } else {
+            showMessage('📴 Sistema em modo offline. Dados salvos localmente.', 'warning');
+        }
+        
+        console.log('🎉 Aplicação inicializada com sucesso!');
+        
+    } catch (error) {
+        console.error('❌ Erro na inicialização do app:', error);
+        showMessage('❌ Erro ao inicializar o sistema: ' + error.message, 'error');
     }
+}
 
     // Inicia a aplicação quando o DOM estiver pronto
     if (document.readyState === 'loading') {
@@ -3072,7 +3087,174 @@
     } else {
         setTimeout(initializeApp, 100);
     }
+// ========== CONTROLE DE VISIBILIDADE PARA ADMIN ==========
+function updateUIForAdmin() {
+    const isAdmin = isCurrentUserAdmin();
+    const cadastroSection = document.getElementById('cadastro');
+    const cadastroMenu = document.getElementById('cadastroMenu');
+    
+    if (cadastroSection) {
+        cadastroSection.style.display = isAdmin ? 'block' : 'none';
+    }
+    
+    if (cadastroMenu) {
+        cadastroMenu.style.display = isAdmin ? 'list-item' : 'none';
+    }
+    
+    // Recarrega as listas para mostrar/ocultar botões de edição
+    if (membersList) renderMembers();
+    if (eventsList) renderEvents();
+    
+    console.log('👤 Interface atualizada para:', isAdmin ? 'Administrador' : 'Usuário Normal');
+}
+
+// Modifique a função de login do admin para chamar a atualização da UI
+if (document.getElementById('adminLoginForm')) {
+    document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const password = document.getElementById('adminLoginPassword').value;
+        
+        if (!password) {
+            showMessage('Por favor, digite a senha de administrador.', 'error');
+            return;
+        }
+        
+        if (password !== adminPassword) {
+            showMessage('Senha de administrador incorreta.', 'error');
+            return;
+        }
+        
+        // Se não há usuário atual, cria um
+        if (!currentUser) {
+            currentUser = {
+                id: 'admin_' + Date.now(),
+                name: 'Administrador',
+                email: 'admin@system.com',
+                is_admin: true
+            };
+        } else {
+            currentUser.is_admin = true;
+        }
+        
+        const currentUsers = loadFromLocalStorage('current_users') || [];
+        currentUsers.push(currentUser);
+        saveToLocalStorage('current_users', currentUsers);
+        
+        showMessage('✅ Acesso de administrador concedido! Agora você pode cadastrar e gerenciar itens.', 'success');
+        hideAdminLoginModal();
+        
+        // Atualiza a UI para mostrar as seções de admin
+        updateUIForAdmin();
+    });
+}
+
+// Modifique a função de login de usuário normal
+if (document.getElementById('userLoginForm')) {
+    document.getElementById('userLoginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const userName = document.getElementById('userName').value;
+        const userEmail = document.getElementById('userEmail').value;
+        
+        if (!userName) {
+            showMessage('Por favor, digite seu nome.', 'error');
+            return;
+        }
+        
+        currentUser = {
+            id: 'user_' + Date.now(),
+            name: userName,
+            email: userEmail,
+            is_admin: false
+        };
+        
+        const currentUsers = loadFromLocalStorage('current_users') || [];
+        currentUsers.push(currentUser);
+        saveToLocalStorage('current_users', currentUsers);
+        
+        showMessage(`Bem-vindo, ${userName}!`, 'success');
+        hideUserLoginModal();
+        
+        // Atualiza a UI para usuário normal
+        updateUIForAdmin();
+        
+        const modal = document.getElementById('userLoginModal');
+        if (modal.dataset.eventId) {
+            const eventId = modal.dataset.eventId;
+            toggleEventChat(eventId);
+            delete modal.dataset.eventId;
+        }
+    });
+}
+    // Função para logout
+function logout() {
+    currentUser = null;
+    const currentUsers = loadFromLocalStorage('current_users') || [];
+    // Remove o último usuário (mais recente)
+    if (currentUsers.length > 0) {
+        currentUsers.pop();
+        saveToLocalStorage('current_users', currentUsers);
+    }
+    
+    showMessage('👋 Logout realizado com sucesso!', 'success');
+    updateUIForAdmin();
+}
+
+// Adicione um botão de logout no header (opcional)
+function addLogoutButton() {
+    const headerContent = document.querySelector('.header-content');
+    const adminAccessBtn = document.querySelector('.admin-access-btn');
+    
+    if (headerContent && !document.getElementById('logoutBtn')) {
+        const logoutBtn = document.createElement('button');
+        logoutBtn.id = 'logoutBtn';
+        logoutBtn.className = 'admin-access-btn';
+        logoutBtn.style.display = 'none';
+        logoutBtn.style.marginLeft = '10px';
+        logoutBtn.style.backgroundColor = 'var(--accent-color)';
+        logoutBtn.innerHTML = '🚪 Sair';
+        logoutBtn.onclick = logout;
+        
+        adminAccessBtn.parentNode.insertBefore(logoutBtn, adminAccessBtn.nextSibling);
+    }
+}
+
+// Atualize a função updateUIForAdmin para controlar o botão de logout
+function updateUIForAdmin() {
+    const isAdmin = isCurrentUserAdmin();
+    const cadastroSection = document.getElementById('cadastro');
+    const cadastroMenu = document.getElementById('cadastroMenu');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const adminAccessBtn = document.querySelector('.admin-access-btn');
+    
+    // Controle da seção de cadastro
+    if (cadastroSection) {
+        cadastroSection.style.display = isAdmin ? 'block' : 'none';
+    }
+    
+    // Controle do menu de cadastro
+    if (cadastroMenu) {
+        cadastroMenu.style.display = isAdmin ? 'list-item' : 'none';
+    }
+    
+    // Controle dos botões
+    if (logoutBtn) {
+        logoutBtn.style.display = currentUser ? 'inline-block' : 'none';
+    }
+    
+    if (adminAccessBtn) {
+        adminAccessBtn.style.display = currentUser ? 'none' : 'inline-block';
+    }
+    
+    // Recarrega as listas para mostrar/ocultar botões de edição
+    if (membersList) renderMembers();
+    if (eventsList) renderEvents();
+    
+    console.log('👤 Interface atualizada para:', isAdmin ? 'Administrador' : currentUser ? 'Usuário Normal' : 'Visitante');
+}
 </script>
     
 </body>
 </html>
+
