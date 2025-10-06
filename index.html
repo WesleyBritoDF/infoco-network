@@ -64,6 +64,146 @@
         .logo {
             display: flex;
             align-items: center;
+            gap: 15px;
+        }
+
+        .logo-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: var(--shadow);
+        }
+
+        .logo-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        .logo span {
+            color: #63b3ed;
+        }
+
+        .logo h2 {
+            margin: 3px 0 0 0;
+            font-size: 10px;
+            color: #ffffff;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 0;
+            position: relative;
+        }
+
+        nav a:hover {
+            color: #90cdf4;
+        }
+
+        nav a.active {
+            color: #90cdf4;
+        }
+
+        nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #90cdf4;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #2b6cb0;
+            --accent-color: #e53e3e;
+            --light-color: #f7fafc;
+            --dark-color: #2d3748;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --sponsor-color: #805ad5;
+            --darceiro-color: #319795;
+            --chat-color: #4a5568;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
 
@@ -1092,13 +1232,16 @@
     <header>
         <div class="container">
             <div class="header-content">
-               <div class="logo" style="text-align: center; line-height: 1.4;">
-                    <h1 style="margin: 0; font-size: 28px; color: #fffffff; letter-spacing: 1px;">
-                        NETWORK <span style="color: #ffffff;">IN FOCO </span>
-                    </h1>
-                    <h2 style="margin: 5px 0 0 0; font-size: 10px; color: #fffffff; font-weight: normal;">
-                        Versão 3 <b>develop</b> | © 2025
-                    </h2>
+                <div class="logo">
+                    <div class="logo-image">
+                        <img src="https://jywmvnxurbtziixntuuq.supabase.co/storage/v1/object/public/Imagens/Logotipo.jpeg" 
+                             alt="NETWORK IN FOCO Logo" 
+                             onerror="this.src='https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'">
+                    </div>
+                    <div class="logo-text">
+                        <h1>NETWORK <span>IN FOCO</span></h1>
+                        <h2>Versão 3 <b>develop</b> | © 2025</h2>
+                    </div>
                 </div>
                 <button class="mobile-menu-btn">☰</button>
                 <nav>
@@ -1407,8 +1550,12 @@
         MEMBERS: 'members-photos',
         DARCEIROS: 'darceiros-photos',
         SPONSORS: 'sponsors-logos',
-        EVENTS: 'events-photos'
+        EVENTS: 'events-photos',
+        IMAGENS: 'Imagens' // Novo bucket para imagens gerais
     };
+
+    // URL do logotipo
+    const LOGO_URL = 'https://jywmvnxurbtziixntuuq.supabase.co/storage/v1/object/public/Imagens/Logotipo.jpeg';
 
     // Variáveis globais
     let supabase;
@@ -1430,6 +1577,113 @@
     // Variáveis para chat
     let eventChats = {};
     let currentUser = null;
+
+    // ========== FUNÇÃO PARA CARREGAR LOGOTIPO ==========
+    async function loadLogo() {
+        try {
+            const logoImg = document.querySelector('.logo-image img');
+            if (logoImg) {
+                // Testa se a imagem carrega corretamente
+                logoImg.onerror = function() {
+                    console.log('❌ Logotipo não encontrado, usando imagem padrão');
+                    this.src = 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+                };
+                
+                // Força o carregamento da imagem
+                logoImg.src = LOGO_URL + '?t=' + new Date().getTime();
+                
+                console.log('✅ Tentando carregar logotipo:', LOGO_URL);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar logotipo:', error);
+        }
+    }
+
+    // ========== INICIALIZAÇÃO DO SUPABASE ==========
+    async function initializeSupabase() {
+        try {
+            if (typeof window.supabase !== 'undefined') {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase inicializado com sucesso!');
+                
+                // Testa a conexão
+                const { data, error } = await supabase.from('members').select('count').limit(1);
+                if (error) throw error;
+                
+                return true;
+            } else {
+                throw new Error('Biblioteca Supabase não carregada');
+            }
+        } catch (error) {
+            console.error('Erro ao inicializar Supabase:', error);
+            setupOfflineMode();
+            return false;
+        }
+    }
+
+    // ========== INICIALIZAÇÃO ==========
+    async function initializeApp() {
+        try {
+            console.log('Inicializando aplicação...');
+            const supabaseInitialized = await initializeSupabase();
+            
+            // Carrega o logotipo
+            await loadLogo();
+            
+            // Inicializa o usuário atual
+            currentUser = {
+                id: 'user_' + Date.now(),
+                name: 'Usuário Anônimo',
+                photo: null
+            };
+            
+            setupEventListeners();
+            
+            // Carrega dados e chats
+            await Promise.all([
+                loadMembers(),
+                loadEvents(),
+                loadDarceiros(),
+                loadSponsors(),
+                loadEventChats()
+            ]);
+            
+            if (supabaseInitialized) {
+                showMessage('Sistema conectado ao PostgreSQL!', 'success');
+            } else {
+                showMessage('Sistema em modo offline. Dados salvos localmente.', 'warning');
+            }
+            
+            setInterval(async () => {
+                if (isOnline && navigator.onLine) {
+                    await loadMembers();
+                    await loadEvents();
+                    await loadDarceiros();
+                    await loadSponsors();
+                    await loadEventChats();
+                }
+            }, 30000);
+            
+            window.addEventListener('online', async () => {
+                if (!isOnline) {
+                    isOnline = true;
+                    updateSyncStatus(true);
+                    showMessage('Conexão restaurada!', 'success');
+                    await initializeSupabase();
+                }
+            });
+            
+            window.addEventListener('offline', () => {
+                isOnline = false;
+                updateSyncStatus(false);
+                showMessage('Conexão perdida. Modo offline ativado.', 'warning');
+            });
+            
+        } catch (error) {
+            console.error('Erro na inicialização do app:', error);
+            showMessage('Erro ao inicializar o sistema.', 'error');
+        }
+    }
 
     // ========== DOM ELEMENTS ==========
     const membersList = document.getElementById('members-list');
@@ -3199,3 +3453,4 @@
     
 </body>
 </html>
+
