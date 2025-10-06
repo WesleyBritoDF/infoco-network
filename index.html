@@ -7,9 +7,1088 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0/dist/umd/supabase.min.js"></script>
     <title>NETWORK IN FOCO - Sistema Completo</title>
     <style>
-        /* Mantenha todo o CSS existente aqui */
-        /* Adicionando apenas os estilos novos necessários */
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #2b6cb0;
+            --accent-color: #e53e3e;
+            --light-color: #f7fafc;
+            --dark-color: #2d3748;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --admin-color: #805ad5;
+            --user-color: #319795;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .logo-image {
+            width: 135px;
+            height: 135px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
         
+        .logo-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }    
+       
+        .logo-image:hover {
+            transform: scale(1.05);
+            border-color: rgba(255,255,255,0.4);
+        }
+    
+        .logo h2 {
+            margin: 0;
+            font-size: 10px;
+            color: #ffffff;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+
+        .logo span {
+            color: #63b3ed;
+        }
+
+        .admin-access-btn {
+            background: var(--admin-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .admin-access-btn:hover {
+            background: #6b46c1;
+            transform: translateY(-2px);
+        }
+
+        .admin-access-btn.logout {
+            background-color: var(--accent-color);
+        }
+        
+        .admin-access-btn.logout:hover {
+            background-color: #c53030;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 0;
+            position: relative;
+            cursor: pointer;
+        }
+
+        nav a:hover {
+            color: #90cdf4;
+        }
+
+        nav a.active {
+            color: #90cdf4;
+        }
+
+        nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #90cdf4;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="%23ffffff" opacity="0.05"><polygon points="0,0 1000,50 1000,100 0,100"/></svg>');
+            background-size: cover;
+        }
+
+        .hero h2 {
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+            opacity: 0.9;
+            position: relative;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.9rem 1.8rem;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            background-color: #c53030;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-admin {
+            background-color: var(--admin-color);
+        }
+
+        .btn-admin:hover {
+            background-color: #6b46c1;
+        }
+
+        .btn-user {
+            background-color: var(--user-color);
+        }
+
+        .btn-user:hover {
+            background-color: #2c7a7b;
+        }
+
+        /* Main Content */
+        main {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(to right, var(--secondary-color), var(--accent-color));
+            margin: 0.8rem auto;
+            border-radius: 2px;
+        }
+
+        .section-title.admin::after {
+            background: linear-gradient(to right, var(--admin-color), #9f7aea);
+        }
+
+        .section-title.user::after {
+            background: linear-gradient(to right, var(--user-color), #4fd1c7);
+        }
+
+        /* Forms */
+        .form-container {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.9rem;
+            border: 1px solid #cbd5e0;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: #f7fafc;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+            background-color: white;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Image Upload */
+        .image-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .image-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border: 4px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            box-shadow: var(--shadow);
+        }
+
+        .image-preview.sponsor {
+            border-radius: var(--radius);
+            width: 200px;
+            height: 120px;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview .placeholder {
+            color: #a0aec0;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .image-upload-btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.7rem 1.4rem;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-upload-btn:hover {
+            background-color: #2c5282;
+            transform: translateY(-1px);
+        }
+
+        .image-upload-input {
+            display: none;
+        }
+
+        /* Multiple Photos Upload */
+        .multiple-photos-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .photos-upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            background-color: #f8f9fa;
+        }
+
+        .photos-upload-area:hover {
+            border-color: var(--secondary-color);
+            background-color: rgba(66, 153, 225, 0.05);
+        }
+
+        .photos-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .photo-preview-item {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .photo-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-photo {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(229, 62, 62, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Event Gallery */
+        .event-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .event-gallery-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .event-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photos-info {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .view-photos-btn {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .view-photos-btn:hover {
+            background: #2c5282;
+        }
+
+        /* Gallery Modal */
+        .gallery-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10002;
+        }
+
+        .gallery-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .gallery-modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .gallery-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10003;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+        }
+
+        .gallery-modal-close:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+        }
+
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .gallery-nav:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .gallery-nav.prev {
+            left: 20px;
+        }
+
+        .gallery-nav.next {
+            right: 20px;
+        }
+
+        .gallery-counter {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        /* Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+            border: 1px solid #e2e8f0;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .card-action-btn {
+            background-color: rgba(45, 55, 72, 0.8);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+        }
+
+        .card-action-btn:hover {
+            background-color: rgba(45, 55, 72, 0.95);
+            transform: scale(1.1);
+        }
+
+        .card-action-btn.delete {
+            background-color: rgba(229, 62, 62, 0.9);
+        }
+
+        .card-action-btn.delete:hover {
+            background-color: rgba(197, 48, 48, 1);
+        }
+
+        .card-action-btn.edit {
+            background-color: rgba(66, 153, 225, 0.9);
+        }
+
+        .card-action-btn.edit:hover {
+            background-color: rgba(49, 130, 206, 1);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .card:hover .card-image img {
+            transform: scale(1.05);
+        }
+
+        .image-counter {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .past-event-indicator {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--accent-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            z-index: 5;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
+            color: white;
+        }
+
+        .card-header.admin {
+            background: linear-gradient(135deg, var(--admin-color) 0%, #9f7aea 100%);
+        }
+
+        .card-header.user {
+            background: linear-gradient(135deg, var(--user-color) 0%, #4fd1c7 100%);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-footer {
+            padding: 1rem 1.5rem;
+            background-color: #f8f9fa;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .user-role {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background-color: #e2e8f0;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .admin-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background-color: var(--admin-color);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .user-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background-color: var(--user-color);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            background-color: white;
+            border-radius: var(--radius) var(--radius) 0 0;
+            padding: 0 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab {
+            padding: 1.2rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+            color: #718096;
+        }
+
+        .tab.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+
+        .tab.admin.active {
+            color: var(--admin-color);
+            border-bottom-color: var(--admin-color);
+        }
+
+        .tab.user.active {
+            color: var(--user-color);
+            border-bottom-color: var(--user-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .success-message {
+            background-color: var(--success-color);
+            color: white;
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        /* Notifications and Sync */
+        .global-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+        }
+
+        .sync-status {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .sync-status.offline {
+            background: var(--accent-color);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .btn-loading {
+            display: none;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Chat Styles */
+        .event-chat-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .event-chat-container {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            margin-top: 1.5rem;
+        }
+
+        .event-chat-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-chat-header h4 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .event-chat-toggle {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: var(--radius);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .event-chat-toggle:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .event-chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            display: none;
+        }
+
+        .event-chat-messages.open {
+            display: block;
+        }
+
+        .event-message {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .event-message.sent {
+            align-items: flex-end;
+        }
+
+        .event-message.received {
+            align-items: flex-start;
+        }
+
+        .event-message-bubble {
+            max-width: 80%;
+            padding: 0.7rem 1rem;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .event-message.sent .event-message-bubble {
+            background: var(--secondary-color);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .event-message.received .event-message-bubble {
+            background: white;
+            color: var(--dark-color);
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .event-message-info {
+            font-size: 0.7rem;
+            color: #a0aec0;
+            margin-top: 0.3rem;
+        }
+
+        .event-chat-input-container {
+            display: none;
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .event-chat-input-container.open {
+            display: flex;
+        }
+
+        .event-chat-input {
+            flex: 1;
+            padding: 0.7rem;
+            border: 1px solid #cbd5e0;
+            border-radius: var(--radius);
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .event-chat-send-btn {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 0.7rem 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .event-chat-send-btn:hover {
+            background: #2c5282;
+        }
+
+        .no-chat-messages {
+            text-align: center;
+            color: #a0aec0;
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        /* User Login Modal */
+        .user-login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+        }
+
+        .user-login-content {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow);
+        }
+
+        .user-login-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .user-login-header h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary-color);
+            color: white;
+            padding: 3rem 0 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            color: #90cdf4;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid #2d3748;
+            color: #a0aec0;
+            font-size: 0.9rem;
+        }
+
         /* Estilos para separação de eventos */
         .events-container {
             margin-bottom: 3rem;
@@ -40,24 +1119,123 @@
             background-color: #f8f9fa;
             border-radius: var(--radius);
         }
-        
-        /* Melhorias para navegação */
-        nav a {
-            cursor: pointer;
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+                display: none;
+            }
+
+            nav ul.show {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .hero h2 {
+                font-size: 2.2rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                text-align: center;
+                border-bottom: 1px solid #e2e8f0;
+                border-left: 3px solid transparent;
+            }
+
+            .tab.active {
+                border-left-color: var(--secondary-color);
+                border-bottom-color: #e2e8f0;
+            }
+
+            .tab.admin.active {
+                border-left-color: var(--admin-color);
+            }
+
+            .tab.user.active {
+                border-left-color: var(--user-color);
+            }
+
+            .global-notification {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .sync-status {
+                top: 60px;
+                left: 10px;
+            }
+
+            .event-chat-messages {
+                height: 250px;
+            }
+
+            .gallery-modal-close {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .gallery-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
         }
         
-        /* Indicador visual para eventos passados */
-        .past-event-indicator {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: var(--accent-color);
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            z-index: 5;
+        /* Melhorias para scroll suave */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Destaque para seções quando navegadas */
+        section:target {
+            animation: highlightSection 2s ease;
+        }
+
+        @keyframes highlightSection {
+            0% {
+                background-color: transparent;
+            }
+            50% {
+                background-color: rgba(66, 153, 225, 0.05);
+            }
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        /* Melhor espaçamento entre seções */
+        section {
+            scroll-margin-top: 100px;
         }
     </style>
 </head>
@@ -501,111 +1679,6 @@
         }
     }
 
-    // ========== FUNÇÕES DE UPLOAD DE IMAGENS ==========
-    async function uploadImage(file, bucket, fileName) {
-        try {
-            console.log(`📤 Iniciando upload para bucket: ${bucket}, arquivo: ${fileName}`);
-            
-            if (!isOnline) {
-                console.log('📴 Modo offline - usando base64');
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        console.log('✅ Imagem convertida para base64');
-                        resolve(e.target.result);
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            const fileExt = file.name.split('.').pop();
-            const uniqueFileName = `${fileName}_${Date.now()}.${fileExt}`;
-            
-            console.log(`🔄 Fazendo upload do arquivo: ${uniqueFileName}`);
-            
-            const { data, error } = await supabase.storage
-                .from(bucket)
-                .upload(uniqueFileName, file, {
-                    cacheControl: '3600',
-                    upsert: false
-                });
-
-            if (error) {
-                console.error('❌ Erro no upload:', error);
-                throw error;
-            }
-
-            console.log('✅ Upload concluído, obtendo URL pública...');
-
-            const { data: { publicUrl } } = supabase.storage
-                .from(bucket)
-                .getPublicUrl(uniqueFileName);
-
-            console.log('✅ URL pública obtida:', publicUrl);
-            return publicUrl;
-            
-        } catch (error) {
-            console.error('❌ Erro completo no upload da imagem:', error);
-            throw new Error('Falha no upload da imagem: ' + error.message);
-        }
-    }
-
-    async function uploadMultipleImages(files, bucket, baseName) {
-        try {
-            console.log(`📤 Iniciando upload de ${files.length} imagens para o bucket: ${bucket}`);
-            
-            const uploadPromises = Array.from(files).map(async (file, index) => {
-                const fileExt = file.name.split('.').pop();
-                const uniqueFileName = `${baseName}_${Date.now()}_${index}.${fileExt}`;
-                
-                console.log(`🔄 Upload ${index + 1}/${files.length}: ${file.name} como ${uniqueFileName}`);
-                
-                if (!isOnline) {
-                    console.log('📴 Modo offline - usando base64');
-                    return new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            resolve(e.target.result);
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                }
-
-                // Upload para o Supabase Storage
-                const { data, error } = await supabase.storage
-                    .from(bucket)
-                    .upload(uniqueFileName, file, {
-                        cacheControl: '3600',
-                        upsert: false
-                    });
-
-                if (error) {
-                    console.error(`❌ Erro no upload da imagem ${index + 1}:`, error);
-                    return null;
-                }
-
-                console.log(`✅ Upload concluído para ${uniqueFileName}`);
-
-                // Obtém URL pública
-                const { data: { publicUrl } } = supabase.storage
-                    .from(bucket)
-                    .getPublicUrl(uniqueFileName);
-
-                console.log(`✅ URL pública obtida: ${publicUrl}`);
-                return publicUrl;
-            });
-            
-            const urls = await Promise.all(uploadPromises);
-            const successfulUrls = urls.filter(url => url !== null && url !== undefined);
-            
-            console.log(`✅ Upload múltiplo concluído: ${successfulUrls.length}/${files.length} imagens salvas no bucket ${bucket}`);
-            return successfulUrls;
-        } catch (error) {
-            console.error('❌ Erro no upload múltiplo de imagens:', error);
-            throw error;
-        }
-    }
-
     // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
     function renderMembers() {
         if (!membersList) {
@@ -834,288 +1907,299 @@
         });
     }
 
-    // ========== FUNÇÃO SALVAR DADOS ==========
-    async function saveData(table, formData, imageFiles, buttonId, editingId = null) {
-        try {
-            showButtonLoading(document.getElementById(buttonId), true);
-            
-            let imageUrls = [];
-            
-            // Faz upload das imagens se existirem
-            if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
-                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
-                                formData.title?.replace(/\s+/g, '_').toLowerCase() || 
-                                'image';
-                
-                console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'} para ${table}`);
-                
-                if (Array.isArray(imageFiles)) {
-                    // Múltiplas imagens (para eventos) - usa o bucket events-photos
-                    const bucketName = 'events-photos';
-                    imageUrls = await uploadMultipleImages(imageFiles, bucketName, baseName);
-                    console.log('✅ URLs das fotos do evento:', imageUrls);
-                } else {
-                    // Uma imagem (para membros) - usa o bucket members-photos
-                    const bucketName = 'members-photos';
-                    const imageUrl = await uploadImage(imageFiles, bucketName, baseName);
-                    imageUrls = [imageUrl];
-                }
-                
-                console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
-            }
-            
-            // Prepara os dados para salvar
-            const dataToSave = { ...formData };
-            
-            // Adiciona as URLs das imagens aos dados
-            if (imageUrls.length > 0) {
-                if (table === 'events') {
-                    // Para eventos, salva array de fotos
-                    dataToSave.photos = imageUrls;
-                    console.log('📸 Fotos a serem salvas no evento:', imageUrls);
-                } else {
-                    // Para membros, salva photo
-                    dataToSave.photo = imageUrls[0];
-                }
-            }
-            
-            if (isOnline) {
-                let result;
-                
-                try {
-                    if (editingId) {
-                        dataToSave.updated_at = new Date().toISOString();
-                        
-                        const { data, error } = await supabase
-                            .from(table)
-                            .update(dataToSave)
-                            .eq('id', editingId)
-                            .select();
-                        
-                        if (error) throw error;
-                        result = data;
-                    } else {
-                        const { data, error } = await supabase
-                            .from(table)
-                            .insert([dataToSave])
-                            .select();
-                        
-                        if (error) throw error;
-                        result = data;
-                    }
-                } catch (dbError) {
-                    console.error(`Erro no banco de dados:`, dbError);
-                    await saveDataLocally(table, dataToSave, editingId);
-                    showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
-                    return true;
-                }
-                
-                // Recarrega os dados
-                switch(table) {
-                    case 'users': await loadUsers(); break;
-                    case 'members': await loadMembers(); break;
-                    case 'events': await loadEvents(); break;
-                }
-                
-                showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
-                return true;
+    // ========== FUNÇÕES AUXILIARES ==========
+    function updateSyncStatus(online) {
+        isOnline = online;
+        if (syncStatus) {
+            if (online) {
+                syncStatus.innerHTML = '<span>🔵</span> Conectado';
+                syncStatus.classList.remove('offline');
             } else {
-                await saveDataLocally(table, dataToSave, editingId);
-                return true;
+                syncStatus.innerHTML = '<span>🔴</span> Modo Offline (Local)';
+                syncStatus.classList.add('offline');
             }
-            
-        } catch (error) {
-            console.error(`Erro ao salvar ${table}:`, error);
-            showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
-            return false;
-        } finally {
-            showButtonLoading(document.getElementById(buttonId), false);
         }
     }
 
-    async function saveDataLocally(table, dataToSave, editingId = null) {
-        if (editingId) {
-            const localData = loadFromLocalStorage(table) || [];
-            const index = localData.findIndex(item => item.id === editingId);
-            if (index !== -1) {
-                localData[index] = { 
-                    ...localData[index], 
-                    ...dataToSave,
-                    id: editingId,
-                    updated_at: new Date().toISOString()
-                };
-                saveToLocalStorage(table, localData);
-            } else {
-                showMessage(`${getEntityName(table)} não encontrado para atualização`, 'error');
-                return;
-            }
+    function showLoading(message = 'Carregando...') {
+        if (loadingOverlay) {
+            loadingOverlay.innerHTML = `<div>${message}</div>`;
+            loadingOverlay.style.display = 'flex';
+        }
+    }
+
+    function hideLoading() {
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
+        }
+    }
+
+    function showButtonLoading(button, loading) {
+        if (!button) return;
+        
+        const span = button.querySelector('span');
+        const loadingDiv = button.querySelector('.btn-loading');
+        
+        if (loading) {
+            if (span) span.style.display = 'none';
+            if (loadingDiv) loadingDiv.style.display = 'block';
+            button.disabled = true;
         } else {
-            dataToSave.id = Date.now().toString();
-            dataToSave.created_at = new Date().toISOString();
-            
-            const localData = loadFromLocalStorage(table) || [];
-            localData.unshift(dataToSave);
-            saveToLocalStorage(table, localData);
+            if (span) span.style.display = 'block';
+            if (loadingDiv) loadingDiv.style.display = 'none';
+            button.disabled = false;
         }
-        
-        // Atualiza a interface
-        switch(table) {
-            case 'users': 
-                users = loadFromLocalStorage('users'); 
-                break;
-            case 'members': 
-                members = loadFromLocalStorage('members'); 
-                renderMembers(); 
-                break;
-            case 'events': 
-                events = loadFromLocalStorage('events'); 
-                renderEvents(); 
-                break;
-        }
-        
-        showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
     }
 
-    function getEntityName(table) {
-        const names = {
-            'users': 'Usuário',
-            'members': 'Membro',
-            'events': 'Evento'
+    function showMessage(message, type = 'success') {
+        const existingNotification = document.querySelector('.global-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `global-notification ${type}`;
+        messageDiv.textContent = message;
+        
+        const colors = {
+            success: '#38a169',
+            warning: '#d69e2e',
+            error: '#e53e3e'
         };
-        return names[table] || 'Item';
+        
+        messageDiv.style.background = colors[type] || colors.success;
+        
+        document.body.appendChild(messageDiv);
+        
+        setTimeout(() => {
+            messageDiv.style.opacity = '1';
+            messageDiv.style.transform = 'translateY(0)';
+        }, 100);
+        
+        setTimeout(() => {
+            messageDiv.style.opacity = '0';
+            messageDiv.style.transform = 'translateY(-100%)';
+            setTimeout(() => messageDiv.remove(), 300);
+        }, 5000);
     }
 
-    // ========== FUNÇÃO DE EXCLUSÃO ==========
-    async function deleteItem(table, itemId) {
-        if (!confirm(`Tem certeza que deseja excluir este ${getEntityName(table).toLowerCase()}?`)) {
-            return;
+    // ========== FUNÇÕES DE USUÁRIO E LOGIN ==========
+    function showUserLoginModal(eventId = null) {
+        const modal = document.getElementById('userLoginModal');
+        modal.style.display = 'flex';
+        
+        if (eventId) {
+            modal.dataset.eventId = eventId;
         }
+    }
 
-        try {
-            showLoading(`Excluindo ${getEntityName(table).toLowerCase()}...`);
-            
-            let currentData;
-            switch(table) {
-                case 'users': currentData = users; break;
-                case 'members': currentData = members; break;
-                case 'events': currentData = events; break;
-            }
-            
-            const itemToDelete = currentData.find(item => item.id == itemId);
-            if (!itemToDelete) {
-                throw new Error('Item não encontrado localmente');
-            }
+    function showAdminLoginModal() {
+        const modal = document.getElementById('adminLoginModal');
+        modal.style.display = 'flex';
+    }
 
-            if (isOnline) {
-                const { error: dbError } = await supabase
-                    .from(table)
-                    .delete()
-                    .eq('id', itemId);
+    function hideUserLoginModal() {
+        const modal = document.getElementById('userLoginModal');
+        modal.style.display = 'none';
+    }
+
+    function hideAdminLoginModal() {
+        const modal = document.getElementById('adminLoginModal');
+        modal.style.display = 'none';
+    }
+
+    function isCurrentUserAdmin() {
+        return currentUser && currentUser.is_admin === true;
+    }
+
+    // ========== CONFIGURAÇÃO DE EVENTOS ==========
+    function setupEventListeners() {
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
                 
-                if (dbError) throw dbError;
-            }
-            
-            const updatedData = currentData.filter(item => item.id != itemId);
-            
-            switch(table) {
-                case 'users': users = updatedData; break;
-                case 'members': members = updatedData; break;
-                case 'events': events = updatedData; break;
-            }
-            
-            saveToLocalStorage(table, updatedData);
-            
-            switch(table) {
-                case 'members': renderMembers(); break;
-                case 'events': renderEvents(); break;
-            }
-            
-            showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
-            
-        } catch (error) {
-            console.error(`Erro ao excluir ${table}:`, error);
-            showMessage(`Erro ao excluir ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
-        } finally {
-            hideLoading();
-        }
-    }
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === `${tabId}-form`) {
+                        content.classList.add('active');
+                    }
+                });
 
-    // ========== FUNÇÕES PARA EDITAR ==========
-    async function editMember(memberId) {
-        const member = members.find(m => m.id == memberId);
-        if (!member) {
-            showMessage('Membro não encontrado', 'error');
-            return;
-        }
+                resetEditingIds();
+            });
+        });
 
-        try {
-            document.getElementById('memberName').value = member.name || '';
-            document.getElementById('memberEmail').value = member.email || '';
-            document.getElementById('memberPhone').value = member.phone || '';
-            document.getElementById('memberRole').value = member.role || '';
-            document.getElementById('memberBio').value = member.bio || '';
-
-            // Atualiza o preview da foto
-            const preview = document.getElementById('memberPhotoPreview');
-            if (member.photo) {
-                preview.innerHTML = `<img src="${member.photo}" alt="Preview">`;
-            }
-
-            document.getElementById('memberSubmitText').textContent = 'Atualizar Membro';
-            currentEditingMemberId = memberId;
-
-            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
-            
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelector('.tab[data-tab="member"]').classList.add('active');
-            
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById('member-form').classList.add('active');
-
-            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Membro".', 'success');
-            
-        } catch (error) {
-            console.error('Erro ao preparar formulário de edição:', error);
-            showMessage('Erro ao carregar dados do membro para edição', 'error');
-        }
-    }
-
-    async function editEvent(eventId) {
-        const event = events.find(e => e.id == eventId);
-        if (!event) {
-            showMessage('Evento não encontrado', 'error');
-            return;
+        // Form submissions
+        if (document.getElementById('memberRegistrationForm')) {
+            document.getElementById('memberRegistrationForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const memberPhotoInput = document.getElementById('memberPhoto');
+                const memberPhotoFile = memberPhotoInput.files[0];
+                
+                const memberData = {
+                    name: document.getElementById('memberName')?.value || '',
+                    email: document.getElementById('memberEmail')?.value || '',
+                    phone: document.getElementById('memberPhone')?.value || '',
+                    role: document.getElementById('memberRole')?.value || '',
+                    bio: document.getElementById('memberBio')?.value || ''
+                };
+                
+                if (!memberData.name || !memberData.email || !memberData.role) {
+                    showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Email e Cargo).', 'error');
+                    return;
+                }
+                
+                // Simulação de salvamento - você precisará implementar a lógica real
+                showMessage('Funcionalidade de cadastro de membro em desenvolvimento', 'warning');
+            });
         }
 
-        try {
-            document.getElementById('eventTitle').value = event.title || '';
-            document.getElementById('eventDate').value = event.event_date || '';
-            document.getElementById('eventTime').value = event.event_time || '';
-            document.getElementById('eventLocation').value = event.location || '';
-            document.getElementById('eventDescription').value = event.description || '';
-
-            // Limpa e atualiza as fotos
-            eventPhotosFiles = [];
-            const preview = document.getElementById('eventPhotosPreview');
-            preview.innerHTML = '';
-
-            document.getElementById('eventSubmitText').textContent = 'Atualizar Evento';
-            currentEditingEventId = eventId;
-
-            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
-            
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelector('.tab[data-tab="event"]').classList.add('active');
-            
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById('event-form').classList.add('active');
-
-            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Evento".', 'success');
-            
-        } catch (error) {
-            console.error('Erro ao preparar formulário de edição do evento:', error);
-            showMessage('Erro ao carregar dados do evento para edição', 'error');
+        if (document.getElementById('eventRegistrationForm')) {
+            document.getElementById('eventRegistrationForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const eventData = {
+                    title: document.getElementById('eventTitle')?.value || '',
+                    event_date: document.getElementById('eventDate')?.value || '',
+                    event_time: document.getElementById('eventTime')?.value || '',
+                    location: document.getElementById('eventLocation')?.value || '',
+                    description: document.getElementById('eventDescription')?.value || ''
+                };
+                
+                if (!eventData.title || !eventData.event_date || !eventData.event_time || !eventData.location) {
+                    showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
+                    return;
+                }
+                
+                // Simulação de salvamento - você precisará implementar a lógica real
+                showMessage('Funcionalidade de cadastro de evento em desenvolvimento', 'warning');
+            });
         }
+
+        // User login form
+        if (document.getElementById('userLoginForm')) {
+            document.getElementById('userLoginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const userName = document.getElementById('userName').value;
+                const userEmail = document.getElementById('userEmail').value;
+                
+                if (!userName) {
+                    showMessage('Por favor, digite seu nome.', 'error');
+                    return;
+                }
+                
+                currentUser = {
+                    id: 'user_' + Date.now(),
+                    name: userName,
+                    email: userEmail,
+                    is_admin: false
+                };
+                
+                const currentUsers = loadFromLocalStorage('current_users') || [];
+                currentUsers.push(currentUser);
+                saveToLocalStorage('current_users', currentUsers);
+                
+                showMessage(`Bem-vindo, ${userName}!`, 'success');
+                hideUserLoginModal();
+                
+                const modal = document.getElementById('userLoginModal');
+                if (modal.dataset.eventId) {
+                    const eventId = modal.dataset.eventId;
+                    toggleEventChat(eventId);
+                    delete modal.dataset.eventId;
+                }
+            });
+        }
+
+        // Admin login form
+        if (document.getElementById('adminLoginForm')) {
+            document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const password = document.getElementById('adminLoginPassword').value;
+                
+                if (!password) {
+                    showMessage('Por favor, digite a senha de administrador.', 'error');
+                    return;
+                }
+                
+                if (password !== adminPassword) {
+                    showMessage('Senha de administrador incorreta.', 'error');
+                    return;
+                }
+                
+                // Se não há usuário atual, cria um
+                if (!currentUser) {
+                    currentUser = {
+                        id: 'admin_' + Date.now(),
+                        name: 'Administrador',
+                        email: 'admin@system.com',
+                        is_admin: true
+                    };
+                } else {
+                    currentUser.is_admin = true;
+                }
+                
+                const currentUsers = loadFromLocalStorage('current_users') || [];
+                currentUsers.push(currentUser);
+                saveToLocalStorage('current_users', currentUsers);
+                
+                showMessage('✅ Acesso de administrador concedido! Agora você pode editar e excluir itens.', 'success');
+                hideAdminLoginModal();
+                
+                // Atualiza a UI para mostrar as seções de admin
+                updateUIForAdmin();
+            });
+        }
+
+        // Mobile menu
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', function() {
+                const navUl = document.querySelector('nav ul');
+                if (navUl) navUl.classList.toggle('show');
+            });
+        }
+
+        // Smooth scrolling - Corrigida
+        document.querySelectorAll('nav a, .btn').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const targetId = this.getAttribute('href');
+                
+                // Verifica se é um link interno (#)
+                if (targetId && targetId.startsWith('#')) {
+                    e.preventDefault();
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        // Calcula a posição considerando o header fixo
+                        const headerHeight = document.querySelector('header').offsetHeight;
+                        const targetPosition = targetElement.offsetTop - headerHeight - 20;
+                        
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Fecha o menu mobile se estiver aberto
+                        const navUl = document.querySelector('nav ul');
+                        if (navUl) navUl.classList.remove('show');
+                        
+                        // Atualiza a classe active no menu
+                        document.querySelectorAll('nav a').forEach(link => {
+                            link.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                    }
+                }
+            });
+        });
     }
 
     // ========== FUNÇÕES DA GALERIA ==========
@@ -1405,526 +2489,13 @@
     }
 
     // ========== FUNÇÕES AUXILIARES ==========
-    function updateSyncStatus(online) {
-        isOnline = online;
-        if (syncStatus) {
-            if (online) {
-                syncStatus.innerHTML = '<span>🔵</span> Conectado';
-                syncStatus.classList.remove('offline');
-            } else {
-                syncStatus.innerHTML = '<span>🔴</span> Modo Offline (Local)';
-                syncStatus.classList.add('offline');
-            }
-        }
-    }
-
-    function showLoading(message = 'Carregando...') {
-        if (loadingOverlay) {
-            loadingOverlay.innerHTML = `<div>${message}</div>`;
-            loadingOverlay.style.display = 'flex';
-        }
-    }
-
-    function hideLoading() {
-        if (loadingOverlay) {
-            loadingOverlay.style.display = 'none';
-        }
-    }
-
-    function showButtonLoading(button, loading) {
-        if (!button) return;
-        
-        const span = button.querySelector('span');
-        const loadingDiv = button.querySelector('.btn-loading');
-        
-        if (loading) {
-            if (span) span.style.display = 'none';
-            if (loadingDiv) loadingDiv.style.display = 'block';
-            button.disabled = true;
-        } else {
-            if (span) span.style.display = 'block';
-            if (loadingDiv) loadingDiv.style.display = 'none';
-            button.disabled = false;
-        }
-    }
-
-    function showMessage(message, type = 'success') {
-        const existingNotification = document.querySelector('.global-notification');
-        if (existingNotification) {
-            existingNotification.remove();
-        }
-        
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `global-notification ${type}`;
-        messageDiv.textContent = message;
-        
-        const colors = {
-            success: '#38a169',
-            warning: '#d69e2e',
-            error: '#e53e3e'
+    function getEntityName(table) {
+        const names = {
+            'users': 'Usuário',
+            'members': 'Membro',
+            'events': 'Evento'
         };
-        
-        messageDiv.style.background = colors[type] || colors.success;
-        
-        document.body.appendChild(messageDiv);
-        
-        setTimeout(() => {
-            messageDiv.style.opacity = '1';
-            messageDiv.style.transform = 'translateY(0)';
-        }, 100);
-        
-        setTimeout(() => {
-            messageDiv.style.opacity = '0';
-            messageDiv.style.transform = 'translateY(-100%)';
-            setTimeout(() => messageDiv.remove(), 300);
-        }, 5000);
-    }
-
-    // ========== FUNÇÕES DE USUÁRIO E LOGIN ==========
-    function showUserLoginModal(eventId = null) {
-        const modal = document.getElementById('userLoginModal');
-        modal.style.display = 'flex';
-        
-        if (eventId) {
-            modal.dataset.eventId = eventId;
-        }
-    }
-
-    function showAdminLoginModal() {
-        const modal = document.getElementById('adminLoginModal');
-        modal.style.display = 'flex';
-    }
-
-    function hideUserLoginModal() {
-        const modal = document.getElementById('userLoginModal');
-        modal.style.display = 'none';
-    }
-
-    function hideAdminLoginModal() {
-        const modal = document.getElementById('adminLoginModal');
-        modal.style.display = 'none';
-    }
-
-    function isCurrentUserAdmin() {
-        return currentUser && currentUser.is_admin === true;
-    }
-
-    // ========== CONFIGURAÇÃO DE EVENTOS ==========
-    function setupEventListeners() {
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.getAttribute('data-tab');
-                
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                    if (content.id === `${tabId}-form`) {
-                        content.classList.add('active');
-                    }
-                });
-
-                resetEditingIds();
-            });
-        });
-
-        // Form submissions
-        if (document.getElementById('memberRegistrationForm')) {
-            document.getElementById('memberRegistrationForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const memberPhotoInput = document.getElementById('memberPhoto');
-                const memberPhotoFile = memberPhotoInput.files[0];
-                
-                const memberData = {
-                    name: document.getElementById('memberName')?.value || '',
-                    email: document.getElementById('memberEmail')?.value || '',
-                    phone: document.getElementById('memberPhone')?.value || '',
-                    role: document.getElementById('memberRole')?.value || '',
-                    bio: document.getElementById('memberBio')?.value || ''
-                };
-                
-                if (!memberData.name || !memberData.email || !memberData.role) {
-                    showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Email e Cargo).', 'error');
-                    return;
-                }
-                
-                const success = await saveData('members', memberData, memberPhotoFile, 'memberSubmitBtn', currentEditingMemberId);
-                
-                if (success) {
-                    resetForm('member');
-                }
-            });
-        }
-
-        if (document.getElementById('eventRegistrationForm')) {
-            document.getElementById('eventRegistrationForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const eventData = {
-                    title: document.getElementById('eventTitle')?.value || '',
-                    event_date: document.getElementById('eventDate')?.value || '',
-                    event_time: document.getElementById('eventTime')?.value || '',
-                    location: document.getElementById('eventLocation')?.value || '',
-                    description: document.getElementById('eventDescription')?.value || ''
-                };
-                
-                if (!eventData.title || !eventData.event_date || !eventData.event_time || !eventData.location) {
-                    showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
-                    return;
-                }
-                
-                // Verifica se há fotos selecionadas
-                if (eventPhotosFiles.length === 0) {
-                    if (!confirm('Nenhuma foto foi selecionada para o evento. Deseja continuar sem fotos?')) {
-                        return;
-                    }
-                }
-                
-                console.log(`📝 Salvando evento com ${eventPhotosFiles.length} fotos`);
-                
-                const success = await saveData('events', eventData, eventPhotosFiles, 'eventSubmitBtn', currentEditingEventId);
-                
-                if (success) {
-                    resetForm('event');
-                }
-            });
-        }
-
-        // Image upload handlers
-        setupImageUpload('memberPhoto', 'memberPhotoPreview');
-        setupMultiplePhotosUpload();
-
-        // User login form
-        if (document.getElementById('userLoginForm')) {
-            document.getElementById('userLoginForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const userName = document.getElementById('userName').value;
-                const userEmail = document.getElementById('userEmail').value;
-                
-                if (!userName) {
-                    showMessage('Por favor, digite seu nome.', 'error');
-                    return;
-                }
-                
-                currentUser = {
-                    id: 'user_' + Date.now(),
-                    name: userName,
-                    email: userEmail,
-                    is_admin: false
-                };
-                
-                const currentUsers = loadFromLocalStorage('current_users') || [];
-                currentUsers.push(currentUser);
-                saveToLocalStorage('current_users', currentUsers);
-                
-                showMessage(`Bem-vindo, ${userName}!`, 'success');
-                hideUserLoginModal();
-                
-                const modal = document.getElementById('userLoginModal');
-                if (modal.dataset.eventId) {
-                    const eventId = modal.dataset.eventId;
-                    toggleEventChat(eventId);
-                    delete modal.dataset.eventId;
-                }
-            });
-        }
-
-        // Admin login form
-        if (document.getElementById('adminLoginForm')) {
-            document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const password = document.getElementById('adminLoginPassword').value;
-                
-                if (!password) {
-                    showMessage('Por favor, digite a senha de administrador.', 'error');
-                    return;
-                }
-                
-                if (password !== adminPassword) {
-                    showMessage('Senha de administrador incorreta.', 'error');
-                    return;
-                }
-                
-                // Se não há usuário atual, cria um
-                if (!currentUser) {
-                    currentUser = {
-                        id: 'admin_' + Date.now(),
-                        name: 'Administrador',
-                        email: 'admin@system.com',
-                        is_admin: true
-                    };
-                } else {
-                    currentUser.is_admin = true;
-                }
-                
-                const currentUsers = loadFromLocalStorage('current_users') || [];
-                currentUsers.push(currentUser);
-                saveToLocalStorage('current_users', currentUsers);
-                
-                showMessage('✅ Acesso de administrador concedido! Agora você pode editar e excluir itens.', 'success');
-                hideAdminLoginModal();
-                
-                // Recarrega para mostrar os botões de edição
-                await loadMembers();
-                await loadEvents();
-            });
-        }
-
-        // Mobile menu
-        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-        if (mobileMenuBtn) {
-            mobileMenuBtn.addEventListener('click', function() {
-                const navUl = document.querySelector('nav ul');
-                if (navUl) navUl.classList.toggle('show');
-            });
-        }
-
-        // Smooth scrolling - Corrigida
-        document.querySelectorAll('nav a, .btn').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                const targetId = this.getAttribute('href');
-                
-                // Verifica se é um link interno (#)
-                if (targetId && targetId.startsWith('#')) {
-                    e.preventDefault();
-                    const targetElement = document.querySelector(targetId);
-                    
-                    if (targetElement) {
-                        // Calcula a posição considerando o header fixo
-                        const headerHeight = document.querySelector('header').offsetHeight;
-                        const targetPosition = targetElement.offsetTop - headerHeight - 20;
-                        
-                        window.scrollTo({
-                            top: targetPosition,
-                            behavior: 'smooth'
-                        });
-                        
-                        // Fecha o menu mobile se estiver aberto
-                        const navUl = document.querySelector('nav ul');
-                        if (navUl) navUl.classList.remove('show');
-                        
-                        // Atualiza a classe active no menu
-                        document.querySelectorAll('nav a').forEach(link => {
-                            link.classList.remove('active');
-                        });
-                        this.classList.add('active');
-                    }
-                }
-            });
-        });
-    }
-
-    function setupImageUpload(inputId, previewId) {
-        const input = document.getElementById(inputId);
-        const preview = document.getElementById(previewId);
-        
-        if (!input || !preview) return;
-        
-        input.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                if (!file.type.startsWith('image/')) {
-                    showMessage('Por favor, selecione um arquivo de imagem.', 'error');
-                    return;
-                }
-                
-                if (file.size > 5 * 1024 * 1024) {
-                    showMessage('A imagem deve ter menos de 5MB.', 'error');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                };
-                reader.onerror = function() {
-                    showMessage('Erro ao carregar a imagem.', 'error');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    function setupMultiplePhotosUpload() {
-        const input = document.getElementById('eventPhotos');
-        const preview = document.getElementById('eventPhotosPreview');
-        const uploadArea = document.getElementById('eventPhotosUploadArea');
-        
-        if (!input || !preview || !uploadArea) return;
-        
-        // Clique na área de upload
-        uploadArea.addEventListener('click', () => {
-            input.click();
-        });
-        
-        // Arrastar e soltar
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#3498db';
-            uploadArea.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
-        });
-        
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = '#ddd';
-            uploadArea.style.backgroundColor = '';
-        });
-        
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#ddd';
-            uploadArea.style.backgroundColor = '';
-            
-            const files = e.dataTransfer.files;
-            handleMultiplePhotos(files);
-        });
-        
-        // Mudança no input de arquivo
-        input.addEventListener('change', (e) => {
-            handleMultiplePhotos(e.target.files);
-        });
-        
-        function handleMultiplePhotos(files) {
-            if (!files || files.length === 0) return;
-            
-            const validFiles = Array.from(files).filter(file => {
-                const isValid = file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024;
-                if (!isValid) {
-                    console.warn(`Arquivo inválido: ${file.name} - Tipo: ${file.type} - Tamanho: ${file.size}`);
-                }
-                return isValid;
-            });
-            
-            if (validFiles.length === 0) {
-                showMessage('Por favor, selecione apenas imagens válidas (JPG, PNG, etc. - máx. 5MB cada).', 'error');
-                return;
-            }
-            
-            // Limita a 20 fotos
-            const filesToProcess = validFiles.slice(0, 20);
-            const totalAfterAdd = eventPhotosFiles.length + filesToProcess.length;
-            
-            if (totalAfterAdd > 20) {
-                showMessage(`Máximo de 20 fotos permitido. Você já tem ${eventPhotosFiles.length} fotos selecionadas.`, 'warning');
-                return;
-            }
-            
-            // Adiciona ao array global
-            eventPhotosFiles = [...eventPhotosFiles, ...filesToProcess];
-            
-            // Atualiza o preview
-            updatePhotosPreview();
-            
-            // Atualiza o texto da área de upload
-            uploadArea.innerHTML = `
-                <p>📷 ${eventPhotosFiles.length} foto(s) selecionada(s)</p>
-                <p style="font-size: 0.8rem; color: #666;">Clique ou arraste para adicionar mais fotos</p>
-            `;
-            
-            showMessage(`${filesToProcess.length} foto(s) adicionada(s) ao evento! Total: ${eventPhotosFiles.length}`, 'success');
-            
-            if (validFiles.length > filesToProcess.length) {
-                showMessage(`Apenas as primeiras ${filesToProcess.length} fotos foram processadas (limite: 20).`, 'warning');
-            }
-        }
-        
-        function updatePhotosPreview() {
-            preview.innerHTML = '';
-            eventPhotosFiles.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const photoItem = document.createElement('div');
-                    photoItem.className = 'photo-preview-item';
-                    photoItem.innerHTML = `
-                        <img src="${e.target.result}" alt="Preview ${index + 1}">
-                        <button type="button" class="remove-photo" onclick="removeEventPhoto(${index})" title="Remover foto">×</button>
-                        <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem;">
-                            ${index + 1}
-                        </div>
-                    `;
-                    preview.appendChild(photoItem);
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-        
-        // Inicializa o texto da área de upload
-        uploadArea.innerHTML = `
-            <p>📷 Clique aqui ou arraste fotos para adicionar</p>
-            <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos (máx. 20)</p>
-        `;
-    }
-
-    // Função para remover foto do evento
-    function removeEventPhoto(index) {
-        eventPhotosFiles.splice(index, 1);
-        
-        // Atualiza o preview
-        const preview = document.getElementById('eventPhotosPreview');
-        preview.innerHTML = '';
-        eventPhotosFiles.forEach((file, newIndex) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const photoItem = document.createElement('div');
-                photoItem.className = 'photo-preview-item';
-                photoItem.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview">
-                    <button type="button" class="remove-photo" onclick="removeEventPhoto(${newIndex})">×</button>
-                    <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem;">
-                        ${newIndex + 1}
-                    </div>
-                `;
-                preview.appendChild(photoItem);
-            };
-            reader.readAsDataURL(file);
-        });
-        
-        // Atualiza o texto da área de upload
-        const uploadArea = document.getElementById('eventPhotosUploadArea');
-        if (eventPhotosFiles.length === 0) {
-            uploadArea.innerHTML = `
-                <p>📷 Clique aqui ou arraste fotos para adicionar</p>
-                <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos (máx. 20)</p>
-            `;
-        } else {
-            uploadArea.innerHTML = `
-                <p>📷 ${eventPhotosFiles.length} foto(s) selecionada(s)</p>
-                <p style="font-size: 0.8rem; color: #666;">Clique ou arraste para adicionar mais fotos</p>
-            `;
-        }
-    }
-
-    function resetForm(type) {
-        let form, submitText, preview, photosPreview;
-        
-        switch(type) {
-            case 'member':
-                form = document.getElementById('memberRegistrationForm');
-                submitText = document.getElementById('memberSubmitText');
-                preview = document.getElementById('memberPhotoPreview');
-                currentEditingMemberId = null;
-                break;
-            case 'event':
-                form = document.getElementById('eventRegistrationForm');
-                submitText = document.getElementById('eventSubmitText');
-                photosPreview = document.getElementById('eventPhotosPreview');
-                eventPhotosFiles = [];
-                currentEditingEventId = null;
-                break;
-        }
-        
-        if (form) form.reset();
-        if (preview) {
-            preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
-        }
-        if (photosPreview) {
-            photosPreview.innerHTML = '';
-        }
-        if (submitText) submitText.textContent = `Cadastrar ${getEntityName(type)}`;
+        return names[table] || 'Item';
     }
 
     function resetEditingIds() {
@@ -1937,11 +2508,17 @@
 
     // Funções de exclusão específicas
     async function deleteMember(memberId) {
-        await deleteItem('members', memberId);
+        if (!confirm('Tem certeza que deseja excluir este membro?')) {
+            return;
+        }
+        showMessage('Funcionalidade de exclusão em desenvolvimento', 'warning');
     }
 
     async function deleteEvent(eventId) {
-        await deleteItem('events', eventId);
+        if (!confirm('Tem certeza que deseja excluir este evento?')) {
+            return;
+        }
+        showMessage('Funcionalidade de exclusão em desenvolvimento', 'warning');
     }
 
     // Função para lidar com erro de carregamento da logo
@@ -1965,97 +2542,6 @@
         
         img.onerror = tryNext;
         tryNext();
-    }
-
-    // Função para verificar o status do bucket (opcional - para debug)
-    async function checkBucketStatus() {
-        try {
-            console.log('🔍 Verificando status dos buckets...');
-            
-            if (!isOnline) {
-                console.log('📴 Modo offline - não é possível verificar buckets');
-                return;
-            }
-            
-            // Verifica bucket de eventos
-            const { data: eventsData, error: eventsError } = await supabase.storage
-                .from('events-photos')
-                .list();
-                
-            if (eventsError) {
-                console.error('❌ Erro ao acessar bucket events-photos:', eventsError);
-            } else {
-                console.log('✅ Bucket events-photos acessível. Arquivos:', eventsData);
-            }
-            
-            // Verifica bucket de membros
-            const { data: membersData, error: membersError } = await supabase.storage
-                .from('members-photos')
-                .list();
-                
-            if (membersError) {
-                console.error('❌ Erro ao acessar bucket members-photos:', membersError);
-            } else {
-                console.log('✅ Bucket members-photos acessível. Arquivos:', membersData);
-            }
-            
-        } catch (error) {
-            console.error('❌ Erro ao verificar buckets:', error);
-        }
-    }
-
-    // ========== INICIALIZAÇÃO ==========
-    async function initializeApp() {
-        try {
-            console.log('🚀 Inicializando aplicação...');
-            
-            // Inicializa variáveis globais
-            users = [];
-            members = [];
-            events = [];
-            eventChats = {};
-            eventPhotosFiles = [];
-            
-            const supabaseInitialized = await initializeSupabase();
-            
-            // Verifica se há usuário atual salvo
-            const currentUsers = loadFromLocalStorage('current_users') || [];
-            if (currentUsers.length > 0) {
-                currentUser = currentUsers[currentUsers.length - 1];
-                console.log('👤 Usuário atual recuperado:', currentUser);
-            }
-            
-            // Adiciona botão de logout
-            addLogoutButton();
-            
-            setupEventListeners();
-            
-            // Carrega dados
-            console.log('📥 Carregando dados...');
-            await Promise.all([
-                loadUsers(),
-                loadMembers(),
-                loadEvents(),
-                loadEventChats()
-            ]);
-            
-            // Atualiza a UI baseado no tipo de usuário
-            updateUIForAdmin();
-            
-            // Verifica status dos buckets (apenas para debug)
-            if (supabaseInitialized) {
-                await checkBucketStatus();
-                showMessage('✅ Sistema conectado!', 'success');
-            } else {
-                showMessage('📴 Sistema em modo offline. Dados salvos localmente.', 'warning');
-            }
-            
-            console.log('🎉 Aplicação inicializada com sucesso!');
-            
-        } catch (error) {
-            console.error('❌ Erro na inicialização do app:', error);
-            showMessage('❌ Erro ao inicializar o sistema: ' + error.message, 'error');
-        }
     }
 
     // ========== CONTROLE DE VISIBILIDADE PARA ADMIN ==========
@@ -2121,6 +2607,58 @@
             logoutBtn.onclick = logout;
             
             adminAccessBtn.parentNode.insertBefore(logoutBtn, adminAccessBtn.nextSibling);
+        }
+    }
+
+    // ========== INICIALIZAÇÃO ==========
+    async function initializeApp() {
+        try {
+            console.log('🚀 Inicializando aplicação...');
+            
+            // Inicializa variáveis globais
+            users = [];
+            members = [];
+            events = [];
+            eventChats = {};
+            eventPhotosFiles = [];
+            
+            const supabaseInitialized = await initializeSupabase();
+            
+            // Verifica se há usuário atual salvo
+            const currentUsers = loadFromLocalStorage('current_users') || [];
+            if (currentUsers.length > 0) {
+                currentUser = currentUsers[currentUsers.length - 1];
+                console.log('👤 Usuário atual recuperado:', currentUser);
+            }
+            
+            // Adiciona botão de logout
+            addLogoutButton();
+            
+            setupEventListeners();
+            
+            // Carrega dados
+            console.log('📥 Carregando dados...');
+            await Promise.all([
+                loadUsers(),
+                loadMembers(),
+                loadEvents(),
+                loadEventChats()
+            ]);
+            
+            // Atualiza a UI baseado no tipo de usuário
+            updateUIForAdmin();
+            
+            if (supabaseInitialized) {
+                showMessage('✅ Sistema conectado!', 'success');
+            } else {
+                showMessage('📴 Sistema em modo offline. Dados salvos localmente.', 'warning');
+            }
+            
+            console.log('🎉 Aplicação inicializada com sucesso!');
+            
+        } catch (error) {
+            console.error('❌ Erro na inicialização do app:', error);
+            showMessage('❌ Erro ao inicializar o sistema: ' + error.message, 'error');
         }
     }
 
