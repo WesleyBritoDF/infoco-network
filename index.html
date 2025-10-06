@@ -7,1202 +7,58 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0/dist/umd/supabase.min.js"></script>
     <title>NETWORK IN FOCO - Sistema Completo</title>
     <style>
-        :root {
-            --primary-color: #1a365d;
-            --secondary-color: #2b6cb0;
-            --accent-color: #e53e3e;
-            --light-color: #f7fafc;
-            --dark-color: #2d3748;
-            --success-color: #38a169;
-            --warning-color: #d69e2e;
-            --admin-color: #805ad5;
-            --user-color: #319795;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-            --radius: 8px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #f8f9fa;
-            color: var(--dark-color);
-            line-height: 1.6;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
-
-        /* Header Styles */
-        header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
-            color: white;
-            padding: 1rem 0;
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 10px;
-                text-align: center;
-            }
-
-        .logo-image {
-            width: 135px;
-            height: 135px;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 2px solid rgba(255,255,255,0.2);
-            box-shadow: var(--shadow);
-             transition: var(--transition);
-        }
+        /* Mantenha todo o CSS existente aqui */
+        /* Adicionando apenas os estilos novos necessários */
         
-        .logo-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }    
-       
-      
-        
-        .logo-image:hover {
-            transform: scale(1.05);
-            border-color: rgba(255,255,255,0.4);
-        }
-    
-        .logo h2 {
-            margin: 0;
-            font-size: 10px;
-            color: #ffffff;
-            font-weight: normal;
-            opacity: 0.9;
-        }
-
-        .logo span {
-            color: #63b3ed;
-        }
-
-        .logo h2 {
-            margin: 3px 0 0 0;
-            font-size: 10px;
-            color: #ffffff;
-            font-weight: normal;
-            opacity: 0.9;
-        }
-
-        .admin-access-btn {
-            background: var(--admin-color);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-weight: 500;
-            transition: var(--transition);
-        }
-
-        .admin-access-btn:hover {
-            background: #6b46c1;
-            transform: translateY(-2px);
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 1.5rem;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: var(--transition);
-            padding: 0.5rem 0;
-            position: relative;
-        }
-
-        nav a:hover {
-            color: #90cdf4;
-        }
-
-        nav a.active {
-            color: #90cdf4;
-        }
-
-        nav a.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: #90cdf4;
-        }
-
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 5rem 0;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="%23ffffff" opacity="0.05"><polygon points="0,0 1000,50 1000,100 0,100"/></svg>');
-            background-size: cover;
-        }
-
-        .hero h2 {
-            font-size: 2.8rem;
-            margin-bottom: 1.5rem;
-            font-weight: 700;
-            position: relative;
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            max-width: 700px;
-            margin: 0 auto 2.5rem;
-            opacity: 0.9;
-            position: relative;
-        }
-
-        .btn {
-            display: inline-block;
-            background-color: var(--accent-color);
-            color: white;
-            padding: 0.9rem 1.8rem;
-            border: none;
-            border-radius: var(--radius);
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn:hover {
-            background-color: #c53030;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn-secondary {
-            background-color: transparent;
-            border: 2px solid white;
-        }
-
-        .btn-secondary:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-admin {
-            background-color: var(--admin-color);
-        }
-
-        .btn-admin:hover {
-            background-color: #6b46c1;
-        }
-
-        .btn-user {
-            background-color: var(--user-color);
-        }
-
-        .btn-user:hover {
-            background-color: #2c7a7b;
-        }
-
-        /* Main Content */
-        main {
-            padding: 4rem 0;
-        }
-
-        .section-title {
-            text-align: center;
+        /* Estilos para separação de eventos */
+        .events-container {
             margin-bottom: 3rem;
-            position: relative;
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: var(--primary-color);
         }
-
-        .section-title::after {
-            content: '';
-            display: block;
-            width: 100px;
-            height: 4px;
-            background: linear-gradient(to right, var(--secondary-color), var(--accent-color));
-            margin: 0.8rem auto;
-            border-radius: 2px;
-        }
-
-        .section-title.admin::after {
-            background: linear-gradient(to right, var(--admin-color), #9f7aea);
-        }
-
-        .section-title.user::after {
-            background: linear-gradient(to right, var(--user-color), #4fd1c7);
-        }
-
-        /* Forms */
-        .form-container {
-            background-color: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 2.5rem;
-            margin-bottom: 2rem;
-            border: 1px solid #e2e8f0;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--dark-color);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.9rem;
-            border: 1px solid #cbd5e0;
-            border-radius: var(--radius);
-            font-size: 1rem;
-            transition: var(--transition);
-            background-color: #f7fafc;
-        }
-
-        .form-control:focus {
-            border-color: var(--secondary-color);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
-            background-color: white;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        /* Image Upload */
-        .image-upload-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .image-preview {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin-bottom: 1rem;
-            border: 4px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f8f9fa;
-            box-shadow: var(--shadow);
-        }
-
-        .image-preview.sponsor {
-            border-radius: var(--radius);
-            width: 200px;
-            height: 120px;
-        }
-
-        .image-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .image-preview .placeholder {
-            color: #a0aec0;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-
-        .image-upload-btn {
-            display: inline-block;
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 0.7rem 1.4rem;
-            border: none;
-            border-radius: var(--radius);
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .image-upload-btn:hover {
-            background-color: #2c5282;
-            transform: translateY(-1px);
-        }
-
-        .image-upload-input {
-            display: none;
-        }
-
-        /* Multiple Photos Upload */
-        .multiple-photos-container {
-            margin-bottom: 1.5rem;
-        }
-
-        .photos-upload-area {
-            border: 2px dashed #cbd5e0;
-            border-radius: var(--radius);
-            padding: 2rem;
-            text-align: center;
-            margin-top: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            background-color: #f8f9fa;
-        }
-
-        .photos-upload-area:hover {
-            border-color: var(--secondary-color);
-            background-color: rgba(66, 153, 225, 0.05);
-        }
-
-        .photos-preview {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 1rem;
-        }
-
-        .photo-preview-item {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .photo-preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .remove-photo {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: rgba(229, 62, 62, 0.8);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        /* Event Gallery */
-        .event-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
-            margin-top: 1rem;
-        }
-
-        .event-gallery-item {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            border-radius: var(--radius);
-            overflow: hidden;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .event-gallery-item:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .event-gallery-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .photos-info {
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .view-photos-btn {
-            background: var(--secondary-color);
-            color: white;
-            border: none;
-            padding: 0.3rem 0.8rem;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 0.8rem;
-            margin-top: 0.5rem;
-            transition: var(--transition);
-        }
-
-        .view-photos-btn:hover {
-            background: #2c5282;
-        }
-
-        /* Gallery Modal */
-        .gallery-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10002;
-        }
-
-        .gallery-modal-content {
-            max-width: 90%;
-            max-height: 90%;
-            position: relative;
-        }
-
-        .gallery-modal-content img {
-            max-width: 100%;
-            max-height: 90vh;
-            object-fit: contain;
-        }
-
-        /* Gallery Modal - Botão Fechar Melhorado */
-        .gallery-modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            z-index: 10003;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            backdrop-filter: blur(5px);
-        }
-
-        .gallery-modal-close:hover {
-            background: rgba(0, 0, 0, 0.9);
-            transform: scale(1.1);
-        }
-
-        .gallery-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-
-        .gallery-nav:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .gallery-nav.prev {
-            left: 20px;
-        }
-
-        .gallery-nav.next {
-            right: 20px;
-        }
-
-        .gallery-counter {
-            position: absolute;
-            bottom: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-size: 1rem;
-            text-align: center;
-        }
-
-        /* Cards */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2rem;
-        }
-
-        .card {
-            background-color: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            transition: var(--transition);
-            position: relative;
-            border: 1px solid #e2e8f0;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-actions {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 5px;
-            z-index: 10;
-        }
-
-        .card-action-btn {
-            background-color: rgba(45, 55, 72, 0.8);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: var(--transition);
-            backdrop-filter: blur(5px);
-        }
-
-        .card-action-btn:hover {
-            background-color: rgba(45, 55, 72, 0.95);
-            transform: scale(1.1);
-        }
-
-        .card-action-btn.delete {
-            background-color: rgba(229, 62, 62, 0.9);
-        }
-
-        .card-action-btn.delete:hover {
-            background-color: rgba(197, 48, 48, 1);
-        }
-
-        .card-action-btn.edit {
-            background-color: rgba(66, 153, 225, 0.9);
-        }
-
-        .card-action-btn.edit:hover {
-            background-color: rgba(49, 130, 206, 1);
-        }
-
-        .card-image {
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .card-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: var(--transition);
-        }
-
-        .card:hover .card-image img {
-            transform: scale(1.05);
-        }
-
-        .image-counter {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .card-header {
-            padding: 1.5rem;
-            background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
-            color: white;
-        }
-
-        .card-header.admin {
-            background: linear-gradient(135deg, var(--admin-color) 0%, #9f7aea 100%);
-        }
-
-        .card-header.user {
-            background: linear-gradient(135deg, var(--user-color) 0%, #4fd1c7 100%);
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        .card-footer {
-            padding: 1rem 1.5rem;
-            background-color: #f8f9fa;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .user-role {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            background-color: #e2e8f0;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: var(--dark-color);
-        }
-
-        .admin-badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            background-color: var(--admin-color);
-            color: white;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .user-badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            background-color: var(--user-color);
-            color: white;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid #e2e8f0;
+        
+        .events-section {
             margin-bottom: 2.5rem;
-            flex-wrap: wrap;
-            background-color: white;
-            border-radius: var(--radius) var(--radius) 0 0;
-            padding: 0 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
-
-        .tab {
-            padding: 1.2rem 1.5rem;
-            cursor: pointer;
-            font-weight: 500;
-            transition: var(--transition);
-            border-bottom: 3px solid transparent;
-            color: #718096;
+        
+        .events-section-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary-color);
         }
-
-        .tab.active {
-            color: var(--secondary-color);
-            border-bottom-color: var(--secondary-color);
+        
+        .events-section-title.past {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
         }
-
-        .tab.admin.active {
-            color: var(--admin-color);
-            border-bottom-color: var(--admin-color);
-        }
-
-        .tab.user.active {
-            color: var(--user-color);
-            border-bottom-color: var(--user-color);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Loading States */
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        .success-message {
-            background-color: var(--success-color);
-            color: white;
-            padding: 1rem;
-            border-radius: var(--radius);
-            margin-bottom: 1rem;
+        
+        .no-events-message {
             text-align: center;
-            box-shadow: var(--shadow);
-        }
-
-        /* Notifications and Sync */
-        .global-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success-color);
-            color: white;
-            padding: 1rem 1.5rem;
+            padding: 2rem;
+            color: #666;
+            font-style: italic;
+            background-color: #f8f9fa;
             border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            z-index: 10000;
-            animation: slideIn 0.3s ease;
-            max-width: 400px;
         }
-
-        .sync-status {
-            position: fixed;
+        
+        /* Melhorias para navegação */
+        nav a {
+            cursor: pointer;
+        }
+        
+        /* Indicador visual para eventos passados */
+        .past-event-indicator {
+            position: absolute;
             top: 10px;
             left: 10px;
-            background: var(--secondary-color);
+            background: var(--accent-color);
             color: white;
-            padding: 0.5rem 1rem;
+            padding: 0.3rem 0.8rem;
             border-radius: 20px;
             font-size: 0.8rem;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: var(--shadow);
+            font-weight: 500;
+            z-index: 5;
         }
-        
-        .sync-status.offline {
-            background: var(--accent-color);
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            color: white;
-            font-size: 1.2rem;
-        }
-
-        .btn-loading {
-            display: none;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-
-        /* Chat Styles */
-        .event-chat-section {
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .event-chat-container {
-            background-color: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            border: 1px solid #e2e8f0;
-            margin-top: 1.5rem;
-        }
-
-        .event-chat-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
-            color: white;
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .event-chat-header h4 {
-            margin: 0;
-            font-size: 1.1rem;
-        }
-
-        .event-chat-toggle {
-            background: transparent;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: var(--radius);
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .event-chat-toggle:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .event-chat-messages {
-            height: 300px;
-            overflow-y: auto;
-            padding: 1rem;
-            background-color: #f8f9fa;
-            display: none;
-        }
-
-        .event-chat-messages.open {
-            display: block;
-        }
-
-        .event-message {
-            margin-bottom: 1rem;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .event-message.sent {
-            align-items: flex-end;
-        }
-
-        .event-message.received {
-            align-items: flex-start;
-        }
-
-        .event-message-bubble {
-            max-width: 80%;
-            padding: 0.7rem 1rem;
-            border-radius: 18px;
-            position: relative;
-            word-wrap: break-word;
-        }
-
-        .event-message.sent .event-message-bubble {
-            background: var(--secondary-color);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-
-        .event-message.received .event-message-bubble {
-            background: white;
-            color: var(--dark-color);
-            border: 1px solid #e2e8f0;
-            border-bottom-left-radius: 4px;
-        }
-
-        .event-message-info {
-            font-size: 0.7rem;
-            color: #a0aec0;
-            margin-top: 0.3rem;
-        }
-
-        .event-chat-input-container {
-            display: none;
-            padding: 1rem;
-            border-top: 1px solid #e2e8f0;
-            background: white;
-        }
-
-        .event-chat-input-container.open {
-            display: flex;
-        }
-
-        .event-chat-input {
-            flex: 1;
-            padding: 0.7rem;
-            border: 1px solid #cbd5e0;
-            border-radius: var(--radius);
-            margin-right: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .event-chat-send-btn {
-            background: var(--secondary-color);
-            color: white;
-            border: none;
-            border-radius: var(--radius);
-            padding: 0.7rem 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .event-chat-send-btn:hover {
-            background: #2c5282;
-        }
-
-        .no-chat-messages {
-            text-align: center;
-            color: #a0aec0;
-            padding: 2rem;
-            font-style: italic;
-        }
-
-        /* User Login Modal */
-        .user-login-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10001;
-        }
-
-        .user-login-content {
-            background: white;
-            border-radius: var(--radius);
-            padding: 2rem;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: var(--shadow);
-        }
-
-        .user-login-header {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .user-login-header h3 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        /* Footer */
-        footer {
-            background: var(--primary-color);
-            color: white;
-            padding: 3rem 0 1.5rem;
-            margin-top: 4rem;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .footer-section h3 {
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-            color: #90cdf4;
-        }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 1.5rem;
-            border-top: 1px solid #2d3748;
-            color: #a0aec0;
-            font-size: 0.9rem;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            nav ul {
-                flex-direction: column;
-                text-align: center;
-                gap: 0.5rem;
-                display: none;
-            }
-
-            nav ul.show {
-                display: flex;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-                position: absolute;
-                top: 1rem;
-                right: 1rem;
-            }
-
-            .hero h2 {
-                font-size: 2.2rem;
-            }
-
-            .hero p {
-                font-size: 1.1rem;
-            }
-
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-
-            .tabs {
-                flex-direction: column;
-            }
-
-            .tab {
-                text-align: center;
-                border-bottom: 1px solid #e2e8f0;
-                border-left: 3px solid transparent;
-            }
-
-            .tab.active {
-                border-left-color: var(--secondary-color);
-                border-bottom-color: #e2e8f0;
-            }
-
-            .tab.admin.active {
-                border-left-color: var(--admin-color);
-            }
-
-            .tab.user.active {
-                border-left-color: var(--user-color);
-            }
-
-            .global-notification {
-                top: 10px;
-                right: 10px;
-                left: 10px;
-            }
-
-            .sync-status {
-                top: 60px;
-                left: 10px;
-            }
-
-            .event-chat-messages {
-                height: 250px;
-            }
-
-            .gallery-modal-close {
-                top: 10px;
-                right: 10px;
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
-
-            .gallery-nav {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
-        }
-        /* Adicione ao seu CSS existente */
-            .admin-access-btn.logout {
-                background-color: var(--accent-color);
-            }
-            
-            .admin-access-btn.logout:hover {
-                background-color: #c53030;
-            }
-/* Melhorias para scroll suave */
-html {
-    scroll-behavior: smooth;
-}
-
-/* Destaque para seções quando navegadas */
-section:target {
-    animation: highlightSection 2s ease;
-}
-
-@keyframes highlightSection {
-    0% {
-        background-color: transparent;
-    }
-    50% {
-        background-color: rgba(66, 153, 225, 0.05);
-    }
-    100% {
-        background-color: transparent;
-    }
-}
-
-/* Melhor espaçamento entre seções */
-section {
-    scroll-margin-top: 100px;
-}
-        
     </style>
 </head>
 <body>
@@ -1295,18 +151,18 @@ section {
                 </div>
                 <nav>
                     <ul>
-                        <li><a href="#" class="active">Início</a></li>
+                        <li><a href="#inicio" class="active">Início</a></li>
                         <li><a href="#membros">Membros</a></li>
                         <li><a href="#eventos">Eventos</a></li>
-                        <li><a href="#cadastro">Cadastro</a></li>
+                        <li><a href="#cadastro" id="cadastroMenu" style="display: none;">Cadastro</a></li>
                     </ul>
                 </nav>
             </div>
         </div>
     </header>
 
-       <!-- Hero Section -->
-    <section class="hero">
+    <!-- Hero Section -->
+    <section class="hero" id="inicio">
         <div class="container">
             <h2>Conecte-se, Compartilhe e Cresça.</h2>
             <p>Aqui você interage com outras pessoas e conecta-se a oportunidades.</p>
@@ -1327,8 +183,8 @@ section {
 
         <!-- Events Section -->
         <section id="eventos">
-            <h2 class="section-title">Próximos Eventos</h2>
-            <div class="cards-grid" id="events-list">
+            <h2 class="section-title">Eventos</h2>
+            <div class="events-container" id="events-container">
                 <!-- Events will be dynamically added here -->
             </div>
         </section>
@@ -1485,7 +341,7 @@ section {
 
     // ========== DOM ELEMENTS ==========
     const membersList = document.getElementById('members-list');
-    const eventsList = document.getElementById('events-list');
+    const eventsContainer = document.getElementById('events-container');
     const syncStatus = document.getElementById('syncStatus');
     const loadingOverlay = document.getElementById('loadingOverlay');
     const galleryModal = document.getElementById('galleryModal');
@@ -1637,7 +493,7 @@ section {
         try {
             events = await loadData('events');
             console.log('📅 Eventos carregados:', events);
-            if (eventsList) {
+            if (eventsContainer) {
                 renderEvents();
             }
         } catch (error) {
@@ -1790,97 +646,169 @@ section {
     }
 
     function renderEvents() {
-        if (!eventsList) {
-            console.error('Elemento events-list não encontrado');
+        if (!eventsContainer) {
+            console.error('Elemento events-container não encontrado');
             return;
         }
         
-        renderList(eventsList, events, 'events', (event) => {
-            const eventDate = new Date(event.event_date);
-            const formattedDate = eventDate.toLocaleDateString('pt-BR');
-            const canEdit = isCurrentUserAdmin();
-            const photos = event.photos || [];
-            const mainPhoto = photos.length > 0 ? photos[0] : 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+        // Separar eventos por data
+        const now = new Date();
+        const upcomingEvents = [];
+        const pastEvents = [];
+        
+        events.forEach(event => {
+            const eventDateTime = new Date(`${event.event_date}T${event.event_time}`);
+            if (eventDateTime >= now) {
+                upcomingEvents.push(event);
+            } else {
+                pastEvents.push(event);
+            }
+        });
+        
+        console.log(`📅 Eventos futuros: ${upcomingEvents.length}, Eventos passados: ${pastEvents.length}`);
+        
+        // Limpar container
+        eventsContainer.innerHTML = '';
+        
+        // Renderizar eventos futuros
+        if (upcomingEvents.length > 0) {
+            const upcomingSection = document.createElement('div');
+            upcomingSection.className = 'events-section';
+            upcomingSection.innerHTML = `
+                <h3 class="events-section-title">Próximos Eventos</h3>
+                <div class="cards-grid" id="upcoming-events-list"></div>
+            `;
+            eventsContainer.appendChild(upcomingSection);
             
-            return `
-                <div class="card-actions">
-                    ${canEdit ? `
-                        <button class="card-action-btn edit" onclick="editEvent('${event.id}')" title="Editar evento">✏️</button>
-                        <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
-                    ` : ''}
-                </div>
-                <div class="card-image">
-                    <img src="${mainPhoto}" alt="${event.title}" loading="lazy" onclick="openGallery('${event.id}', 0)" style="cursor: pointer;">
-                    ${photos.length > 1 ? `
-                        <div class="image-counter" onclick="openGallery('${event.id}', 0)" style="cursor: pointer;">
-                            +${photos.length - 1}
-                        </div>
-                    ` : ''}
-                </div>
-                <div class="card-header">
-                    <h3>${event.title}</h3>
-                    <div class="event-date">
-                        <span>${formattedDate}</span> • <span>${event.event_time}</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <p><strong>Local:</strong> ${event.location}</p>
-                    <p>${event.description || 'Sem descrição'}</p>
-                    
-                    ${photos.length > 0 ? `
-                        <div class="photos-info">
-                            <strong>${photos.length} foto(s)</strong>
-                            <button class="view-photos-btn" onclick="openGallery('${event.id}', 0)" title="Ver todas as fotos">
-                                👁️ Ver Galeria
-                            </button>
-                        </div>
-                        
-                        <div class="event-gallery">
-                            ${photos.slice(0, 4).map((photo, index) => `
-                                <div class="event-gallery-item" onclick="openGallery('${event.id}', ${index})">
-                                    <img src="${photo}" alt="Foto ${index + 1} do evento" loading="lazy">
-                                </div>
-                            `).join('')}
-                            ${photos.length > 4 ? `
-                                <div class="event-gallery-item" onclick="openGallery('${event.id}', 0)" style="background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                                    +${photos.length - 4}
-                                </div>
-                            ` : ''}
-                        </div>
-                    ` : `
-                        <div class="photos-info">
-                            <em>Nenhuma foto cadastrada</em>
-                        </div>
-                    `}
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                        Criado em: ${new Date(event.created_at).toLocaleDateString('pt-BR')}
-                        ${event.updated_at ? `<br>Atualizado em: ${new Date(event.updated_at).toLocaleDateString('pt-BR')}` : ''}
-                    </p>
-                </div>
-                
-                <!-- Chat do Evento -->
-                <div class="event-chat-section">
-                    <div class="event-chat-container" id="event-chat-${event.id}">
-                        <div class="event-chat-header">
-                            <h4>💬 Chat do Evento</h4>
-                            <button class="event-chat-toggle" onclick="toggleEventChat('${event.id}')">Abrir Chat</button>
-                        </div>
-                        <div class="event-chat-messages">
-                            <!-- Mensagens serão carregadas aqui -->
-                        </div>
-                        <div class="event-chat-input-container">
-                            <input type="text" class="event-chat-input" placeholder="Digite sua mensagem sobre o evento...">
-                            <button class="event-chat-send-btn">Enviar</button>
-                        </div>
-                    </div>
+            renderList(
+                document.getElementById('upcoming-events-list'), 
+                upcomingEvents, 
+                'events', 
+                createEventCardTemplate
+            );
+        } else {
+            const noUpcomingSection = document.createElement('div');
+            noUpcomingSection.className = 'events-section';
+            noUpcomingSection.innerHTML = `
+                <h3 class="events-section-title">Próximos Eventos</h3>
+                <div class="no-events-message">
+                    <p>📅 Nenhum evento futuro agendado no momento.</p>
+                    <p>Fique atento para novos eventos em breve!</p>
                 </div>
             `;
-        });
+            eventsContainer.appendChild(noUpcomingSection);
+        }
+        
+        // Renderizar eventos passados
+        if (pastEvents.length > 0) {
+            const pastSection = document.createElement('div');
+            pastSection.className = 'events-section';
+            pastSection.innerHTML = `
+                <h3 class="events-section-title past">Eventos Passados</h3>
+                <div class="cards-grid" id="past-events-list"></div>
+            `;
+            eventsContainer.appendChild(pastSection);
+            
+            renderList(
+                document.getElementById('past-events-list'), 
+                pastEvents, 
+                'events', 
+                createEventCardTemplate
+            );
+        }
         
         // Configura os chats após renderizar os eventos
         events.forEach(event => {
             setupEventChat(event.id);
         });
+    }
+
+    function createEventCardTemplate(event) {
+        const eventDate = new Date(event.event_date);
+        const formattedDate = eventDate.toLocaleDateString('pt-BR');
+        const canEdit = isCurrentUserAdmin();
+        const photos = event.photos || [];
+        const mainPhoto = photos.length > 0 ? photos[0] : 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+        
+        // Verificar se é um evento passado
+        const now = new Date();
+        const eventDateTime = new Date(`${event.event_date}T${event.event_time}`);
+        const isPastEvent = eventDateTime < now;
+        
+        return `
+            ${isPastEvent ? '<div class="past-event-indicator">Evento Realizado</div>' : ''}
+            <div class="card-actions">
+                ${canEdit ? `
+                    <button class="card-action-btn edit" onclick="editEvent('${event.id}')" title="Editar evento">✏️</button>
+                    <button class="card-action-btn delete" onclick="deleteEvent('${event.id}')" title="Excluir evento">🗑️</button>
+                ` : ''}
+            </div>
+            <div class="card-image">
+                <img src="${mainPhoto}" alt="${event.title}" loading="lazy" onclick="openGallery('${event.id}', 0)" style="cursor: pointer;">
+                ${photos.length > 1 ? `
+                    <div class="image-counter" onclick="openGallery('${event.id}', 0)" style="cursor: pointer;">
+                        +${photos.length - 1}
+                    </div>
+                ` : ''}
+            </div>
+            <div class="card-header">
+                <h3>${event.title}</h3>
+                <div class="event-date">
+                    <span>${formattedDate}</span> • <span>${event.event_time}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <p><strong>Local:</strong> ${event.location}</p>
+                <p>${event.description || 'Sem descrição'}</p>
+                
+                ${photos.length > 0 ? `
+                    <div class="photos-info">
+                        <strong>${photos.length} foto(s)</strong>
+                        <button class="view-photos-btn" onclick="openGallery('${event.id}', 0)" title="Ver todas as fotos">
+                            👁️ Ver Galeria
+                        </button>
+                    </div>
+                    
+                    <div class="event-gallery">
+                        ${photos.slice(0, 4).map((photo, index) => `
+                            <div class="event-gallery-item" onclick="openGallery('${event.id}', ${index})">
+                                <img src="${photo}" alt="Foto ${index + 1} do evento" loading="lazy">
+                            </div>
+                        `).join('')}
+                        ${photos.length > 4 ? `
+                            <div class="event-gallery-item" onclick="openGallery('${event.id}', 0)" style="background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                +${photos.length - 4}
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : `
+                    <div class="photos-info">
+                        <em>Nenhuma foto cadastrada</em>
+                    </div>
+                `}
+                <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                    Criado em: ${new Date(event.created_at).toLocaleDateString('pt-BR')}
+                    ${event.updated_at ? `<br>Atualizado em: ${new Date(event.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                </p>
+            </div>
+            
+            <!-- Chat do Evento -->
+            <div class="event-chat-section">
+                <div class="event-chat-container" id="event-chat-${event.id}">
+                    <div class="event-chat-header">
+                        <h4>💬 Chat do Evento</h4>
+                        <button class="event-chat-toggle" onclick="toggleEventChat('${event.id}')">Abrir Chat</button>
+                    </div>
+                    <div class="event-chat-messages">
+                        <!-- Mensagens serão carregadas aqui -->
+                    </div>
+                    <div class="event-chat-input-container">
+                        <input type="text" class="event-chat-input" placeholder="Digite sua mensagem sobre o evento...">
+                        <button class="event-chat-send-btn">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     function renderList(container, data, type, templateFunction) {
@@ -2756,77 +1684,41 @@ section {
             });
         }
 
-                    // Smooth scrolling - Atualizada
-            document.querySelectorAll('nav a, .btn').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    const targetId = this.getAttribute('href');
+        // Smooth scrolling - Corrigida
+        document.querySelectorAll('nav a, .btn').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const targetId = this.getAttribute('href');
+                
+                // Verifica se é um link interno (#)
+                if (targetId && targetId.startsWith('#')) {
+                    e.preventDefault();
+                    const targetElement = document.querySelector(targetId);
                     
-                    // Verifica se é um link interno (#)
-                    if (targetId && targetId.startsWith('#')) {
-                        e.preventDefault();
-                        const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        // Calcula a posição considerando o header fixo
+                        const headerHeight = document.querySelector('header').offsetHeight;
+                        const targetPosition = targetElement.offsetTop - headerHeight - 20;
                         
-                        if (targetElement) {
-                            // Calcula a posição considerando o header fixo
-                            const headerHeight = document.querySelector('header').offsetHeight;
-                            const targetPosition = targetElement.offsetTop - headerHeight - 20;
-                            
-                            window.scrollTo({
-                                top: targetPosition,
-                                behavior: 'smooth'
-                            });
-                            
-                            // Fecha o menu mobile se estiver aberto
-                            const navUl = document.querySelector('nav ul');
-                            if (navUl) navUl.classList.remove('show');
-                            
-                            // Atualiza a classe active no menu
-                            document.querySelectorAll('nav a').forEach(link => {
-                                link.classList.remove('active');
-                            });
-                            this.classList.add('active');
-                        }
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Fecha o menu mobile se estiver aberto
+                        const navUl = document.querySelector('nav ul');
+                        if (navUl) navUl.classList.remove('show');
+                        
+                        // Atualiza a classe active no menu
+                        document.querySelectorAll('nav a').forEach(link => {
+                            link.classList.remove('active');
+                        });
+                        this.classList.add('active');
                     }
-                });
-            });
-    }
-// Observador de interseção para destacar a seção ativa no menu
-function setupIntersectionObserver() {
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('nav a[href^="#"]');
-    
-    const observerOptions = {
-        root: null,
-        rootMargin: '-20% 0px -70% 0px',
-        threshold: 0.1
-    };
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const id = entry.target.getAttribute('id');
-                
-                // Remove active de todos os links
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                });
-                
-                // Adiciona active ao link correspondente
-                const correspondingLink = document.querySelector(`nav a[href="#${id}"]`);
-                if (correspondingLink) {
-                    correspondingLink.classList.add('active');
                 }
-            }
+            });
         });
-    }, observerOptions);
-    
-    sections.forEach(section => {
-        observer.observe(section);
-    });
-}
+    }
 
-// Chame esta função na inicialização
-// setupIntersectionObserver();
     function setupImageUpload(inputId, previewId) {
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
@@ -3113,63 +2005,125 @@ function setupIntersectionObserver() {
     }
 
     // ========== INICIALIZAÇÃO ==========
-    // ========== INICIALIZAÇÃO ==========
-// ========== INICIALIZAÇÃO ==========
-async function initializeApp() {
-    try {
-        console.log('🚀 Inicializando aplicação...');
-        
-        // Inicializa variáveis globais
-        users = [];
-        members = [];
-        events = [];
-        eventChats = {};
-        eventPhotosFiles = [];
-        
-        const supabaseInitialized = await initializeSupabase();
-        
-        // Verifica se há usuário atual salvo
-        const currentUsers = loadFromLocalStorage('current_users') || [];
-        if (currentUsers.length > 0) {
-            currentUser = currentUsers[currentUsers.length - 1];
-            console.log('👤 Usuário atual recuperado:', currentUser);
+    async function initializeApp() {
+        try {
+            console.log('🚀 Inicializando aplicação...');
+            
+            // Inicializa variáveis globais
+            users = [];
+            members = [];
+            events = [];
+            eventChats = {};
+            eventPhotosFiles = [];
+            
+            const supabaseInitialized = await initializeSupabase();
+            
+            // Verifica se há usuário atual salvo
+            const currentUsers = loadFromLocalStorage('current_users') || [];
+            if (currentUsers.length > 0) {
+                currentUser = currentUsers[currentUsers.length - 1];
+                console.log('👤 Usuário atual recuperado:', currentUser);
+            }
+            
+            // Adiciona botão de logout
+            addLogoutButton();
+            
+            setupEventListeners();
+            
+            // Carrega dados
+            console.log('📥 Carregando dados...');
+            await Promise.all([
+                loadUsers(),
+                loadMembers(),
+                loadEvents(),
+                loadEventChats()
+            ]);
+            
+            // Atualiza a UI baseado no tipo de usuário
+            updateUIForAdmin();
+            
+            // Verifica status dos buckets (apenas para debug)
+            if (supabaseInitialized) {
+                await checkBucketStatus();
+                showMessage('✅ Sistema conectado!', 'success');
+            } else {
+                showMessage('📴 Sistema em modo offline. Dados salvos localmente.', 'warning');
+            }
+            
+            console.log('🎉 Aplicação inicializada com sucesso!');
+            
+        } catch (error) {
+            console.error('❌ Erro na inicialização do app:', error);
+            showMessage('❌ Erro ao inicializar o sistema: ' + error.message, 'error');
         }
-        
-        // Adiciona botão de logout
-        addLogoutButton();
-        
-        setupEventListeners();
-        
-        // Configura observador de interseção (opcional)
-        // setupIntersectionObserver();
-        
-        // Carrega dados
-        console.log('📥 Carregando dados...');
-        await Promise.all([
-            loadUsers(),
-            loadMembers(),
-            loadEvents(),
-            loadEventChats()
-        ]);
-        
-        // Atualiza a UI baseado no tipo de usuário
-        updateUIForAdmin();
-        
-        // Verifica status dos buckets (apenas para debug)
-        if (supabaseInitialized) {
-            await checkBucketStatus();
-            showMessage('✅ Sistema conectado!', 'success');
-        } else {
-            showMessage('📴 Sistema em modo offline. Dados salvos localmente.', 'warning');
-        }
-        
-        console.log('🎉 Aplicação inicializada com sucesso!');
-        
-    } catch (error) {
-        console.error('❌ Erro na inicialização do app:', error);
-        showMessage('❌ Erro ao inicializar o sistema: ' + error.message, 'error');
     }
-}
+
+    // ========== CONTROLE DE VISIBILIDADE PARA ADMIN ==========
+    function updateUIForAdmin() {
+        const isAdmin = isCurrentUserAdmin();
+        const cadastroSection = document.getElementById('cadastro');
+        const cadastroMenu = document.getElementById('cadastroMenu');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminAccessBtn = document.querySelector('.admin-access-btn');
+        
+        // Controle da seção de cadastro
+        if (cadastroSection) {
+            cadastroSection.style.display = isAdmin ? 'block' : 'none';
+        }
+        
+        // Controle do menu de cadastro
+        if (cadastroMenu) {
+            cadastroMenu.style.display = isAdmin ? 'list-item' : 'none';
+        }
+        
+        // Controle dos botões
+        if (logoutBtn) {
+            logoutBtn.style.display = currentUser ? 'inline-block' : 'none';
+        }
+        
+        if (adminAccessBtn) {
+            adminAccessBtn.style.display = currentUser ? 'none' : 'inline-block';
+        }
+        
+        // Recarrega as listas para mostrar/ocultar botões de edição
+        if (membersList) renderMembers();
+        if (eventsContainer) renderEvents();
+        
+        console.log('👤 Interface atualizada para:', isAdmin ? 'Administrador' : currentUser ? 'Usuário Normal' : 'Visitante');
+    }
+
+    // Função para logout
+    function logout() {
+        currentUser = null;
+        const currentUsers = loadFromLocalStorage('current_users') || [];
+        // Remove o último usuário (mais recente)
+        if (currentUsers.length > 0) {
+            currentUsers.pop();
+            saveToLocalStorage('current_users', currentUsers);
+        }
+        
+        showMessage('👋 Logout realizado com sucesso!', 'success');
+        updateUIForAdmin();
+    }
+
+    // Adicione um botão de logout no header
+    function addLogoutButton() {
+        const headerContent = document.querySelector('.header-content');
+        const adminAccessBtn = document.querySelector('.admin-access-btn');
+        
+        if (headerContent && !document.getElementById('logoutBtn')) {
+            const logoutBtn = document.createElement('button');
+            logoutBtn.id = 'logoutBtn';
+            logoutBtn.className = 'admin-access-btn logout';
+            logoutBtn.style.display = 'none';
+            logoutBtn.style.marginLeft = '10px';
+            logoutBtn.innerHTML = '🚪 Sair';
+            logoutBtn.onclick = logout;
+            
+            adminAccessBtn.parentNode.insertBefore(logoutBtn, adminAccessBtn.nextSibling);
+        }
+    }
+
     // Inicia a aplicação quando o DOM estiver pronto
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
@@ -3178,178 +2132,7 @@ async function initializeApp() {
     } else {
         setTimeout(initializeApp, 100);
     }
-// ========== CONTROLE DE VISIBILIDADE PARA ADMIN ==========
-function updateUIForAdmin() {
-    const isAdmin = isCurrentUserAdmin();
-    const cadastroSection = document.getElementById('cadastro');
-    const cadastroMenu = document.getElementById('cadastroMenu');
-    
-    if (cadastroSection) {
-        cadastroSection.style.display = isAdmin ? 'block' : 'none';
-    }
-    
-    if (cadastroMenu) {
-        cadastroMenu.style.display = isAdmin ? 'list-item' : 'none';
-    }
-    
-    // Recarrega as listas para mostrar/ocultar botões de edição
-    if (membersList) renderMembers();
-    if (eventsList) renderEvents();
-    
-    console.log('👤 Interface atualizada para:', isAdmin ? 'Administrador' : 'Usuário Normal');
-}
-
-// Modifique a função de login do admin para chamar a atualização da UI
-if (document.getElementById('adminLoginForm')) {
-    document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const password = document.getElementById('adminLoginPassword').value;
-        
-        if (!password) {
-            showMessage('Por favor, digite a senha de administrador.', 'error');
-            return;
-        }
-        
-        if (password !== adminPassword) {
-            showMessage('Senha de administrador incorreta.', 'error');
-            return;
-        }
-        
-        // Se não há usuário atual, cria um
-        if (!currentUser) {
-            currentUser = {
-                id: 'admin_' + Date.now(),
-                name: 'Administrador',
-                email: 'admin@system.com',
-                is_admin: true
-            };
-        } else {
-            currentUser.is_admin = true;
-        }
-        
-        const currentUsers = loadFromLocalStorage('current_users') || [];
-        currentUsers.push(currentUser);
-        saveToLocalStorage('current_users', currentUsers);
-        
-        showMessage('✅ Acesso de administrador concedido! Agora você pode cadastrar e gerenciar itens.', 'success');
-        hideAdminLoginModal();
-        
-        // Atualiza a UI para mostrar as seções de admin
-        updateUIForAdmin();
-    });
-}
-
-// Modifique a função de login de usuário normal
-if (document.getElementById('userLoginForm')) {
-    document.getElementById('userLoginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const userName = document.getElementById('userName').value;
-        const userEmail = document.getElementById('userEmail').value;
-        
-        if (!userName) {
-            showMessage('Por favor, digite seu nome.', 'error');
-            return;
-        }
-        
-        currentUser = {
-            id: 'user_' + Date.now(),
-            name: userName,
-            email: userEmail,
-            is_admin: false
-        };
-        
-        const currentUsers = loadFromLocalStorage('current_users') || [];
-        currentUsers.push(currentUser);
-        saveToLocalStorage('current_users', currentUsers);
-        
-        showMessage(`Bem-vindo, ${userName}!`, 'success');
-        hideUserLoginModal();
-        
-        // Atualiza a UI para usuário normal
-        updateUIForAdmin();
-        
-        const modal = document.getElementById('userLoginModal');
-        if (modal.dataset.eventId) {
-            const eventId = modal.dataset.eventId;
-            toggleEventChat(eventId);
-            delete modal.dataset.eventId;
-        }
-    });
-}
-    // Função para logout
-function logout() {
-    currentUser = null;
-    const currentUsers = loadFromLocalStorage('current_users') || [];
-    // Remove o último usuário (mais recente)
-    if (currentUsers.length > 0) {
-        currentUsers.pop();
-        saveToLocalStorage('current_users', currentUsers);
-    }
-    
-    showMessage('👋 Logout realizado com sucesso!', 'success');
-    updateUIForAdmin();
-}
-
-// Adicione um botão de logout no header (opcional)
-function addLogoutButton() {
-    const headerContent = document.querySelector('.header-content');
-    const adminAccessBtn = document.querySelector('.admin-access-btn');
-    
-    if (headerContent && !document.getElementById('logoutBtn')) {
-        const logoutBtn = document.createElement('button');
-        logoutBtn.id = 'logoutBtn';
-        logoutBtn.className = 'admin-access-btn';
-        logoutBtn.style.display = 'none';
-        logoutBtn.style.marginLeft = '10px';
-        logoutBtn.style.backgroundColor = 'var(--accent-color)';
-        logoutBtn.innerHTML = '🚪 Sair';
-        logoutBtn.onclick = logout;
-        
-        adminAccessBtn.parentNode.insertBefore(logoutBtn, adminAccessBtn.nextSibling);
-    }
-}
-
-// Atualize a função updateUIForAdmin para controlar o botão de logout
-function updateUIForAdmin() {
-    const isAdmin = isCurrentUserAdmin();
-    const cadastroSection = document.getElementById('cadastro');
-    const cadastroMenu = document.getElementById('cadastroMenu');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const adminAccessBtn = document.querySelector('.admin-access-btn');
-    
-    // Controle da seção de cadastro
-    if (cadastroSection) {
-        cadastroSection.style.display = isAdmin ? 'block' : 'none';
-    }
-    
-    // Controle do menu de cadastro
-    if (cadastroMenu) {
-        cadastroMenu.style.display = isAdmin ? 'list-item' : 'none';
-    }
-    
-    // Controle dos botões
-    if (logoutBtn) {
-        logoutBtn.style.display = currentUser ? 'inline-block' : 'none';
-    }
-    
-    if (adminAccessBtn) {
-        adminAccessBtn.style.display = currentUser ? 'none' : 'inline-block';
-    }
-    
-    // Recarrega as listas para mostrar/ocultar botões de edição
-    if (membersList) renderMembers();
-    if (eventsList) renderEvents();
-    
-    console.log('👤 Interface atualizada para:', isAdmin ? 'Administrador' : currentUser ? 'Usuário Normal' : 'Visitante');
-}
 </script>
     
 </body>
 </html>
-
-
-
-
-
