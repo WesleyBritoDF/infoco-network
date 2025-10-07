@@ -17,6 +17,7 @@
             --warning-color: #d69e2e;
             --admin-color: #805ad5;
             --user-color: #319795;
+            --pending-color: #d69e2e;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
             --radius: 8px;
@@ -252,6 +253,14 @@
 
         .btn-user:hover {
             background-color: #2c7a7b;
+        }
+
+        .btn-pending {
+            background-color: var(--pending-color);
+        }
+
+        .btn-pending:hover {
+            background-color: #b7791f;
         }
 
         /* Main Content */
@@ -666,6 +675,14 @@
             background-color: rgba(49, 130, 206, 1);
         }
 
+        .card-action-btn.approve {
+            background-color: rgba(56, 161, 105, 0.9);
+        }
+
+        .card-action-btn.approve:hover {
+            background-color: rgba(47, 133, 90, 1);
+        }
+
         .card-image {
             width: 100%;
             height: 200px;
@@ -709,6 +726,19 @@
             z-index: 5;
         }
 
+        .pending-indicator {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--pending-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            z-index: 5;
+        }
+
         .card-header {
             padding: 1.5rem;
             background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
@@ -721,6 +751,10 @@
 
         .card-header.user {
             background: linear-gradient(135deg, var(--user-color) 0%, #4fd1c7 100%);
+        }
+
+        .card-header.pending {
+            background: linear-gradient(135deg, var(--pending-color) 0%, #ed8936 100%);
         }
 
         .card-body {
@@ -759,6 +793,16 @@
             display: inline-block;
             padding: 0.3rem 0.8rem;
             background-color: var(--user-color);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .pending-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background-color: var(--pending-color);
             color: white;
             border-radius: 20px;
             font-size: 0.8rem;
@@ -1333,6 +1377,7 @@
                         <li><a href="#membros">Membros</a></li>
                         <li><a href="#eventos">Eventos</a></li>
                         <li><a href="#cadastro" id="cadastroMenu" style="display: none;">Cadastro</a></li>
+                        <li><a href="#cadastro-publico" id="publicRegistrationMenu">Cadastre-se</a></li>
                     </ul>
                 </nav>
             </div>
@@ -1346,6 +1391,7 @@
             <p>Aqui você interage com outras pessoas e conecta-se a oportunidades.</p>
             <a href="#membros" class="btn">Membros</a>
             <a href="#eventos" class="btn btn-secondary">Eventos</a>
+            <a href="#cadastro-publico" class="btn btn-user">Cadastre-se</a>
         </div>
     </section>
 
@@ -1367,9 +1413,69 @@
             </div>
         </section>
 
-        <!-- Registration Section -->
+        <!-- Public Registration Section -->
+        <section id="cadastro-publico">
+            <h2 class="section-title">Cadastre-se como Membro</h2>
+            <div class="form-container">
+                <div class="pending-badge" style="margin-bottom: 1.5rem; text-align: center;">
+                    ⏳ Seu cadastro ficará em análise e será liberado após aprovação
+                </div>
+                <form id="publicMemberRegistrationForm">
+                    <div class="image-upload-container">
+                        <div class="image-preview" id="publicMemberPhotoPreview">
+                            <div class="placeholder">Foto do Membro</div>
+                        </div>
+                        <input type="file" id="publicMemberPhoto" class="image-upload-input" accept="image/*">
+                        <label for="publicMemberPhoto" class="image-upload-btn">Selecionar Foto</label>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="publicMemberName">Nome Completo *</label>
+                            <input type="text" id="publicMemberName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="publicMemberEmail">E-mail *</label>
+                            <input type="email" id="publicMemberEmail" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="publicMemberPhone">Telefone *</label>
+                            <input type="tel" id="publicMemberPhone" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="publicMemberRole">Cargo/Função *</label>
+                            <input type="text" id="publicMemberRole" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="publicMemberBio">Biografia/Descrição *</label>
+                        <textarea id="publicMemberBio" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="publicMemberLinkedin">LinkedIn (opcional)</label>
+                        <input type="url" id="publicMemberLinkedin" class="form-control" placeholder="https://linkedin.com/in/seu-perfil">
+                    </div>
+                    <button type="submit" class="btn btn-pending" id="publicMemberSubmitBtn">
+                        <span id="publicMemberSubmitText">Enviar para Aprovação</span>
+                        <div class="btn-loading">Enviando...</div>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Admin Registration Section -->
         <section id="cadastro" style="display: none;">
-            <h2 class="section-title">Cadastro</h2>
+            <h2 class="section-title admin">Painel do Administrador</h2>
+            
+            <!-- Pending Members Section -->
+            <div class="form-container" id="pending-members-section" style="display: none;">
+                <h3 style="margin-bottom: 1.5rem; color: var(--pending-color);">📋 Membros Aguardando Aprovação</h3>
+                <div class="cards-grid" id="pending-members-list">
+                    <!-- Pending members will be dynamically added here -->
+                </div>
+            </div>
+
             <div class="tabs">
                 <div class="tab active" data-tab="member">Cadastrar Membro</div>
                 <div class="tab" data-tab="event">Cadastrar Evento</div>
@@ -1504,6 +1610,7 @@
     let supabase;
     let users = [];
     let members = [];
+    let pendingMembers = [];
     let events = [];
     let isOnline = true;
     let currentUser = null;
@@ -1520,6 +1627,8 @@
     // ========== DOM ELEMENTS ==========
     const membersList = document.getElementById('members-list');
     const eventsContainer = document.getElementById('events-container');
+    const pendingMembersList = document.getElementById('pending-members-list');
+    const pendingMembersSection = document.getElementById('pending-members-section');
     const syncStatus = document.getElementById('syncStatus');
     const loadingOverlay = document.getElementById('loadingOverlay');
     const galleryModal = document.getElementById('galleryModal');
@@ -1657,11 +1766,23 @@
 
     async function loadMembers() {
         try {
-            members = await loadData('members');
-            console.log('📋 Membros carregados:', members);
+            const allMembers = await loadData('members');
+            
+            // Separar membros aprovados e pendentes
+            members = allMembers.filter(member => member.approved === true);
+            pendingMembers = allMembers.filter(member => member.approved !== true);
+            
+            console.log('📋 Membros carregados:', members.length);
+            console.log('⏳ Membros pendentes:', pendingMembers.length);
+            
             if (membersList) {
                 renderMembers();
             }
+            
+            if (pendingMembersList && isCurrentUserAdmin()) {
+                renderPendingMembers();
+            }
+            
         } catch (error) {
             console.error('Erro ao carregar membros:', error);
         }
@@ -1814,10 +1935,54 @@
                     <p><strong>Email:</strong> ${member.email}</p>
                     ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
                     <p>${member.bio || 'Sem descrição'}</p>
+                    ${member.linkedin ? `<p><strong>LinkedIn:</strong> <a href="${member.linkedin}" target="_blank">${member.linkedin}</a></p>` : ''}
                     <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
                         Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
                         ${member.updated_at ? `<br>Atualizado em: ${new Date(member.updated_at).toLocaleDateString('pt-BR')}` : ''}
                     </p>
+                </div>
+            `;
+        });
+    }
+
+    function renderPendingMembers() {
+        if (!pendingMembersList || !isCurrentUserAdmin()) return;
+        
+        console.log('⏳ Renderizando membros pendentes:', pendingMembers);
+        
+        if (pendingMembers.length === 0) {
+            pendingMembersSection.style.display = 'none';
+            return;
+        }
+        
+        pendingMembersSection.style.display = 'block';
+        
+        renderList(pendingMembersList, pendingMembers, 'pending_members', (member) => {
+            return `
+                <div class="pending-indicator">⏳ Aguardando Aprovação</div>
+                <div class="card-actions">
+                    <button class="card-action-btn approve" onclick="approveMember('${member.id}')" title="Aprovar membro">✓</button>
+                    <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Recusar membro">🗑️</button>
+                </div>
+                <div class="card-image">
+                    <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
+                </div>
+                <div class="card-header pending">
+                    <h3>${member.name}</h3>
+                    <span class="pending-badge">${member.role}</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Email:</strong> ${member.email}</p>
+                    ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                    <p>${member.bio || 'Sem descrição'}</p>
+                    ${member.linkedin ? `<p><strong>LinkedIn:</strong> <a href="${member.linkedin}" target="_blank">${member.linkedin}</a></p>` : ''}
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                        Solicitado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-pending" onclick="approveMember('${member.id}')" style="flex: 1;">Aprovar</button>
+                    <button class="btn btn-secondary" onclick="deleteMember('${member.id}')" style="flex: 1; margin-left: 0.5rem;">Recusar</button>
                 </div>
             `;
         });
@@ -2204,7 +2369,9 @@
             saveToLocalStorage(table, updatedData);
             
             switch(table) {
-                case 'members': renderMembers(); break;
+                case 'members': 
+                    await loadMembers(); // Recarrega para atualizar membros pendentes também
+                    break;
                 case 'events': renderEvents(); break;
             }
             
@@ -2422,7 +2589,7 @@
             });
         });
 
-        // Form submissions - CORRIGIDAS
+        // Form submissions
         if (document.getElementById('memberRegistrationForm')) {
             document.getElementById('memberRegistrationForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -2435,7 +2602,8 @@
                     email: document.getElementById('memberEmail')?.value || '',
                     phone: document.getElementById('memberPhone')?.value || '',
                     role: document.getElementById('memberRole')?.value || '',
-                    bio: document.getElementById('memberBio')?.value || ''
+                    bio: document.getElementById('memberBio')?.value || '',
+                    approved: true // Admin cadastra diretamente aprovado
                 };
                 
                 if (!memberData.name || !memberData.email || !memberData.role) {
@@ -2447,6 +2615,37 @@
                 
                 if (success) {
                     resetForm('member');
+                }
+            });
+        }
+
+        if (document.getElementById('publicMemberRegistrationForm')) {
+            document.getElementById('publicMemberRegistrationForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const memberPhotoInput = document.getElementById('publicMemberPhoto');
+                const memberPhotoFile = memberPhotoInput.files[0];
+                
+                const memberData = {
+                    name: document.getElementById('publicMemberName')?.value || '',
+                    email: document.getElementById('publicMemberEmail')?.value || '',
+                    phone: document.getElementById('publicMemberPhone')?.value || '',
+                    role: document.getElementById('publicMemberRole')?.value || '',
+                    bio: document.getElementById('publicMemberBio')?.value || '',
+                    linkedin: document.getElementById('publicMemberLinkedin')?.value || '',
+                    approved: false // Cadastro público fica pendente
+                };
+                
+                if (!memberData.name || !memberData.email || !memberData.role || !memberData.phone) {
+                    showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Email, Telefone e Cargo).', 'error');
+                    return;
+                }
+                
+                const success = await saveData('members', memberData, memberPhotoFile, 'publicMemberSubmitBtn');
+                
+                if (success) {
+                    resetForm('publicMember');
+                    showMessage('✅ Cadastro enviado para aprovação! Aguarde a liberação do administrador.', 'success');
                 }
             });
         }
@@ -2487,6 +2686,7 @@
 
         // Image upload handlers
         setupImageUpload('memberPhoto', 'memberPhotoPreview');
+        setupImageUpload('publicMemberPhoto', 'publicMemberPhotoPreview');
         setupMultiplePhotosUpload();
 
         // User login form
@@ -2799,6 +2999,11 @@
                 preview = document.getElementById('memberPhotoPreview');
                 currentEditingMemberId = null;
                 break;
+            case 'publicMember':
+                form = document.getElementById('publicMemberRegistrationForm');
+                submitText = document.getElementById('publicMemberSubmitText');
+                preview = document.getElementById('publicMemberPhotoPreview');
+                break;
             case 'event':
                 form = document.getElementById('eventRegistrationForm');
                 submitText = document.getElementById('eventSubmitText');
@@ -2815,7 +3020,7 @@
         if (photosPreview) {
             photosPreview.innerHTML = '';
         }
-        if (submitText) submitText.textContent = `Cadastrar ${getEntityName(type)}`;
+        if (submitText) submitText.textContent = type === 'publicMember' ? 'Enviar para Aprovação' : `Cadastrar ${getEntityName(type)}`;
     }
 
     function resetEditingIds() {
@@ -2826,13 +3031,57 @@
         document.getElementById('eventSubmitText').textContent = 'Cadastrar Evento';
     }
 
-    // Funções de exclusão específicas - CORRIGIDAS
+    // Funções de exclusão específicas
     async function deleteMember(memberId) {
         await deleteItem('members', memberId);
     }
 
     async function deleteEvent(eventId) {
         await deleteItem('events', eventId);
+    }
+
+    // ========== FUNÇÃO PARA APROVAR MEMBROS ==========
+    async function approveMember(memberId) {
+        try {
+            showLoading('Aprovando membro...');
+            
+            const memberToApprove = pendingMembers.find(m => m.id == memberId);
+            if (!memberToApprove) {
+                throw new Error('Membro não encontrado');
+            }
+            
+            if (isOnline) {
+                const { error } = await supabase
+                    .from('members')
+                    .update({ approved: true, updated_at: new Date().toISOString() })
+                    .eq('id', memberId);
+                
+                if (error) throw error;
+            }
+            
+            // Atualiza localmente
+            const allMembers = loadFromLocalStorage('members') || [];
+            const memberIndex = allMembers.findIndex(m => m.id == memberId);
+            if (memberIndex !== -1) {
+                allMembers[memberIndex] = {
+                    ...allMembers[memberIndex],
+                    approved: true,
+                    updated_at: new Date().toISOString()
+                };
+                saveToLocalStorage('members', allMembers);
+            }
+            
+            // Recarrega os membros
+            await loadMembers();
+            
+            showMessage('✅ Membro aprovado com sucesso!', 'success');
+            
+        } catch (error) {
+            console.error('Erro ao aprovar membro:', error);
+            showMessage('Erro ao aprovar membro: ' + error.message, 'error');
+        } finally {
+            hideLoading();
+        }
     }
 
     // ========== FUNÇÕES DA GALERIA ==========
@@ -3149,6 +3398,7 @@
         const isAdmin = isCurrentUserAdmin();
         const cadastroSection = document.getElementById('cadastro');
         const cadastroMenu = document.getElementById('cadastroMenu');
+        const publicRegistrationMenu = document.getElementById('publicRegistrationMenu');
         const logoutBtn = document.getElementById('logoutBtn');
         const adminAccessBtn = document.querySelector('.admin-access-btn');
         
@@ -3160,6 +3410,11 @@
         // Controle do menu de cadastro
         if (cadastroMenu) {
             cadastroMenu.style.display = isAdmin ? 'list-item' : 'none';
+        }
+        
+        // Controle do menu de cadastro público
+        if (publicRegistrationMenu) {
+            publicRegistrationMenu.style.display = isAdmin ? 'none' : 'list-item';
         }
         
         // Controle dos botões
@@ -3174,6 +3429,11 @@
         // Recarrega as listas para mostrar/ocultar botões de edição
         if (membersList) renderMembers();
         if (eventsContainer) renderEvents();
+        
+        // Mostra membros pendentes se for admin
+        if (isAdmin && pendingMembersList) {
+            renderPendingMembers();
+        }
         
         console.log('👤 Interface atualizada para:', isAdmin ? 'Administrador' : currentUser ? 'Usuário Normal' : 'Visitante');
     }
@@ -3218,6 +3478,7 @@
             // Inicializa variáveis globais
             users = [];
             members = [];
+            pendingMembers = [];
             events = [];
             eventChats = {};
             eventPhotosFiles = [];
