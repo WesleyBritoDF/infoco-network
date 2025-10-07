@@ -107,8 +107,8 @@
             color: #63b3ed;
         }
 
-        .admin-access-btn {
-            background: var(--admin-color);
+        .-access-btn {
+            background: var(---color);
             color: white;
             border: none;
             padding: 0.5rem 1rem;
@@ -118,16 +118,16 @@
             transition: var(--transition);
         }
 
-        .admin-access-btn:hover {
+        .-access-btn:hover {
             background: #6b46c1;
             transform: translateY(-2px);
         }
 
-        .admin-access-btn.logout {
+        .-access-btn.logout {
             background-color: var(--accent-color);
         }
         
-        .admin-access-btn.logout:hover {
+        .-access-btn.logout:hover {
             background-color: #c53030;
         }
 
@@ -239,11 +239,11 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
 
-        .btn-admin {
-            background-color: var(--admin-color);
+        .btn- {
+            background-color: var(---color);
         }
 
-        .btn-admin:hover {
+        .btn-:hover {
             background-color: #6b46c1;
         }
 
@@ -287,8 +287,8 @@
             border-radius: 2px;
         }
 
-        .section-title.admin::after {
-            background: linear-gradient(to right, var(--admin-color), #9f7aea);
+        .section-title.::after {
+            background: linear-gradient(to right, var(---color), #9f7aea);
         }
 
         .section-title.user::after {
@@ -745,8 +745,8 @@
             color: white;
         }
 
-        .card-header.admin {
-            background: linear-gradient(135deg, var(--admin-color) 0%, #9f7aea 100%);
+        .card-header. {
+            background: linear-gradient(135deg, var(---color) 0%, #9f7aea 100%);
         }
 
         .card-header.user {
@@ -779,10 +779,10 @@
             color: var(--dark-color);
         }
 
-        .admin-badge {
+        .-badge {
             display: inline-block;
             padding: 0.3rem 0.8rem;
-            background-color: var(--admin-color);
+            background-color: var(---color);
             color: white;
             border-radius: 20px;
             font-size: 0.8rem;
@@ -835,9 +835,9 @@
             border-bottom-color: var(--secondary-color);
         }
 
-        .tab.admin.active {
-            color: var(--admin-color);
-            border-bottom-color: var(--admin-color);
+        .tab..active {
+            color: var(---color);
+            border-bottom-color: var(---color);
         }
 
         .tab.user.active {
@@ -1217,8 +1217,8 @@
                 border-bottom-color: #e2e8f0;
             }
 
-            .tab.admin.active {
-                border-left-color: var(--admin-color);
+            .tab..active {
+                border-left-color: var(---color);
             }
 
             .tab.user.active {
@@ -1318,20 +1318,20 @@
         </div>
     </div>
 
-    <!-- Admin Login Modal -->
-    <div class="user-login-modal" id="adminLoginModal">
+    <!--  Login Modal -->
+    <div class="user-login-modal" id="LoginModal">
         <div class="user-login-content">
             <div class="user-login-header">
-                <h3>Acesso de Administrador</h3>
-                <p>Digite a senha para acessar funções administrativas</p>
+                <h3>Acesso de istrador</h3>
+                <p>Digite a senha para acessar funções istrativas</p>
             </div>
-            <form id="adminLoginForm">
+            <form id="LoginForm">
                 <div class="form-group">
-                    <label for="adminLoginPassword">Senha de Administrador *</label>
-                    <input type="password" id="adminLoginPassword" class="form-control" required>
+                    <label for="LoginPassword">Senha de istrador *</label>
+                    <input type="password" id="LoginPassword" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-admin" style="width: 100%;">
-                    <span id="adminLoginText">Entrar como Admin</span>
+                <button type="submit" class="btn btn-" style="width: 100%;">
+                    <span id="LoginText">Entrar como </span>
                     <div class="btn-loading">Entrando...</div>
                 </button>
             </form>
@@ -1617,7 +1617,7 @@
     let currentEditingMemberId = null;
     let currentEditingEventId = null;
     let eventChats = {};
-    let adminPassword = "admin123";
+    let adminPassword = "admin@123";
     let eventPhotosFiles = [];
     
     // Variáveis para galeria
@@ -3535,4 +3535,5 @@
     
 </body>
 </html>
+
 
