@@ -107,8 +107,8 @@
             color: #63b3ed;
         }
 
-        .-access-btn {
-            background: var(---color);
+        .admin-access-btn {
+            background: var(--admin-color);
             color: white;
             border: none;
             padding: 0.5rem 1rem;
@@ -118,16 +118,16 @@
             transition: var(--transition);
         }
 
-        .-access-btn:hover {
+        .admin-access-btn:hover {
             background: #6b46c1;
             transform: translateY(-2px);
         }
 
-        .-access-btn.logout {
+        .admin-access-btn.logout {
             background-color: var(--accent-color);
         }
         
-        .-access-btn.logout:hover {
+        .admin-access-btn.logout:hover {
             background-color: #c53030;
         }
 
@@ -239,11 +239,11 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
 
-        .btn- {
-            background-color: var(---color);
+        .btn-admin {
+            background-color: var(--admin-color);
         }
 
-        .btn-:hover {
+        .btn-admin:hover {
             background-color: #6b46c1;
         }
 
@@ -287,8 +287,8 @@
             border-radius: 2px;
         }
 
-        .section-title.::after {
-            background: linear-gradient(to right, var(---color), #9f7aea);
+        .section-title.admin::after {
+            background: linear-gradient(to right, var(--admin-color), #9f7aea);
         }
 
         .section-title.user::after {
@@ -745,8 +745,8 @@
             color: white;
         }
 
-        .card-header. {
-            background: linear-gradient(135deg, var(---color) 0%, #9f7aea 100%);
+        .card-header.admin {
+            background: linear-gradient(135deg, var(--admin-color) 0%, #9f7aea 100%);
         }
 
         .card-header.user {
@@ -779,10 +779,10 @@
             color: var(--dark-color);
         }
 
-        .-badge {
+        .admin-badge {
             display: inline-block;
             padding: 0.3rem 0.8rem;
-            background-color: var(---color);
+            background-color: var(--admin-color);
             color: white;
             border-radius: 20px;
             font-size: 0.8rem;
@@ -835,9 +835,9 @@
             border-bottom-color: var(--secondary-color);
         }
 
-        .tab..active {
-            color: var(---color);
-            border-bottom-color: var(---color);
+        .tab.admin.active {
+            color: var(--admin-color);
+            border-bottom-color: var(--admin-color);
         }
 
         .tab.user.active {
@@ -1217,8 +1217,8 @@
                 border-bottom-color: #e2e8f0;
             }
 
-            .tab..active {
-                border-left-color: var(---color);
+            .tab.admin.active {
+                border-left-color: var(--admin-color);
             }
 
             .tab.user.active {
@@ -1318,20 +1318,20 @@
         </div>
     </div>
 
-    <!--  Login Modal -->
-    <div class="user-login-modal" id="LoginModal">
+    <!-- Admin Login Modal -->
+    <div class="user-login-modal" id="adminLoginModal">
         <div class="user-login-content">
             <div class="user-login-header">
-                <h3>Acesso de istrador</h3>
-                <p>Digite a senha para acessar funções istrativas</p>
+                <h3>Acesso de Administrador</h3>
+                <p>Digite a senha para acessar funções administrativas</p>
             </div>
-            <form id="LoginForm">
+            <form id="adminLoginForm">
                 <div class="form-group">
-                    <label for="LoginPassword">Senha de administrador *</label>
-                    <input type="password" id="LoginPassword" class="form-control" required>
+                    <label for="adminLoginPassword">Senha de Administrador *</label>
+                    <input type="password" id="adminLoginPassword" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-" style="width: 100%;">
-                    <span id="LoginText">Entrar como </span>
+                <button type="submit" class="btn btn-admin" style="width: 100%;">
+                    <span id="adminLoginText">Entrar como Admin</span>
                     <div class="btn-loading">Entrando...</div>
                 </button>
             </form>
@@ -1389,9 +1389,9 @@
         <div class="container">
             <h2>Conecte-se, Compartilhe e Cresça.</h2>
             <p>Aqui você interage com outras pessoas e conecta-se a oportunidades.</p>
-            <!--<a href="#membros" class="btn">Membros</a>
+            <a href="#membros" class="btn">Membros</a>
             <a href="#eventos" class="btn btn-secondary">Eventos</a>
-            <a href="#cadastro-publico" class="btn btn-user">Cadastre-se</a>-->
+            <a href="#cadastro-publico" class="btn btn-user">Cadastre-se</a>
         </div>
     </section>
 
@@ -3535,5 +3535,3 @@
     
 </body>
 </html>
-
-
