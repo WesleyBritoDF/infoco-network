@@ -3033,9 +3033,95 @@
     }
 
     // Funções de exclusão específicas
-    async function deleteMember(memberId) {
-        await deleteItem('members', memberId);
+   // ========== FUNÇÃO DELETE MEMBER CORRIGIDA PARA PENDENTES ==========
+async function deleteMember(memberId) {
+    try {
+        console.log('🗑️ Iniciando exclusão do membro ID:', memberId);
+        
+        // Procura o membro em TODAS as listas possíveis
+        let member = null;
+        let listType = '';
+        
+        // 1. Procura nos membros aprovados
+        member = members.find(m => m.id === memberId);
+        if (member) {
+            listType = 'aprovados';
+        }
+        
+        // 2. Se não encontrou, procura nos membros pendentes
+        if (!member) {
+            member = pendingMembers.find(m => m.id === memberId);
+            if (member) {
+                listType = 'pendentes';
+            }
+        }
+        
+        // 3. Se ainda não encontrou, procura no localStorage completo
+        if (!member) {
+            const allMembers = loadFromLocalStorage('members') || [];
+            member = allMembers.find(m => m.id === memberId);
+            if (member) {
+                listType = 'localStorage';
+            }
+        }
+        
+        if (!member) {
+            throw new Error(`Membro com ID ${memberId} não encontrado em nenhuma lista`);
+        }
+
+        console.log('📋 Membro encontrado:', member.name, '- Tipo:', listType);
+
+        if (!confirm(`Tem certeza que deseja excluir o membro "${member.name}"?`)) {
+            return;
+        }
+
+        showLoading('Excluindo membro...');
+
+        // Remove do banco de dados (se online)
+        if (isOnline) {
+            console.log('🌐 Removendo do Supabase...');
+            const { error } = await supabase
+                .from('members')
+                .delete()
+                .eq('id', memberId);
+            
+            if (error) {
+                console.error('❌ Erro do Supabase:', error);
+                // Continua mesmo com erro, para tentar remover localmente
+            } else {
+                console.log('✅ Removido do Supabase');
+            }
+        }
+
+        // Remove do localStorage - abordagem mais direta
+        console.log('💾 Atualizando localStorage...');
+        const allMembers = loadFromLocalStorage('members') || [];
+        const updatedMembers = allMembers.filter(m => m.id !== memberId);
+        saveToLocalStorage('members', updatedMembers);
+        console.log('✅ localStorage atualizado - removidos:', allMembers.length - updatedMembers.length, 'membros');
+
+        // Atualiza as variáveis globais
+        members = members.filter(m => m.id !== memberId);
+        pendingMembers = pendingMembers.filter(m => m.id !== memberId);
+        
+        console.log('🔄 Atualizando interface...');
+        
+        // Atualiza a interface
+        renderMembers();
+        if (isCurrentUserAdmin()) {
+            renderPendingMembers();
+        }
+        
+        console.log('✅ Exclusão concluída com sucesso');
+        showMessage(`✅ Membro "${member.name}" excluído com sucesso!`, 'success');
+
+    } catch (error) {
+        console.error('❌ Erro completo ao excluir membro:', error);
+        showMessage(`Erro ao excluir membro: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
     }
+}
 
     async function deleteEvent(eventId) {
         await deleteItem('events', eventId);
@@ -3536,4 +3622,5 @@
     
 </body>
 </html>
+
 
