@@ -2090,27 +2090,46 @@
         }
     }
 
-    async function uploadMultipleImages(files, bucket, baseName) {
-        try {
-            console.log(`📤 Iniciando upload de ${files.length} imagens para o bucket: ${bucket}`);
+   async function uploadMultipleImages(files, bucket, baseName) {
+    try {
+        console.log(`📤 Iniciando upload de ${files.length} imagens para o bucket: ${bucket}`);
+        
+        const uploadPromises = Array.from(files).map(async (file, index) => {
+            // Validação do arquivo
+            if (!file.type.startsWith('image/')) {
+                console.warn(`Arquivo não é uma imagem: ${file.name}`);
+                return null;
+            }
             
-            const uploadPromises = Array.from(files).map(async (file, index) => {
-                const fileExt = file.name.split('.').pop();
-                const uniqueFileName = `${baseName}_${Date.now()}_${index}.${fileExt}`;
-                
-                console.log(`🔄 Upload ${index + 1}/${files.length}: ${file.name} como ${uniqueFileName}`);
-                
-                if (!isOnline) {
-                    console.log('📴 Modo offline - usando base64');
-                    return new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            resolve(e.target.result);
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                }
+            if (file.size > 5 * 1024 * 1024) {
+                console.warn(`Arquivo muito grande: ${file.name} (${file.size} bytes)`);
+                return null;
+            }
+            
+            const fileExt = file.name.split('.').pop().toLowerCase();
+            const validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            
+            if (!validExtensions.includes(fileExt)) {
+                console.warn(`Formato não suportado: ${file.name} (${fileExt})`);
+                return null;
+            }
+            
+            const uniqueFileName = `${baseName}_${Date.now()}_${index}.${fileExt}`;
+            
+            console.log(`🔄 Upload ${index + 1}/${files.length}: ${file.name} como ${uniqueFileName}`);
+            
+            if (!isOnline) {
+                console.log('📴 Modo offline - usando base64');
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        resolve(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
 
+            try {
                 // Upload para o Supabase Storage
                 const { data, error } = await supabase.storage
                     .from(bucket)
@@ -2133,235 +2152,245 @@
 
                 console.log(`✅ URL pública obtida: ${publicUrl}`);
                 return publicUrl;
-            });
-            
-            const urls = await Promise.all(uploadPromises);
-            const successfulUrls = urls.filter(url => url !== null && url !== undefined);
-            
-            console.log(`✅ Upload múltiplo concluído: ${successfulUrls.length}/${files.length} imagens salvas no bucket ${bucket}`);
-            return successfulUrls;
-        } catch (error) {
-            console.error('❌ Erro no upload múltiplo de imagens:', error);
-            throw error;
-        }
+            } catch (uploadError) {
+                console.error(`❌ Erro no upload individual ${index + 1}:`, uploadError);
+                return null;
+            }
+        });
+        
+        const urls = await Promise.all(uploadPromises);
+        const successfulUrls = urls.filter(url => url !== null && url !== undefined);
+        
+        console.log(`✅ Upload múltiplo concluído: ${successfulUrls.length}/${files.length} imagens salvas no bucket ${bucket}`);
+        return successfulUrls;
+    } catch (error) {
+        console.error('❌ Erro no upload múltiplo de imagens:', error);
+        throw new Error(`Falha no upload das imagens: ${error.message}`);
     }
+}
 
     // ========== FUNÇÃO SAVE DATA CORRIGIDA PARA EVENTOS ==========
-    async function saveData(table, formData, imageFiles, buttonId, editingId = null) {
-        try {
-            showButtonLoading(document.getElementById(buttonId), true);
+   async function saveData(table, formData, imageFiles, buttonId, editingId = null) {
+    try {
+        showButtonLoading(document.getElementById(buttonId), true);
+        
+        console.log(`💾 Salvando dados para ${table}`, formData);
+        
+        // PROCESSAMENTO ESPECÍFICO PARA EVENTOS
+        if (table === 'events') {
+            console.log('🎯 Processando evento - Fotos novas:', eventPhotosFiles.length, 'Fotos existentes:', currentEditingEventPhotos?.length || 0);
             
-            let imageUrls = [];
+            let uploadedPhotoUrls = [];
             
-            // CORREÇÃO: Processamento específico para eventos
-            if (table === 'events') {
-                console.log('🎯 Processando evento - Fotos novas:', eventPhotosFiles.length, 'Fotos existentes:', currentEditingEventPhotos?.length || 0);
+            // Upload de novas fotos se houver
+            if (eventPhotosFiles && eventPhotosFiles.length > 0) {
+                console.log(`📤 Fazendo upload de ${eventPhotosFiles.length} novas fotos`);
                 
-                // Para eventos, primeiro faz upload das novas fotos
-                if (eventPhotosFiles && eventPhotosFiles.length > 0) {
+                try {
                     const baseName = formData.title?.replace(/\s+/g, '_').toLowerCase() || 'event';
-                    console.log(`📤 Fazendo upload de ${eventPhotosFiles.length} novas fotos`);
-                    
-                    imageUrls = await uploadMultipleImages(eventPhotosFiles, 'events-photos', baseName);
-                    console.log('✅ Novas fotos uploadadas:', imageUrls);
-                }
-                
-                // Prepara os dados para salvar
-                const dataToSave = { ...formData };
-                
-                // Combina fotos existentes (que não foram removidas) com novas fotos
-                let allPhotoUrls = [];
-                
-                // Mantém fotos existentes que não foram marcadas para deleção
-                if (currentEditingEventPhotos && currentEditingEventPhotos.length > 0) {
-                    allPhotoUrls = [...currentEditingEventPhotos.filter(photo => !photosToDelete.includes(photo))];
-                    console.log('📸 Fotos existentes mantidas:', allPhotoUrls);
-                }
-                
-                // Adiciona novas fotos
-                if (imageUrls.length > 0) {
-                    allPhotoUrls = [...allPhotoUrls, ...imageUrls];
-                    console.log('🆕 Novas fotos adicionadas:', imageUrls);
-                }
-                
-                dataToSave.photos = allPhotoUrls;
-                console.log('✅ Todas as fotos do evento:', allPhotoUrls);
-                
-                // Deleta fotos antigas do storage se estiver online
-                if (isOnline && photosToDelete.length > 0) {
-                    console.log('🗑️ Deletando fotos do storage:', photosToDelete);
-                    
-                    for (const photoUrl of photosToDelete) {
-                        try {
-                            // Extrai o nome do arquivo da URL
-                            const fileName = photoUrl.split('/').pop();
-                            if (fileName) {
-                                const { error } = await supabase.storage
-                                    .from('events-photos')
-                                    .remove([fileName]);
-                                
-                                if (error) {
-                                    console.error('Erro ao deletar foto:', fileName, error);
-                                } else {
-                                    console.log('✅ Foto deletada do storage:', fileName);
-                                }
-                            }
-                        } catch (deleteError) {
-                            console.error('Erro ao deletar foto do storage:', deleteError);
-                        }
-                    }
-                    
-                    // Limpa a lista de fotos para deletar
-                    photosToDelete = [];
-                }
-                
-                // Salva no banco de dados
-                if (isOnline) {
-                    let result;
-                    
-                    try {
-                        if (editingId) {
-                            dataToSave.updated_at = new Date().toISOString();
-                            
-                            const { data, error } = await supabase
-                                .from(table)
-                                .update(dataToSave)
-                                .eq('id', editingId)
-                                .select();
-                            
-                            if (error) throw error;
-                            result = data;
-                        } else {
-                            const { data, error } = await supabase
-                                .from(table)
-                                .insert([dataToSave])
-                                .select();
-                            
-                            if (error) throw error;
-                            result = data;
-                        }
-                    } catch (dbError) {
-                        console.error(`Erro no banco de dados:`, dbError);
-                        await saveDataLocally(table, dataToSave, editingId);
-                        showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
-                        return true;
-                    }
-                    
-                    // Recarrega os dados
-                    await loadEvents();
-                    
-                    showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
-                    return true;
-                } else {
-                    await saveDataLocally(table, dataToSave, editingId);
-                    return true;
-                }
-                
-            } else {
-                // PROCESSAMENTO ORIGINAL PARA OUTRAS TABELAS
-                if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
-                    const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
-                                    formData.title?.replace(/\s+/g, '_').toLowerCase() || 
-                                    'image';
-                    
-                    console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'} para ${table}`);
-                    
-                    if (Array.isArray(imageFiles)) {
-                        // Múltiplas imagens
-                        const bucketName = 'events-photos';
-                        imageUrls = await uploadMultipleImages(imageFiles, bucketName, baseName);
-                        console.log('✅ URLs das fotos:', imageUrls);
-                    } else {
-                        // Uma imagem - definir bucket correto
-                        let bucketName;
-                        if (table === 'members') {
-                            bucketName = 'members-photos';
-                        } else if (table === 'partners') {
-                            bucketName = 'parceiros-photos';
-                        } else if (table === 'store_items') {
-                            bucketName = 'loja-photos';
-                        } else {
-                            bucketName = 'images';
-                        }
-                        
-                        console.log(`🪣 Usando bucket: ${bucketName} para ${table}`);
-                        const imageUrl = await uploadImage(imageFiles, bucketName, baseName);
-                        imageUrls = [imageUrl];
-                    }
-                    
-                    console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
-                }
-                    
-                // Prepara os dados para salvar
-                const dataToSave = { ...formData };
-                
-                // Adiciona as URLs das imagens aos dados
-                if (imageUrls.length > 0) {
-                    if (table === 'members') {
-                        dataToSave.photo = imageUrls[0];
-                    } else if (table === 'partners') {
-                        dataToSave.logo = imageUrls[0];
-                    } else if (table === 'store_items') {
-                        dataToSave.photo = imageUrls[0];
-                    }
-                }
-                
-                if (isOnline) {
-                    let result;
-                    
-                    try {
-                        if (editingId) {
-                            dataToSave.updated_at = new Date().toISOString();
-                            
-                            const { data, error } = await supabase
-                                .from(table)
-                                .update(dataToSave)
-                                .eq('id', editingId)
-                                .select();
-                            
-                            if (error) throw error;
-                            result = data;
-                        } else {
-                            const { data, error } = await supabase
-                                .from(table)
-                                .insert([dataToSave])
-                                .select();
-                            
-                            if (error) throw error;
-                            result = data;
-                        }
-                    } catch (dbError) {
-                        console.error(`Erro no banco de dados:`, dbError);
-                        await saveDataLocally(table, dataToSave, editingId);
-                        showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
-                        return true;
-                    }
-                    
-                    // Recarrega os dados
-                    switch(table) {
-                        case 'users': await loadUsers(); break;
-                        case 'members': await loadMembers(); break;
-                        case 'events': await loadEvents(); break;
-                        case 'partners': await loadPartners(); break;
-                        case 'store_items': await loadStoreItems(); break;
-                    }
-                    
-                    showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
-                    return true;
-                } else {
-                    await saveDataLocally(table, dataToSave, editingId);
-                    return true;
+                    uploadedPhotoUrls = await uploadMultipleImages(eventPhotosFiles, 'events-photos', baseName);
+                    console.log('✅ Novas fotos uploadadas:', uploadedPhotoUrls);
+                } catch (uploadError) {
+                    console.error('❌ Erro no upload de fotos:', uploadError);
+                    throw new Error(`Falha no upload das fotos: ${uploadError.message}`);
                 }
             }
             
-        } catch (error) {
-            console.error(`Erro ao salvar ${table}:`, error);
-            showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
-            return false;
-        } finally {
-            showButtonLoading(document.getElementById(buttonId), false);
+            // Prepara os dados para salvar
+            const dataToSave = { ...formData };
+            
+            // Combina fotos existentes (que não foram removidas) com novas fotos
+            let allPhotoUrls = [];
+            
+            // Mantém fotos existentes que não foram marcadas para deleção
+            if (currentEditingEventPhotos && currentEditingEventPhotos.length > 0) {
+                const keptPhotos = currentEditingEventPhotos.filter(photo => !photosToDelete.includes(photo));
+                allPhotoUrls = [...keptPhotos];
+                console.log('📸 Fotos existentes mantidas:', keptPhotos.length);
+            }
+            
+            // Adiciona novas fotos
+            if (uploadedPhotoUrls.length > 0) {
+                allPhotoUrls = [...allPhotoUrls, ...uploadedPhotoUrls];
+                console.log('🆕 Novas fotos adicionadas:', uploadedPhotoUrls.length);
+            }
+            
+            dataToSave.photos = allPhotoUrls;
+            console.log('✅ Todas as fotos do evento:', allPhotoUrls.length);
+            
+            // Deleta fotos antigas do storage se estiver online
+            if (isOnline && photosToDelete.length > 0) {
+                console.log('🗑️ Deletando fotos do storage:', photosToDelete.length);
+                
+                for (const photoUrl of photosToDelete) {
+                    try {
+                        // Extrai o nome do arquivo da URL
+                        const fileName = photoUrl.split('/').pop();
+                        if (fileName) {
+                            const { error } = await supabase.storage
+                                .from('events-photos')
+                                .remove([fileName]);
+                            
+                            if (error) {
+                                console.error('Erro ao deletar foto:', fileName, error);
+                            } else {
+                                console.log('✅ Foto deletada do storage:', fileName);
+                            }
+                        }
+                    } catch (deleteError) {
+                        console.error('Erro ao deletar foto do storage:', deleteError);
+                    }
+                }
+            }
+            
+            // Salva no banco de dados
+            if (isOnline) {
+                let result;
+                
+                try {
+                    if (editingId) {
+                        dataToSave.updated_at = new Date().toISOString();
+                        
+                        const { data, error } = await supabase
+                            .from(table)
+                            .update(dataToSave)
+                            .eq('id', editingId)
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data;
+                        console.log('✅ Evento atualizado no banco:', result);
+                    } else {
+                        const { data, error } = await supabase
+                            .from(table)
+                            .insert([dataToSave])
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data;
+                        console.log('✅ Evento criado no banco:', result);
+                    }
+                } catch (dbError) {
+                    console.error(`❌ Erro no banco de dados:`, dbError);
+                    // Fallback para salvar localmente
+                    await saveDataLocally(table, dataToSave, editingId);
+                    showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
+                    return true;
+                }
+                
+                // Recarrega os dados
+                await loadEvents();
+                
+                showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso! ${allPhotoUrls.length} foto(s) salva(s).`, 'success');
+                return true;
+                
+            } else {
+                // Modo offline
+                await saveDataLocally(table, dataToSave, editingId);
+                return true;
+            }
+            
+        } else {
+            // PROCESSAMENTO ORIGINAL PARA OUTRAS TABELAS (Membros, Parceiros, Loja)
+            let imageUrl = null;
+            
+            if (imageFiles) {
+                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
+                                formData.title?.replace(/\s+/g, '_').toLowerCase() || 
+                                'image';
+                
+                console.log(`📤 Processando imagem para ${table}`);
+                
+                // Define o bucket correto
+                let bucketName;
+                switch(table) {
+                    case 'members': bucketName = 'members-photos'; break;
+                    case 'partners': bucketName = 'parceiros-photos'; break;
+                    case 'store_items': bucketName = 'loja-photos'; break;
+                    default: bucketName = 'images'; break;
+                }
+                
+                console.log(`🪣 Usando bucket: ${bucketName} para ${table}`);
+                
+                try {
+                    imageUrl = await uploadImage(imageFiles, bucketName, baseName);
+                    console.log(`✅ Imagem uploadada com sucesso: ${imageUrl}`);
+                } catch (uploadError) {
+                    console.error(`❌ Erro no upload da imagem para ${table}:`, uploadError);
+                    throw new Error(`Falha no upload da imagem: ${uploadError.message}`);
+                }
+            }
+            
+            // Prepara os dados para salvar
+            const dataToSave = { ...formData };
+            
+            // Adiciona a URL da imagem aos dados
+            if (imageUrl) {
+                if (table === 'members') {
+                    dataToSave.photo = imageUrl;
+                } else if (table === 'partners') {
+                    dataToSave.logo = imageUrl;
+                } else if (table === 'store_items') {
+                    dataToSave.photo = imageUrl;
+                }
+            }
+            
+            if (isOnline) {
+                let result;
+                
+                try {
+                    if (editingId) {
+                        dataToSave.updated_at = new Date().toISOString();
+                        
+                        const { data, error } = await supabase
+                            .from(table)
+                            .update(dataToSave)
+                            .eq('id', editingId)
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data;
+                    } else {
+                        const { data, error } = await supabase
+                            .from(table)
+                            .insert([dataToSave])
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data;
+                    }
+                } catch (dbError) {
+                    console.error(`❌ Erro no banco de dados para ${table}:`, dbError);
+                    await saveDataLocally(table, dataToSave, editingId);
+                    showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
+                    return true;
+                }
+                
+                // Recarrega os dados específicos
+                switch(table) {
+                    case 'users': await loadUsers(); break;
+                    case 'members': await loadMembers(); break;
+                    case 'events': await loadEvents(); break;
+                    case 'partners': await loadPartners(); break;
+                    case 'store_items': await loadStoreItems(); break;
+                }
+                
+                showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
+                return true;
+            } else {
+                await saveDataLocally(table, dataToSave, editingId);
+                return true;
+            }
         }
+        
+    } catch (error) {
+        console.error(`❌ Erro ao salvar ${table}:`, error);
+        showMessage(`Erro ao salvar ${getEntityName(table).toLowerCase()}: ${error.message}`, 'error');
+        return false;
+    } finally {
+        showButtonLoading(document.getElementById(buttonId), false);
     }
+}
 
     async function saveDataLocally(table, dataToSave, editingId = null) {
         if (editingId) {
@@ -3210,40 +3239,41 @@
             });
         }
 
-        if (document.getElementById('eventRegistrationForm')) {
-            document.getElementById('eventRegistrationForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const eventData = {
-                    title: document.getElementById('eventTitle')?.value || '',
-                    event_date: document.getElementById('eventDate')?.value || '',
-                    event_time: document.getElementById('eventTime')?.value || '',
-                    location: document.getElementById('eventLocation')?.value || '',
-                    description: document.getElementById('eventDescription')?.value || ''
-                };
-                
-                if (!eventData.title || !eventData.event_date || !eventData.event_time || !eventData.location) {
-                    showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
-                    return;
-                }
-                
-                // Verifica se há fotos selecionadas
-                if (eventPhotosFiles.length === 0 && (!currentEditingEventPhotos || currentEditingEventPhotos.length === 0)) {
-                    if (!confirm('Nenhuma foto foi selecionada para o evento. Deseja continuar sem fotos?')) {
-                        return;
-                    }
-                }
-                
-                console.log(`📝 Salvando evento com ${eventPhotosFiles.length} fotos novas e ${currentEditingEventPhotos ? currentEditingEventPhotos.length : 0} fotos existentes`);
-                
-                // CORREÇÃO: Passa null para imageFiles pois as fotos são gerenciadas pelas variáveis globais
-                const success = await saveData('events', eventData, null, 'eventSubmitBtn', currentEditingEventId);
-                
-                if (success) {
-                    resetForm('event');
-                }
-            });
+       if (document.getElementById('eventRegistrationForm')) {
+    document.getElementById('eventRegistrationForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const eventData = {
+            title: document.getElementById('eventTitle')?.value || '',
+            event_date: document.getElementById('eventDate')?.value || '',
+            event_time: document.getElementById('eventTime')?.value || '',
+            location: document.getElementById('eventLocation')?.value || '',
+            description: document.getElementById('eventDescription')?.value || ''
+        };
+        
+        if (!eventData.title || !eventData.event_date || !eventData.event_time || !eventData.location) {
+            showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
+            return;
         }
+        
+        // Verifica se há fotos selecionadas
+        const totalPhotos = eventPhotosFiles.length + (currentEditingEventPhotos?.length || 0);
+        if (totalPhotos === 0) {
+            if (!confirm('Nenhuma foto foi selecionada para o evento. Deseja continuar sem fotos?')) {
+                return;
+            }
+        }
+        
+        console.log(`📝 Salvando evento "${eventData.title}" com ${eventPhotosFiles.length} fotos novas e ${currentEditingEventPhotos ? currentEditingEventPhotos.length : 0} fotos existentes`);
+        
+        // CORREÇÃO: Passa null para imageFiles pois as fotos são gerenciadas pelas variáveis globais
+        const success = await saveData('events', eventData, null, 'eventSubmitBtn', currentEditingEventId);
+        
+        if (success) {
+            resetForm('event');
+        }
+    });
+}
 
         if (document.getElementById('partnerRegistrationForm')) {
             document.getElementById('partnerRegistrationForm').addEventListener('submit', async function(e) {
@@ -3625,76 +3655,80 @@
         }
     }
 
-    function resetForm(type) {
-        let form, submitText, preview, photosPreview;
-        
-        switch(type) {
-            case 'member':
-                form = document.getElementById('memberRegistrationForm');
-                submitText = document.getElementById('memberSubmitText');
-                preview = document.getElementById('memberPhotoPreview');
-                currentEditingMemberId = null;
-                break;
-               
-            case 'publicMember':
-                form = document.getElementById('publicMemberRegistrationForm');
-                submitText = document.getElementById('publicMemberSubmitText');
-                preview = document.getElementById('publicMemberPhotoPreview');
-                break;
-                
-            case 'event':
-                form = document.getElementById('eventRegistrationForm');
-                submitText = document.getElementById('eventSubmitText');
-                photosPreview = document.getElementById('eventPhotosPreview');
-                eventPhotosFiles = [];
-                currentEditingEventId = null;
-                
-                // Limpa as variáveis de fotos existentes
-                currentEditingEventPhotos = [];
-                photosToDelete = [];
-                
-                // Reseta a área de upload
-                const uploadArea = document.getElementById('eventPhotosUploadArea');
-                if (uploadArea) {
-                    uploadArea.innerHTML = `
-                        <p>📷 Clique aqui ou arraste fotos para adicionar</p>
-                        <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos (máx. 20)</p>
-                    `;
-                }
-                break;
-                
-            case 'partner':
-                form = document.getElementById('partnerRegistrationForm');
-                submitText = document.getElementById('partnerSubmitText');
-                preview = document.getElementById('partnerLogoPreview');
-                currentEditingPartnerId = null;
-                break;
-                
-            case 'store':
-                form = document.getElementById('storeRegistrationForm');
-                submitText = document.getElementById('storeSubmitText');
-                preview = document.getElementById('storeItemPhotoPreview');
-                currentEditingStoreItemId = null;
-                break;
-        }
-        
-        if (form) form.reset();
-        if (preview) {
-            if (type === 'partner') {
-                preview.innerHTML = '<div class="placeholder">Logo do Parceiro</div>';
-            } else if (type === 'store') {
-                preview.innerHTML = '<div class="placeholder">Foto do Produto</div>';
-            } else {
-                preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
+  function resetForm(type) {
+    let form, submitText, preview, photosPreview;
+    
+    switch(type) {
+        case 'member':
+            form = document.getElementById('memberRegistrationForm');
+            submitText = document.getElementById('memberSubmitText');
+            preview = document.getElementById('memberPhotoPreview');
+            currentEditingMemberId = null;
+            break;
+           
+        case 'publicMember':
+            form = document.getElementById('publicMemberRegistrationForm');
+            submitText = document.getElementById('publicMemberSubmitText');
+            preview = document.getElementById('publicMemberPhotoPreview');
+            break;
+            
+        case 'event':
+            form = document.getElementById('eventRegistrationForm');
+            submitText = document.getElementById('eventSubmitText');
+            photosPreview = document.getElementById('eventPhotosPreview');
+            
+            // **CRUCIAL**: Resetar todas as variáveis de fotos de evento
+            eventPhotosFiles = [];
+            currentEditingEventId = null;
+            currentEditingEventPhotos = [];
+            photosToDelete = [];
+            
+            // Reseta a área de upload
+            const uploadArea = document.getElementById('eventPhotosUploadArea');
+            if (uploadArea) {
+                uploadArea.innerHTML = `
+                    <p>📷 Clique aqui ou arraste fotos para adicionar</p>
+                    <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos (máx. 20)</p>
+                `;
             }
-        }
-        if (photosPreview) {
-            photosPreview.innerHTML = '';
-        }
-        if (submitText) {
-            submitText.textContent = type === 'publicMember' ? 'Enviar para Aprovação' : `Cadastrar ${getEntityName(type)}`;
+            
+            // Limpa o preview
+            if (photosPreview) {
+                photosPreview.innerHTML = '';
+            }
+            break;
+            
+        case 'partner':
+            form = document.getElementById('partnerRegistrationForm');
+            submitText = document.getElementById('partnerSubmitText');
+            preview = document.getElementById('partnerLogoPreview');
+            currentEditingPartnerId = null;
+            break;
+            
+        case 'store':
+            form = document.getElementById('storeRegistrationForm');
+            submitText = document.getElementById('storeSubmitText');
+            preview = document.getElementById('storeItemPhotoPreview');
+            currentEditingStoreItemId = null;
+            break;
+    }
+    
+    if (form) form.reset();
+    if (preview) {
+        if (type === 'partner') {
+            preview.innerHTML = '<div class="placeholder">Logo do Parceiro</div>';
+        } else if (type === 'store') {
+            preview.innerHTML = '<div class="placeholder">Foto do Produto</div>';
+        } else {
+            preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
         }
     }
+    if (submitText) {
+        submitText.textContent = type === 'publicMember' ? 'Enviar para Aprovação' : `Cadastrar ${getEntityName(type)}`;
+    }
+    
+    console.log(`🔄 Formulário ${type} resetado com sucesso`);
+}
 
     function resetEditingIds() {
         currentEditingMemberId = null;
@@ -4302,7 +4336,41 @@
     } else {
         setTimeout(initializeApp, 100);
     }
+// Função para debug - verificar se o bucket existe e tem permissões
+async function debugStorage() {
+    try {
+        console.log('🔍 Verificando configuração do storage...');
+        
+        // Tenta listar os buckets disponíveis
+        const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+        
+        if (bucketsError) {
+            console.error('❌ Erro ao listar buckets:', bucketsError);
+        } else {
+            console.log('✅ Buckets disponíveis:', buckets.map(b => b.name));
+        }
+        
+        // Verifica o bucket de eventos
+        const { data: eventsFiles, error: eventsError } = await supabase.storage
+            .from('events-photos')
+            .list();
+            
+        if (eventsError) {
+            console.error('❌ Erro ao acessar bucket events-photos:', eventsError);
+        } else {
+            console.log(`✅ Bucket events-photos contém ${eventsFiles.length} arquivos`);
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro no debug do storage:', error);
+    }
+}
+
+// Chame esta função durante a inicialização para verificar
+// debugStorage();
+    
 </script>
     
 </body>
 </html>
+
