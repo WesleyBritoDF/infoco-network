@@ -2011,54 +2011,80 @@
         }
     }
 
-    // ========== FUNÇÕES DE UPLOAD DE IMAGENS ==========
-    async function uploadImage(file, bucket, fileName) {
-        try {
-            console.log(`📤 Iniciando upload para bucket: ${bucket}, arquivo: ${fileName}`);
-            
-            if (!isOnline) {
-                console.log('📴 Modo offline - usando base64');
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        console.log('✅ Imagem convertida para base64');
-                        resolve(e.target.result);
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            const fileExt = file.name.split('.').pop();
-            const uniqueFileName = `${fileName}_${Date.now()}.${fileExt}`;
-            
-            console.log(`🔄 Fazendo upload do arquivo: ${uniqueFileName}`);
-            
-            const { data, error } = await supabase.storage
-                .from(bucket)
-                .upload(uniqueFileName, file, {
-                    cacheControl: '3600',
-                    upsert: false
-                });
-
-            if (error) {
-                console.error('❌ Erro no upload:', error);
-                throw error;
-            }
-
-            console.log('✅ Upload concluído, obtendo URL pública...');
-
-            const { data: { publicUrl } } = supabase.storage
-                .from(bucket)
-                .getPublicUrl(uniqueFileName);
-
-            console.log('✅ URL pública obtida:', publicUrl);
-            return publicUrl;
-            
-        } catch (error) {
-            console.error('❌ Erro completo no upload da imagem:', error);
-            throw new Error('Falha no upload da imagem: ' + error.message);
+    // ========== FUNÇÕES DE UPLOAD DE IMAGENS CORRIGIDAS ==========
+async function uploadImage(file, bucket, fileName) {
+    try {
+        console.log(`📤 Iniciando upload para bucket: ${bucket}, arquivo: ${fileName}`);
+        
+        if (!isOnline) {
+            console.log('📴 Modo offline - usando base64');
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    console.log('✅ Imagem convertida para base64');
+                    resolve(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
         }
+
+        // Verificar se o arquivo é uma imagem válida
+        if (!file.type.startsWith('image/')) {
+            throw new Error('Por favor, selecione um arquivo de imagem válido (JPG, PNG, GIF, WebP)');
+        }
+
+        // Verificar tamanho do arquivo (máx 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            throw new Error('A imagem deve ter menos de 5MB');
+        }
+
+        const fileExt = file.name.split('.').pop().toLowerCase();
+        const validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        
+        if (!validExtensions.includes(fileExt)) {
+            throw new Error('Formato de imagem não suportado. Use JPG, PNG, GIF ou WebP');
+        }
+
+        const uniqueFileName = `${fileName}_${Date.now()}.${fileExt}`;
+        
+        console.log(`🔄 Fazendo upload do arquivo: ${uniqueFileName} para bucket: ${bucket}`);
+        
+        // Fazer upload para o Supabase Storage
+        const { data, error } = await supabase.storage
+            .from(bucket)
+            .upload(uniqueFileName, file, {
+                cacheControl: '3600',
+                upsert: false
+            });
+
+        if (error) {
+            console.error('❌ Erro no upload:', error);
+            
+            // Tentar diagnóstico do erro
+            if (error.message.includes('Bucket not found')) {
+                throw new Error(`Bucket '${bucket}' não encontrado. Verifique se o bucket existe no Supabase Storage.`);
+            } else if (error.message.includes('not authorized')) {
+                throw new Error(`Sem permissão para fazer upload no bucket '${bucket}'. Verifique as políticas de acesso.`);
+            } else {
+                throw new Error(`Falha no upload: ${error.message}`);
+            }
+        }
+
+        console.log('✅ Upload concluído, obtendo URL pública...');
+
+        // Obter URL pública
+        const { data: { publicUrl } } = supabase.storage
+            .from(bucket)
+            .getPublicUrl(uniqueFileName);
+
+        console.log('✅ URL pública obtida:', publicUrl);
+        return publicUrl;
+        
+    } catch (error) {
+        console.error('❌ Erro completo no upload da imagem:', error);
+        throw new Error(`Falha no upload da imagem: ${error.message}`);
     }
+}
 
     async function uploadMultipleImages(files, bucket, baseName) {
         try {
@@ -2465,40 +2491,46 @@
         });
     }
 
-    // ========== FUNÇÃO SALVAR DADOS ==========
-    async function saveData(table, formData, imageFiles, buttonId, editingId = null) {
-        try {
-            showButtonLoading(document.getElementById(buttonId), true);
+   // Na função saveData, atualize a parte dos buckets:
+async function saveData(table, formData, imageFiles, buttonId, editingId = null) {
+    try {
+        showButtonLoading(document.getElementById(buttonId), true);
+        
+        let imageUrls = [];
+        
+        // Faz upload das imagens se existirem
+        if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
+            const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
+                            formData.title?.replace(/\s+/g, '_').toLowerCase() || 
+                            'image';
             
-            let imageUrls = [];
+            console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'} para ${table}`);
             
-            // Faz upload das imagens se existirem
-            if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
-                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
-                                formData.title?.replace(/\s+/g, '_').toLowerCase() || 
-                                'image';
-                
-                console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'} para ${table}`);
-                
-                if (Array.isArray(imageFiles)) {
-                    // Múltiplas imagens (para eventos) - usa o bucket events-photos
-                    const bucketName = 'events-photos';
-                    imageUrls = await uploadMultipleImages(imageFiles, bucketName, baseName);
-                    console.log('✅ URLs das fotos do evento:', imageUrls);
+            if (Array.isArray(imageFiles)) {
+                // Múltiplas imagens (para eventos)
+                const bucketName = 'events-photos';
+                imageUrls = await uploadMultipleImages(imageFiles, bucketName, baseName);
+                console.log('✅ URLs das fotos do evento:', imageUrls);
+            } else {
+                // Uma imagem - definir bucket correto
+                let bucketName;
+                if (table === 'members') {
+                    bucketName = 'members-photos';
+                } else if (table === 'partners') {
+                    bucketName = 'parceiros-photos'; // Nome corrigido
+                } else if (table === 'store_items') {
+                    bucketName = 'loja-photos';
                 } else {
-                    // Uma imagem (para membros, parceiros, loja) - usa o bucket correspondente
-                    let bucketName;
-                    if (table === 'members') bucketName = 'members-photos';
-                    else if (table === 'partners') bucketName = 'parceiros-photos';
-                    else if (table === 'store_items') bucketName = 'loja-photos';
-                    else bucketName = 'images';
-                    
-                    const imageUrl = await uploadImage(imageFiles, bucketName, baseName);
-                    imageUrls = [imageUrl];
+                    bucketName = 'images'; // Fallback
                 }
                 
-                console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
+                console.log(`🪣 Usando bucket: ${bucketName} para ${table}`);
+                const imageUrl = await uploadImage(imageFiles, bucketName, baseName);
+                imageUrls = [imageUrl];
             }
+            
+            console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
+        }
             
             // Prepara os dados para salvar
             const dataToSave = { ...formData };
@@ -4112,4 +4144,5 @@
     
 </body>
 </html>
+
 
