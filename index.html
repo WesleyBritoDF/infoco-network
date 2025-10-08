@@ -1810,7 +1810,7 @@
     let currentPhotoIndex = 0;
 
     // **CORREÇÃO: Adicione estas variáveis para gerenciar fotos existentes**
-    let currentEditingEventPhotos = []; // URLs das fotos atuais do evento sendo editado
+   let currentEditingEventPhotos = []; // URLs das fotos atuais do evento sendo editado
     let photosToDelete = []; // URLs das fotos que serão deletadas
 
     
@@ -3473,7 +3473,7 @@
         // Adiciona ao array global de novas fotos
         eventPhotosFiles = [...eventPhotosFiles, ...filesToProcess];
         
-        // **CORREÇÃO: Atualiza o preview combinando fotos existentes e novas**
+        // Atualiza o preview combinando fotos existentes e novas
         updateExistingPhotosPreview();
         
         showMessage(`${filesToProcess.length} nova(s) foto(s) adicionada(s)! Total: ${(currentEditingEventPhotos?.length || 0) + eventPhotosFiles.length}`, 'success');
@@ -3600,10 +3600,11 @@
         }
     }
 // Função para remover foto NOVA do evento (ainda não salva)
+// Função para remover foto NOVA do evento (ainda não salva)
 function removeEventPhoto(index) {
     eventPhotosFiles.splice(index, 1);
     
-    // **CORREÇÃO: Atualiza o preview combinado**
+    // Atualiza o preview combinado
     updateExistingPhotosPreview();
 }
    function resetForm(type) {
@@ -3611,17 +3612,18 @@ function removeEventPhoto(index) {
     
     switch(type) {
         case 'member':
-             form = document.getElementById('memberRegistrationForm');
-                submitText = document.getElementById('memberSubmitText');
-                preview = document.getElementById('memberPhotoPreview');
-                currentEditingMemberId = null;
-                break;
+            form = document.getElementById('memberRegistrationForm');
+            submitText = document.getElementById('memberSubmitText');
+            preview = document.getElementById('memberPhotoPreview');
+            currentEditingMemberId = null;
+            break;
            
         case 'publicMember':
             form = document.getElementById('publicMemberRegistrationForm');
-                submitText = document.getElementById('publicMemberSubmitText');
-                preview = document.getElementById('publicMemberPhotoPreview');
-                break;
+            submitText = document.getElementById('publicMemberSubmitText');
+            preview = document.getElementById('publicMemberPhotoPreview');
+            break;
+            
         case 'event':
             form = document.getElementById('eventRegistrationForm');
             submitText = document.getElementById('eventSubmitText');
@@ -3629,11 +3631,11 @@ function removeEventPhoto(index) {
             eventPhotosFiles = [];
             currentEditingEventId = null;
             
-            // **CORREÇÃO: Limpa as variáveis de fotos existentes**
+            // Limpa as variáveis de fotos existentes
             currentEditingEventPhotos = [];
             photosToDelete = [];
             
-            // **CORREÇÃO: Reseta a área de upload**
+            // Reseta a área de upload
             const uploadArea = document.getElementById('eventPhotosUploadArea');
             if (uploadArea) {
                 uploadArea.innerHTML = `
@@ -3642,18 +3644,20 @@ function removeEventPhoto(index) {
                 `;
             }
             break;
+            
         case 'partner':
-             form = document.getElementById('partnerRegistrationForm');
-                submitText = document.getElementById('partnerSubmitText');
-                preview = document.getElementById('partnerLogoPreview');
-                currentEditingPartnerId = null;
-                break;
+            form = document.getElementById('partnerRegistrationForm');
+            submitText = document.getElementById('partnerSubmitText');
+            preview = document.getElementById('partnerLogoPreview');
+            currentEditingPartnerId = null;
+            break;
+            
         case 'store':
-             form = document.getElementById('storeRegistrationForm');
-                submitText = document.getElementById('storeSubmitText');
-                preview = document.getElementById('storeItemPhotoPreview');
-                currentEditingStoreItemId = null;
-                break;
+            form = document.getElementById('storeRegistrationForm');
+            submitText = document.getElementById('storeSubmitText');
+            preview = document.getElementById('storeItemPhotoPreview');
+            currentEditingStoreItemId = null;
+            break;
     }
     
     if (form) form.reset();
@@ -3669,7 +3673,9 @@ function removeEventPhoto(index) {
     if (photosPreview) {
         photosPreview.innerHTML = '';
     }
-    if (submitText) submitText.textContent = type === 'publicMember' ? 'Enviar para Aprovação' : `Cadastrar ${getEntityName(type)}`;
+    if (submitText) {
+        submitText.textContent = type === 'publicMember' ? 'Enviar para Aprovação' : `Cadastrar ${getEntityName(type)}`;
+    }
 }
 
     function resetEditingIds() {
@@ -3678,9 +3684,10 @@ function removeEventPhoto(index) {
     currentEditingPartnerId = null;
     currentEditingStoreItemId = null;
     
-    // **CORREÇÃO: Limpa as variáveis de fotos de evento**
+    // Limpa as variáveis de fotos de evento
     currentEditingEventPhotos = [];
     photosToDelete = [];
+    eventPhotosFiles = [];
     
     document.getElementById('memberSubmitText').textContent = 'Cadastrar Membro';
     document.getElementById('eventSubmitText').textContent = 'Cadastrar Evento';
