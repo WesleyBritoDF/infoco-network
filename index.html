@@ -1700,7 +1700,7 @@
                 </div>
                 <div class="logo-text">
                     <h1>NETWORK IN FOCO</h1>
-                    <h2>Versão 1 <b>develop</b> | © 2025</h2>
+                    <h2>Versão 3 <b>develop</b> | © 2025</h2>
                 </div>
             </div>
             
@@ -2773,8 +2773,6 @@
     }
 }
 
-
-
    // Função auxiliar para salvar dados localmente
 async function saveDataLocally(table, dataToSave, editingId = null) {
     try {
@@ -2896,7 +2894,8 @@ async function saveDataLocally(table, dataToSave, editingId = null) {
         `;
     });
 }
-/ Função auxiliar para mensagens informativas rápidas
+
+// Função auxiliar para mensagens informativas rápidas
 function showMessage(message, type = 'success', duration = 3000) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `global-notification ${type}`;
@@ -2918,6 +2917,7 @@ function showMessage(message, type = 'success', duration = 3000) {
         setTimeout(() => messageDiv.remove(), 300);
     }, duration);
 }
+
 // Nova função para alternar entre visualizações
 function togglePhotoView(imgElement) {
     if (imgElement.classList.contains('show-full-photo')) {
@@ -2941,6 +2941,7 @@ function handleMemberPhotoError(img) {
     img.style.objectFit = 'cover';
     img.style.objectPosition = 'center';
 }
+
     function renderPendingMembers() {
         if (!pendingMembersList || !isCurrentUserAdmin()) return;
         
@@ -3541,38 +3542,6 @@ function handleMemberPhotoError(img) {
             if (loadingDiv) loadingDiv.style.display = 'none';
             button.disabled = false;
         }
-    }
-
-    function showMessage(message, type = 'success') {
-        const existingNotification = document.querySelector('.global-notification');
-        if (existingNotification) {
-            existingNotification.remove();
-        }
-        
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `global-notification ${type}`;
-        messageDiv.textContent = message;
-        
-        const colors = {
-            success: '#38a169',
-            warning: '#d69e2e',
-            error: '#e53e3e'
-        };
-        
-        messageDiv.style.background = colors[type] || colors.success;
-        
-        document.body.appendChild(messageDiv);
-        
-        setTimeout(() => {
-            messageDiv.style.opacity = '1';
-            messageDiv.style.transform = 'translateY(0)';
-        }, 100);
-        
-        setTimeout(() => {
-            messageDiv.style.opacity = '0';
-            messageDiv.style.transform = 'translateY(-100%)';
-            setTimeout(() => messageDiv.remove(), 300);
-        }, 5000);
     }
 
     // ========== FUNÇÕES DE USUÁRIO E LOGIN ==========
@@ -4746,7 +4715,8 @@ function handleMemberPhotoError(img) {
             addLogoutButton();
             
             setupEventListeners();
-            setupMobileMenu()
+            setupMobileMenu();
+            
             // Carrega dados
             console.log('📥 Carregando dados...');
             await Promise.all([
@@ -4775,6 +4745,51 @@ function handleMemberPhotoError(img) {
         }
     }
 
+    // Menu Mobile Functionality
+    function setupMobileMenu() {
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        
+        if (mobileMenuBtn && mobileNav) {
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenuBtn.classList.toggle('active');
+                mobileNav.classList.toggle('show');
+                
+                // Fecha o menu ao clicar em um link
+                const mobileLinks = mobileNav.querySelectorAll('a');
+                mobileLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenuBtn.classList.remove('active');
+                        mobileNav.classList.remove('show');
+                    });
+                });
+            });
+            
+            // Fecha o menu ao clicar fora
+            document.addEventListener('click', function(event) {
+                if (!mobileMenuBtn.contains(event.target) && !mobileNav.contains(event.target)) {
+                    mobileMenuBtn.classList.remove('active');
+                    mobileNav.classList.remove('show');
+                }
+            });
+        }
+    }
+
+    // Atualiza os menus mobile quando o usuário faz login/logout
+    function updateMobileMenus() {
+        const isAdmin = isCurrentUserAdmin();
+        const cadastroMenuMobile = document.getElementById('cadastroMenuMobile');
+        const publicRegistrationMenuMobile = document.getElementById('publicRegistrationMenuMobile');
+        
+        if (cadastroMenuMobile) {
+            cadastroMenuMobile.style.display = isAdmin ? 'block' : 'none';
+        }
+        
+        if (publicRegistrationMenuMobile) {
+            publicRegistrationMenuMobile.style.display = isAdmin ? 'none' : 'block';
+        }
+    }
+
     // Inicia a aplicação quando o DOM estiver pronto
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
@@ -4783,6 +4798,7 @@ function handleMemberPhotoError(img) {
     } else {
         setTimeout(initializeApp, 100);
     }
+
 // Função para debug - verificar se o bucket existe e tem permissões
 async function debugStorage() {
     try {
@@ -4815,70 +4831,7 @@ async function debugStorage() {
 
 // Chame esta função durante a inicialização para verificar
 // debugStorage();
-    // Menu Mobile Functionality
-function setupMobileMenu() {
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const mobileNav = document.getElementById('mobileNav');
-    
-    if (mobileMenuBtn && mobileNav) {
-        mobileMenuBtn.addEventListener('click', function() {
-            mobileMenuBtn.classList.toggle('active');
-            mobileNav.classList.toggle('show');
-            
-            // Fecha o menu ao clicar em um link
-            const mobileLinks = mobileNav.querySelectorAll('a');
-            mobileLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    mobileMenuBtn.classList.remove('active');
-                    mobileNav.classList.remove('show');
-                });
-            });
-        });
-        
-        // Fecha o menu ao clicar fora
-        document.addEventListener('click', function(event) {
-            if (!mobileMenuBtn.contains(event.target) && !mobileNav.contains(event.target)) {
-                mobileMenuBtn.classList.remove('active');
-                mobileNav.classList.remove('show');
-            }
-        });
-    }
-}
-
-// Atualiza os menus mobile quando o usuário faz login/logout
-function updateMobileMenus() {
-    const isAdmin = isCurrentUserAdmin();
-    const cadastroMenuMobile = document.getElementById('cadastroMenuMobile');
-    const publicRegistrationMenuMobile = document.getElementById('publicRegistrationMenuMobile');
-    
-    if (cadastroMenuMobile) {
-        cadastroMenuMobile.style.display = isAdmin ? 'block' : 'none';
-    }
-    
-    if (publicRegistrationMenuMobile) {
-        publicRegistrationMenuMobile.style.display = isAdmin ? 'none' : 'block';
-    }
-}
-
-// Chame esta função no initializeApp()
-// setupMobileMenu();
 </script>
     
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
