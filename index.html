@@ -2340,15 +2340,14 @@
             throw new Error('Formato de imagem não suportado. Use JPG, PNG, GIF ou WebP');
         }
 
-        // Sanitiza o nome do arquivo
+       
         const sanitizeFileName = (name) => {
             return name
                 .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/[^a-zA-Z0-9._-]/g, '_')
+                .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+                .replace(/[^a-zA-Z0-9._-]/g, '_') // Substitui caracteres especiais por _
                 .toLowerCase();
         };
-
         const sanitizedFileName = sanitizeFileName(fileName);
         const uniqueFileName = `${sanitizedFileName}_${Date.now()}.${fileExt}`;
         
@@ -4867,6 +4866,7 @@ function updateMobileMenus() {
     
 </body>
 </html>
+
 
 
 
