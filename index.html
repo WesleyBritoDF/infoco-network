@@ -176,8 +176,9 @@
         }
 
         /* Navegação Desktop Melhorada */
+        /* Exemplo de correção */
         .desktop-nav {
-            display: block;
+            display: flex !important; /* Forçar exibição no desktop */
         }
 
         .desktop-nav ul {
@@ -285,7 +286,9 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             border-top: 1px solid rgba(255,255,255,0.1);
         }
-
+        .mobile-nav, .mobile-menu-btn {
+            display: none !important; /* Esconder menu mobile */
+        }
         .mobile-nav.show {
             display: block;
         }
@@ -1428,7 +1431,16 @@
             .header-content {
                 padding: 0.8rem 0;
             }
+            /* Media query para mobile */
+        @media (max-width: 768px) {
+            .desktop-nav {
+                display: none !important;
+            }
             
+    .mobile-menu-btn, .mobile-nav {
+        display: block !important;
+    }
+}
             .desktop-nav ul {
                 gap: 1.2rem;
             }
@@ -1457,9 +1469,7 @@
                 display: none;
             }
             
-            .mobile-menu-btn {
-                display: flex;
-            }
+            
             
             .logo {
                 gap: 0.8rem;
@@ -4835,3 +4845,4 @@ async function debugStorage() {
     
 </body>
 </html>
+
