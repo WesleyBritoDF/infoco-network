@@ -1809,8 +1809,8 @@
     let currentGalleryEvent = null;
     let currentPhotoIndex = 0;
 
-    // **CORREÇÃO: Adicione estas variáveis para gerenciar fotos existentes**
-   let currentEditingEventPhotos = []; // URLs das fotos atuais do evento sendo editado
+    // Variáveis para gerenciar fotos existentes
+    let currentEditingEventPhotos = []; // URLs das fotos atuais do evento sendo editado
     let photosToDelete = []; // URLs das fotos que serão deletadas
 
     
@@ -2194,12 +2194,10 @@
             // Adiciona as URLs das imagens aos dados
             if (imageUrls.length > 0) {
                 if (table === 'events') {
-                    // Dentro da função saveData, na parte que trata eventos:
-                if (table === 'events') {
                     // Para eventos, combina fotos existentes (que não foram removidas) com novas fotos
                     let allPhotoUrls = [];
                     
-                    // **CORREÇÃO: Mantém fotos existentes que não foram marcadas para deleção**
+                    // Mantém fotos existentes que não foram marcadas para deleção
                     if (currentEditingEventPhotos && currentEditingEventPhotos.length > 0) {
                         allPhotoUrls = [...currentEditingEventPhotos.filter(photo => !photosToDelete.includes(photo))];
                         console.log('📸 Fotos existentes mantidas:', allPhotoUrls);
@@ -2214,7 +2212,7 @@
                     dataToSave.photos = allPhotoUrls;
                     console.log('✅ Todas as fotos do evento:', allPhotoUrls);
                     
-                    // **CORREÇÃO: Deleta fotos antigas do storage se estiver online**
+                    // Deleta fotos antigas do storage se estiver online
                     if (isOnline && photosToDelete.length > 0) {
                         console.log('🗑️ Deletando fotos do storage:', photosToDelete);
                         
@@ -2241,7 +2239,6 @@
                         // Limpa a lista de fotos para deletar
                         photosToDelete = [];
                     }
-                }
                 } else if (table === 'members') {
                     // Para membros, salva photo
                     dataToSave.photo = imageUrls[0];
@@ -2825,71 +2822,71 @@
     }
 
     async function editEvent(eventId) {
-    const event = events.find(e => e.id == eventId);
-    if (!event) {
-        showMessage('Evento não encontrado', 'error');
-        return;
-    }
-
-    try {
-        document.getElementById('eventTitle').value = event.title || '';
-        document.getElementById('eventDate').value = event.event_date || '';
-        document.getElementById('eventTime').value = event.event_time || '';
-        document.getElementById('eventLocation').value = event.location || '';
-        document.getElementById('eventDescription').value = event.description || '';
-
-        // **CORREÇÃO: Salvar as fotos atuais do evento para gerenciamento**
-        currentEditingEventId = eventId;
-        currentEditingEventPhotos = event.photos || []; // Array com as URLs atuais
-        
-        console.log('📸 Fotos atuais do evento:', currentEditingEventPhotos);
-
-        // **CORREÇÃO: Atualizar o preview com as fotos existentes**
-        const preview = document.getElementById('eventPhotosPreview');
-        preview.innerHTML = '';
-        
-        if (currentEditingEventPhotos.length > 0) {
-            currentEditingEventPhotos.forEach((photoUrl, index) => {
-                const photoItem = document.createElement('div');
-                photoItem.className = 'photo-preview-item';
-                photoItem.innerHTML = `
-                    <img src="${photoUrl}" alt="Foto existente ${index + 1}">
-                    <button type="button" class="remove-photo" onclick="removeExistingEventPhoto(${index})" title="Remover foto">×</button>
-                    <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem;">
-                        ${index + 1}
-                    </div>
-                `;
-                preview.appendChild(photoItem);
-            });
-            
-            // **CORREÇÃO: Atualizar o texto da área de upload**
-            const uploadArea = document.getElementById('eventPhotosUploadArea');
-            uploadArea.innerHTML = `
-                <p>📷 ${currentEditingEventPhotos.length} foto(s) existente(s)</p>
-                <p style="font-size: 0.8rem; color: #666;">Clique ou arraste para adicionar mais fotos</p>
-            `;
+        const event = events.find(e => e.id == eventId);
+        if (!event) {
+            showMessage('Evento não encontrado', 'error');
+            return;
         }
 
-        // Resetar o array de novos arquivos
-        eventPhotosFiles = [];
+        try {
+            document.getElementById('eventTitle').value = event.title || '';
+            document.getElementById('eventDate').value = event.event_date || '';
+            document.getElementById('eventTime').value = event.event_time || '';
+            document.getElementById('eventLocation').value = event.location || '';
+            document.getElementById('eventDescription').value = event.description || '';
 
-        document.getElementById('eventSubmitText').textContent = 'Atualizar Evento';
+            // Salvar as fotos atuais do evento para gerenciamento
+            currentEditingEventId = eventId;
+            currentEditingEventPhotos = event.photos || []; // Array com as URLs atuais
+            
+            console.log('📸 Fotos atuais do evento:', currentEditingEventPhotos);
 
-        document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
-        
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelector('.tab[data-tab="event"]').classList.add('active');
-        
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        document.getElementById('event-form').classList.add('active');
+            // Atualizar o preview com as fotos existentes
+            const preview = document.getElementById('eventPhotosPreview');
+            preview.innerHTML = '';
+            
+            if (currentEditingEventPhotos.length > 0) {
+                currentEditingEventPhotos.forEach((photoUrl, index) => {
+                    const photoItem = document.createElement('div');
+                    photoItem.className = 'photo-preview-item';
+                    photoItem.innerHTML = `
+                        <img src="${photoUrl}" alt="Foto existente ${index + 1}">
+                        <button type="button" class="remove-photo" onclick="removeExistingEventPhoto(${index})" title="Remover foto">×</button>
+                        <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem;">
+                            ${index + 1}
+                        </div>
+                    `;
+                    preview.appendChild(photoItem);
+                });
+                
+                // Atualizar o texto da área de upload
+                const uploadArea = document.getElementById('eventPhotosUploadArea');
+                uploadArea.innerHTML = `
+                    <p>📷 ${currentEditingEventPhotos.length} foto(s) existente(s)</p>
+                    <p style="font-size: 0.8rem; color: #666;">Clique ou arraste para adicionar mais fotos</p>
+                `;
+            }
 
-        showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Evento".', 'success');
-        
-    } catch (error) {
-        console.error('Erro ao preparar formulário de edição do evento:', error);
-        showMessage('Erro ao carregar dados do evento para edição', 'error');
+            // Resetar o array de novos arquivos
+            eventPhotosFiles = [];
+
+            document.getElementById('eventSubmitText').textContent = 'Atualizar Evento';
+
+            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="event"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('event-form').classList.add('active');
+
+            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Evento".', 'success');
+            
+        } catch (error) {
+            console.error('Erro ao preparar formulário de edição do evento:', error);
+            showMessage('Erro ao carregar dados do evento para edição', 'error');
+        }
     }
-}
 
     async function editPartner(partnerId) {
         const partner = partners.find(p => p.id == partnerId);
@@ -3175,13 +3172,13 @@
                 }
                 
                 // Verifica se há fotos selecionadas
-                if (eventPhotosFiles.length === 0) {
+                if (eventPhotosFiles.length === 0 && (!currentEditingEventPhotos || currentEditingEventPhotos.length === 0)) {
                     if (!confirm('Nenhuma foto foi selecionada para o evento. Deseja continuar sem fotos?')) {
                         return;
                     }
                 }
                 
-                console.log(`📝 Salvando evento com ${eventPhotosFiles.length} fotos`);
+                console.log(`📝 Salvando evento com ${eventPhotosFiles.length} fotos novas e ${currentEditingEventPhotos ? currentEditingEventPhotos.length : 0} fotos existentes`);
                 
                 const success = await saveData('events', eventData, eventPhotosFiles, 'eventSubmitBtn', currentEditingEventId);
                 
@@ -3408,87 +3405,42 @@
     }
 
     function setupMultiplePhotosUpload() {
-    const input = document.getElementById('eventPhotos');
-    const preview = document.getElementById('eventPhotosPreview');
-    const uploadArea = document.getElementById('eventPhotosUploadArea');
-    
-    if (!input || !preview || !uploadArea) return;
-    
-    // Clique na área de upload
-    uploadArea.addEventListener('click', () => {
-        input.click();
-    });
-    
-    // Arrastar e soltar
-    uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.style.borderColor = '#3498db';
-        uploadArea.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
-    });
-    
-    uploadArea.addEventListener('dragleave', () => {
-        uploadArea.style.borderColor = '#ddd';
-        uploadArea.style.backgroundColor = '';
-    });
-    
-    uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.style.borderColor = '#ddd';
-        uploadArea.style.backgroundColor = '';
+        const input = document.getElementById('eventPhotos');
+        const preview = document.getElementById('eventPhotosPreview');
+        const uploadArea = document.getElementById('eventPhotosUploadArea');
         
-        const files = e.dataTransfer.files;
-        handleMultiplePhotos(files);
-    });
-    
-    // Mudança no input de arquivo
-    input.addEventListener('change', (e) => {
-        handleMultiplePhotos(e.target.files);
-    });
-    
-    function handleMultiplePhotos(files) {
-        if (!files || files.length === 0) return;
+        if (!input || !preview || !uploadArea) return;
         
-        const validFiles = Array.from(files).filter(file => {
-            const isValid = file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024;
-            if (!isValid) {
-                console.warn(`Arquivo inválido: ${file.name} - Tipo: ${file.type} - Tamanho: ${file.size}`);
-            }
-            return isValid;
+        // Clique na área de upload
+        uploadArea.addEventListener('click', () => {
+            input.click();
         });
         
-        if (validFiles.length === 0) {
-            showMessage('Por favor, selecione apenas imagens válidas (JPG, PNG, etc. - máx. 5MB cada).', 'error');
-            return;
-        }
+        // Arrastar e soltar
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#3498db';
+            uploadArea.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+        });
         
-        // Limita a 20 fotos no total (existentes + novas)
-        const filesToProcess = validFiles.slice(0, 20);
-        const totalAfterAdd = (currentEditingEventPhotos?.length || 0) + eventPhotosFiles.length + filesToProcess.length;
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.backgroundColor = '';
+        });
         
-        if (totalAfterAdd > 20) {
-            showMessage(`Máximo de 20 fotos permitido. Você já tem ${(currentEditingEventPhotos?.length || 0) + eventPhotosFiles.length} fotos.`, 'warning');
-            return;
-        }
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.backgroundColor = '';
+            
+            const files = e.dataTransfer.files;
+            handleMultiplePhotos(files);
+        });
         
-        // Adiciona ao array global de novas fotos
-        eventPhotosFiles = [...eventPhotosFiles, ...filesToProcess];
-        
-        // Atualiza o preview combinando fotos existentes e novas
-        updateExistingPhotosPreview();
-        
-        showMessage(`${filesToProcess.length} nova(s) foto(s) adicionada(s)! Total: ${(currentEditingEventPhotos?.length || 0) + eventPhotosFiles.length}`, 'success');
-        
-        if (validFiles.length > filesToProcess.length) {
-            showMessage(`Apenas as primeiras ${filesToProcess.length} fotos foram processadas (limite: 20).`, 'warning');
-        }
-    }
-    
-    // Inicializa o texto da área de upload
-    uploadArea.innerHTML = `
-        <p>📷 Clique aqui ou arraste fotos para adicionar</p>
-        <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos (máx. 20)</p>
-    `;
-}
+        // Mudança no input de arquivo
+        input.addEventListener('change', (e) => {
+            handleMultiplePhotos(e.target.files);
+        });
         
         function handleMultiplePhotos(files) {
             if (!files || files.length === 0) return;
@@ -3506,52 +3458,26 @@
                 return;
             }
             
-            // Limita a 20 fotos
+            // Limita a 20 fotos no total (existentes + novas)
             const filesToProcess = validFiles.slice(0, 20);
-            const totalAfterAdd = eventPhotosFiles.length + filesToProcess.length;
+            const totalAfterAdd = (currentEditingEventPhotos?.length || 0) + eventPhotosFiles.length + filesToProcess.length;
             
             if (totalAfterAdd > 20) {
-                showMessage(`Máximo de 20 fotos permitido. Você já tem ${eventPhotosFiles.length} fotos selecionadas.`, 'warning');
+                showMessage(`Máximo de 20 fotos permitido. Você já tem ${(currentEditingEventPhotos?.length || 0) + eventPhotosFiles.length} fotos.`, 'warning');
                 return;
             }
             
-            // Adiciona ao array global
+            // Adiciona ao array global de novas fotos
             eventPhotosFiles = [...eventPhotosFiles, ...filesToProcess];
             
-            // Atualiza o preview
-            updatePhotosPreview();
+            // Atualiza o preview combinando fotos existentes e novas
+            updateExistingPhotosPreview();
             
-            // Atualiza o texto da área de upload
-            uploadArea.innerHTML = `
-                <p>📷 ${eventPhotosFiles.length} foto(s) selecionada(s)</p>
-                <p style="font-size: 0.8rem; color: #666;">Clique ou arraste para adicionar mais fotos</p>
-            `;
-            
-            showMessage(`${filesToProcess.length} foto(s) adicionada(s) ao evento! Total: ${eventPhotosFiles.length}`, 'success');
+            showMessage(`${filesToProcess.length} nova(s) foto(s) adicionada(s)! Total: ${(currentEditingEventPhotos?.length || 0) + eventPhotosFiles.length}`, 'success');
             
             if (validFiles.length > filesToProcess.length) {
                 showMessage(`Apenas as primeiras ${filesToProcess.length} fotos foram processadas (limite: 20).`, 'warning');
             }
-        }
-        
-        function updatePhotosPreview() {
-            preview.innerHTML = '';
-            eventPhotosFiles.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const photoItem = document.createElement('div');
-                    photoItem.className = 'photo-preview-item';
-                    photoItem.innerHTML = `
-                        <img src="${e.target.result}" alt="Preview ${index + 1}">
-                        <button type="button" class="remove-photo" onclick="removeEventPhoto(${index})" title="Remover foto">×</button>
-                        <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem;">
-                            ${index + 1}
-                        </div>
-                    `;
-                    preview.appendChild(photoItem);
-                };
-                reader.readAsDataURL(file);
-            });
         }
         
         // Inicializa o texto da área de upload
@@ -3561,23 +3487,63 @@
         `;
     }
 
-    // Função para remover foto do evento
-    function removeEventPhotoold(index) {
+    // Função para remover foto NOVA do evento (ainda não salva)
+    function removeEventPhoto(index) {
         eventPhotosFiles.splice(index, 1);
         
+        // Atualiza o preview combinado
+        updateExistingPhotosPreview();
+    }
+
+    // Função para remover fotos existentes durante a edição
+    function removeExistingEventPhoto(index) {
+        if (!confirm('Tem certeza que deseja remover esta foto do evento?')) {
+            return;
+        }
+        
+        // Adiciona a foto à lista de fotos para deletar
+        const photoUrl = currentEditingEventPhotos[index];
+        photosToDelete.push(photoUrl);
+        
+        // Remove a foto do array atual
+        currentEditingEventPhotos.splice(index, 1);
+        
         // Atualiza o preview
+        updateExistingPhotosPreview();
+        
+        showMessage('Foto marcada para remoção. Clique em "Atualizar Evento" para confirmar.', 'warning');
+    }
+
+    // Função para atualizar o preview das fotos existentes
+    function updateExistingPhotosPreview() {
         const preview = document.getElementById('eventPhotosPreview');
         preview.innerHTML = '';
-        eventPhotosFiles.forEach((file, newIndex) => {
+        
+        // Mostra fotos existentes
+        currentEditingEventPhotos.forEach((photoUrl, index) => {
+            const photoItem = document.createElement('div');
+            photoItem.className = 'photo-preview-item';
+            photoItem.innerHTML = `
+                <img src="${photoUrl}" alt="Foto existente ${index + 1}">
+                <button type="button" class="remove-photo" onclick="removeExistingEventPhoto(${index})" title="Remover foto">×</button>
+                <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem;">
+                    ${index + 1}
+                </div>
+            `;
+            preview.appendChild(photoItem);
+        });
+        
+        // Mostra novas fotos adicionadas
+        eventPhotosFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const photoItem = document.createElement('div');
                 photoItem.className = 'photo-preview-item';
                 photoItem.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview">
-                    <button type="button" class="remove-photo" onclick="removeEventPhoto(${newIndex})">×</button>
-                    <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem;">
-                        ${newIndex + 1}
+                    <img src="${e.target.result}" alt="Nova foto ${index + 1}">
+                    <button type="button" class="remove-photo" onclick="removeEventPhoto(${index})" title="Remover foto">×</button>
+                    <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(52, 152, 219, 0.8); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem;">
+                        Novo
                     </div>
                 `;
                 preview.appendChild(photoItem);
@@ -3587,152 +3553,136 @@
         
         // Atualiza o texto da área de upload
         const uploadArea = document.getElementById('eventPhotosUploadArea');
-        if (eventPhotosFiles.length === 0) {
+        const totalPhotos = currentEditingEventPhotos.length + eventPhotosFiles.length;
+        
+        if (totalPhotos === 0) {
             uploadArea.innerHTML = `
                 <p>📷 Clique aqui ou arraste fotos para adicionar</p>
                 <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos (máx. 20)</p>
             `;
         } else {
             uploadArea.innerHTML = `
-                <p>📷 ${eventPhotosFiles.length} foto(s) selecionada(s)</p>
+                <p>📷 ${totalPhotos} foto(s) no total (${currentEditingEventPhotos.length} existente(s) + ${eventPhotosFiles.length} nova(s))</p>
                 <p style="font-size: 0.8rem; color: #666;">Clique ou arraste para adicionar mais fotos</p>
             `;
         }
     }
-// Função para remover foto NOVA do evento (ainda não salva)
-// Função para remover foto NOVA do evento (ainda não salva)
-function removeEventPhoto(index) {
-    eventPhotosFiles.splice(index, 1);
-    
-    // Atualiza o preview combinado
-    updateExistingPhotosPreview();
-}
-   function resetForm(type) {
-    let form, submitText, preview, photosPreview;
-    
-    switch(type) {
-        case 'member':
-            form = document.getElementById('memberRegistrationForm');
-            submitText = document.getElementById('memberSubmitText');
-            preview = document.getElementById('memberPhotoPreview');
-            currentEditingMemberId = null;
-            break;
-           
-        case 'publicMember':
-            form = document.getElementById('publicMemberRegistrationForm');
-            submitText = document.getElementById('publicMemberSubmitText');
-            preview = document.getElementById('publicMemberPhotoPreview');
-            break;
-            
-        case 'event':
-            form = document.getElementById('eventRegistrationForm');
-            submitText = document.getElementById('eventSubmitText');
-            photosPreview = document.getElementById('eventPhotosPreview');
-            eventPhotosFiles = [];
-            currentEditingEventId = null;
-            
-            // Limpa as variáveis de fotos existentes
-            currentEditingEventPhotos = [];
-            photosToDelete = [];
-            
-            // Reseta a área de upload
-            const uploadArea = document.getElementById('eventPhotosUploadArea');
-            if (uploadArea) {
-                uploadArea.innerHTML = `
-                    <p>📷 Clique aqui ou arraste fotos para adicionar</p>
-                    <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos (máx. 20)</p>
-                `;
+
+    function resetForm(type) {
+        let form, submitText, preview, photosPreview;
+        
+        switch(type) {
+            case 'member':
+                form = document.getElementById('memberRegistrationForm');
+                submitText = document.getElementById('memberSubmitText');
+                preview = document.getElementById('memberPhotoPreview');
+                currentEditingMemberId = null;
+                break;
+               
+            case 'publicMember':
+                form = document.getElementById('publicMemberRegistrationForm');
+                submitText = document.getElementById('publicMemberSubmitText');
+                preview = document.getElementById('publicMemberPhotoPreview');
+                break;
+                
+            case 'event':
+                form = document.getElementById('eventRegistrationForm');
+                submitText = document.getElementById('eventSubmitText');
+                photosPreview = document.getElementById('eventPhotosPreview');
+                eventPhotosFiles = [];
+                currentEditingEventId = null;
+                
+                // Limpa as variáveis de fotos existentes
+                currentEditingEventPhotos = [];
+                photosToDelete = [];
+                
+                // Reseta a área de upload
+                const uploadArea = document.getElementById('eventPhotosUploadArea');
+                if (uploadArea) {
+                    uploadArea.innerHTML = `
+                        <p>📷 Clique aqui ou arraste fotos para adicionar</p>
+                        <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos (máx. 20)</p>
+                    `;
+                }
+                break;
+                
+            case 'partner':
+                form = document.getElementById('partnerRegistrationForm');
+                submitText = document.getElementById('partnerSubmitText');
+                preview = document.getElementById('partnerLogoPreview');
+                currentEditingPartnerId = null;
+                break;
+                
+            case 'store':
+                form = document.getElementById('storeRegistrationForm');
+                submitText = document.getElementById('storeSubmitText');
+                preview = document.getElementById('storeItemPhotoPreview');
+                currentEditingStoreItemId = null;
+                break;
+        }
+        
+        if (form) form.reset();
+        if (preview) {
+            if (type === 'partner') {
+                preview.innerHTML = '<div class="placeholder">Logo do Parceiro</div>';
+            } else if (type === 'store') {
+                preview.innerHTML = '<div class="placeholder">Foto do Produto</div>';
+            } else {
+                preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
             }
-            break;
-            
-        case 'partner':
-            form = document.getElementById('partnerRegistrationForm');
-            submitText = document.getElementById('partnerSubmitText');
-            preview = document.getElementById('partnerLogoPreview');
-            currentEditingPartnerId = null;
-            break;
-            
-        case 'store':
-            form = document.getElementById('storeRegistrationForm');
-            submitText = document.getElementById('storeSubmitText');
-            preview = document.getElementById('storeItemPhotoPreview');
-            currentEditingStoreItemId = null;
-            break;
-    }
-    
-    if (form) form.reset();
-    if (preview) {
-        if (type === 'partner') {
-            preview.innerHTML = '<div class="placeholder">Logo do Parceiro</div>';
-        } else if (type === 'store') {
-            preview.innerHTML = '<div class="placeholder">Foto do Produto</div>';
-        } else {
-            preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
+        }
+        if (photosPreview) {
+            photosPreview.innerHTML = '';
+        }
+        if (submitText) {
+            submitText.textContent = type === 'publicMember' ? 'Enviar para Aprovação' : `Cadastrar ${getEntityName(type)}`;
         }
     }
-    if (photosPreview) {
-        photosPreview.innerHTML = '';
-    }
-    if (submitText) {
-        submitText.textContent = type === 'publicMember' ? 'Enviar para Aprovação' : `Cadastrar ${getEntityName(type)}`;
-    }
-}
 
     function resetEditingIds() {
-    currentEditingMemberId = null;
-    currentEditingEventId = null;
-    currentEditingPartnerId = null;
-    currentEditingStoreItemId = null;
-    
-    // Limpa as variáveis de fotos de evento
-    currentEditingEventPhotos = [];
-    photosToDelete = [];
-    eventPhotosFiles = [];
-    
-    document.getElementById('memberSubmitText').textContent = 'Cadastrar Membro';
-    document.getElementById('eventSubmitText').textContent = 'Cadastrar Evento';
-    document.getElementById('partnerSubmitText').textContent = 'Cadastrar Parceiro';
-    document.getElementById('storeSubmitText').textContent = 'Cadastrar Item';
-}
+        currentEditingMemberId = null;
+        currentEditingEventId = null;
+        currentEditingPartnerId = null;
+        currentEditingStoreItemId = null;
+        
+        // Limpa as variáveis de fotos de evento
+        currentEditingEventPhotos = [];
+        photosToDelete = [];
+        eventPhotosFiles = [];
+        
+        document.getElementById('memberSubmitText').textContent = 'Cadastrar Membro';
+        document.getElementById('eventSubmitText').textContent = 'Cadastrar Evento';
+        document.getElementById('partnerSubmitText').textContent = 'Cadastrar Parceiro';
+        document.getElementById('storeSubmitText').textContent = 'Cadastrar Item';
+    }
 
     // Funções de exclusão específicas
-    // ========== FUNÇÃO DELETE MEMBER CORRIGIDA PARA PENDENTES ==========
     async function deleteMember(memberId) {
         try {
             console.log('🗑️ Iniciando exclusão do membro ID:', memberId);
             
             // Procura o membro em TODAS as listas possíveis
             let member = null;
-            let listType = '';
             
             // 1. Procura nos membros aprovados
             member = members.find(m => m.id === memberId);
-            if (member) {
-                listType = 'aprovados';
-            }
             
             // 2. Se não encontrou, procura nos membros pendentes
             if (!member) {
                 member = pendingMembers.find(m => m.id === memberId);
-                if (member) {
-                    listType = 'pendentes';
-                }
             }
             
             // 3. Se ainda não encontrou, procura no localStorage completo
             if (!member) {
                 const allMembers = loadFromLocalStorage('members') || [];
                 member = allMembers.find(m => m.id === memberId);
-                if (member) {
-                    listType = 'localStorage';
-                }
             }
             
             if (!member) {
                 throw new Error(`Membro com ID ${memberId} não encontrado em nenhuma lista`);
             }
 
-            console.log('📋 Membro encontrado:', member.name, '- Tipo:', listType);
+            console.log('📋 Membro encontrado:', member.name);
 
             if (!confirm(`Tem certeza que deseja excluir o membro "${member.name}"?`)) {
                 return;
@@ -4295,82 +4245,7 @@ function removeEventPhoto(index) {
     } else {
         setTimeout(initializeApp, 100);
     }
-// **CORREÇÃO: Função para remover fotos existentes durante a edição**
-function removeExistingEventPhoto(index) {
-    if (!confirm('Tem certeza que deseja remover esta foto do evento?')) {
-        return;
-    }
-    
-    // Adiciona a foto à lista de fotos para deletar
-    const photoUrl = currentEditingEventPhotos[index];
-    photosToDelete.push(photoUrl);
-    
-    // Remove a foto do array atual
-    currentEditingEventPhotos.splice(index, 1);
-    
-    // Atualiza o preview
-    updateExistingPhotosPreview();
-    
-    showMessage('Foto marcada para remoção. Clique em "Atualizar Evento" para confirmar.', 'warning');
-}
-
-// **CORREÇÃO: Função para atualizar o preview das fotos existentes**
-function updateExistingPhotosPreview() {
-    const preview = document.getElementById('eventPhotosPreview');
-    preview.innerHTML = '';
-    
-    // Mostra fotos existentes
-    currentEditingEventPhotos.forEach((photoUrl, index) => {
-        const photoItem = document.createElement('div');
-        photoItem.className = 'photo-preview-item';
-        photoItem.innerHTML = `
-            <img src="${photoUrl}" alt="Foto existente ${index + 1}">
-            <button type="button" class="remove-photo" onclick="removeExistingEventPhoto(${index})" title="Remover foto">×</button>
-            <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem;">
-                ${index + 1}
-            </div>
-        `;
-        preview.appendChild(photoItem);
-    });
-    
-    // Mostra novas fotos adicionadas
-    eventPhotosFiles.forEach((file, index) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const photoItem = document.createElement('div');
-            photoItem.className = 'photo-preview-item';
-            photoItem.innerHTML = `
-                <img src="${e.target.result}" alt="Nova foto ${index + 1}">
-                <button type="button" class="remove-photo" onclick="removeEventPhoto(${index})" title="Remover foto">×</button>
-                <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(52, 152, 219, 0.8); color: white; padding: 2px 5px; border-radius: 3px; font-size: 0.7rem;">
-                    Novo
-                </div>
-            `;
-            preview.appendChild(photoItem);
-        };
-        reader.readAsDataURL(file);
-    });
-    
-    // Atualiza o texto da área de upload
-    const uploadArea = document.getElementById('eventPhotosUploadArea');
-    const totalPhotos = currentEditingEventPhotos.length + eventPhotosFiles.length;
-    
-    if (totalPhotos === 0) {
-        uploadArea.innerHTML = `
-            <p>📷 Clique aqui ou arraste fotos para adicionar</p>
-            <p style="font-size: 0.8rem; color: #666;">Você pode selecionar várias fotos (máx. 20)</p>
-        `;
-    } else {
-        uploadArea.innerHTML = `
-            <p>📷 ${totalPhotos} foto(s) no total (${currentEditingEventPhotos.length} existente(s) + ${eventPhotosFiles.length} nova(s))</p>
-            <p style="font-size: 0.8rem; color: #666;">Clique ou arraste para adicionar mais fotos</p>
-        `;
-    }
-}
-
-    
 </script>
     
 </body>
 </html>
-
