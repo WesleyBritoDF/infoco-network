@@ -637,7 +637,21 @@
             cursor: pointer;
             font-size: 0.8rem;
         }
-
+        /* Versão alternativa para fotos quadradas */
+        .card-image.member {
+            width: 100%;
+            height: 250px; /* Um pouco mais alto para fotos de perfil */
+            overflow: hidden;
+            position: relative;
+            background-color: #f8f9fa;
+        }
+        
+        .card-image.member img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top; /* Foca no rosto */
+        }
         /* Event Gallery */
         .event-gallery {
             display: grid;
@@ -2820,7 +2834,7 @@ async function saveDataLocally(table, dataToSave, editingId = null) {
                             <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
                         ` : ''}
                     </div>
-                    <div class="card-image">
+                   <div class="card-image member">
                         <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" 
                              alt="${member.name}" 
                              loading="lazy"
@@ -4775,6 +4789,7 @@ function updateMobileMenus() {
     
 </body>
 </html>
+
 
 
 
