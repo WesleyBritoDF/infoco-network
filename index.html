@@ -1813,7 +1813,6 @@
     let currentEditingEventPhotos = []; // URLs das fotos atuais do evento sendo editado
     let photosToDelete = []; // URLs das fotos que serão deletadas
 
-    
     // ========== DOM ELEMENTS ==========
     const membersList = document.getElementById('members-list');
     const eventsContainer = document.getElementById('events-container');
@@ -2147,155 +2146,212 @@
         }
     }
 
-    // ========== FUNÇÃO SAVE DATA CORRIGIDA ==========
+    // ========== FUNÇÃO SAVE DATA CORRIGIDA PARA EVENTOS ==========
     async function saveData(table, formData, imageFiles, buttonId, editingId = null) {
         try {
             showButtonLoading(document.getElementById(buttonId), true);
             
             let imageUrls = [];
             
-            // Faz upload das imagens se existirem
-            if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
-                const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
-                                formData.title?.replace(/\s+/g, '_').toLowerCase() || 
-                                'image';
+            // CORREÇÃO: Processamento específico para eventos
+            if (table === 'events') {
+                console.log('🎯 Processando evento - Fotos novas:', eventPhotosFiles.length, 'Fotos existentes:', currentEditingEventPhotos?.length || 0);
                 
-                console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'} para ${table}`);
-                
-                if (Array.isArray(imageFiles)) {
-                    // Múltiplas imagens (para eventos)
-                    const bucketName = 'events-photos';
-                    imageUrls = await uploadMultipleImages(imageFiles, bucketName, baseName);
-                    console.log('✅ URLs das fotos do evento:', imageUrls);
-                } else {
-                    // Uma imagem - definir bucket correto
-                    let bucketName;
-                    if (table === 'members') {
-                        bucketName = 'members-photos';
-                    } else if (table === 'partners') {
-                        bucketName = 'parceiros-photos';
-                    } else if (table === 'store_items') {
-                        bucketName = 'loja-photos';
-                    } else {
-                        bucketName = 'images';
-                    }
+                // Para eventos, primeiro faz upload das novas fotos
+                if (eventPhotosFiles && eventPhotosFiles.length > 0) {
+                    const baseName = formData.title?.replace(/\s+/g, '_').toLowerCase() || 'event';
+                    console.log(`📤 Fazendo upload de ${eventPhotosFiles.length} novas fotos`);
                     
-                    console.log(`🪣 Usando bucket: ${bucketName} para ${table}`);
-                    const imageUrl = await uploadImage(imageFiles, bucketName, baseName);
-                    imageUrls = [imageUrl];
+                    imageUrls = await uploadMultipleImages(eventPhotosFiles, 'events-photos', baseName);
+                    console.log('✅ Novas fotos uploadadas:', imageUrls);
                 }
                 
-                console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
-            }
+                // Prepara os dados para salvar
+                const dataToSave = { ...formData };
                 
-            // Prepara os dados para salvar
-            const dataToSave = { ...formData };
-            
-            // Adiciona as URLs das imagens aos dados
-            if (imageUrls.length > 0) {
-                if (table === 'events') {
-                    // Para eventos, combina fotos existentes (que não foram removidas) com novas fotos
-                    let allPhotoUrls = [];
+                // Combina fotos existentes (que não foram removidas) com novas fotos
+                let allPhotoUrls = [];
+                
+                // Mantém fotos existentes que não foram marcadas para deleção
+                if (currentEditingEventPhotos && currentEditingEventPhotos.length > 0) {
+                    allPhotoUrls = [...currentEditingEventPhotos.filter(photo => !photosToDelete.includes(photo))];
+                    console.log('📸 Fotos existentes mantidas:', allPhotoUrls);
+                }
+                
+                // Adiciona novas fotos
+                if (imageUrls.length > 0) {
+                    allPhotoUrls = [...allPhotoUrls, ...imageUrls];
+                    console.log('🆕 Novas fotos adicionadas:', imageUrls);
+                }
+                
+                dataToSave.photos = allPhotoUrls;
+                console.log('✅ Todas as fotos do evento:', allPhotoUrls);
+                
+                // Deleta fotos antigas do storage se estiver online
+                if (isOnline && photosToDelete.length > 0) {
+                    console.log('🗑️ Deletando fotos do storage:', photosToDelete);
                     
-                    // Mantém fotos existentes que não foram marcadas para deleção
-                    if (currentEditingEventPhotos && currentEditingEventPhotos.length > 0) {
-                        allPhotoUrls = [...currentEditingEventPhotos.filter(photo => !photosToDelete.includes(photo))];
-                        console.log('📸 Fotos existentes mantidas:', allPhotoUrls);
-                    }
-                    
-                    // Adiciona novas fotos
-                    if (imageUrls.length > 0) {
-                        allPhotoUrls = [...allPhotoUrls, ...imageUrls];
-                        console.log('🆕 Novas fotos adicionadas:', imageUrls);
-                    }
-                    
-                    dataToSave.photos = allPhotoUrls;
-                    console.log('✅ Todas as fotos do evento:', allPhotoUrls);
-                    
-                    // Deleta fotos antigas do storage se estiver online
-                    if (isOnline && photosToDelete.length > 0) {
-                        console.log('🗑️ Deletando fotos do storage:', photosToDelete);
-                        
-                        for (const photoUrl of photosToDelete) {
-                            try {
-                                // Extrai o nome do arquivo da URL
-                                const fileName = photoUrl.split('/').pop();
-                                if (fileName) {
-                                    const { error } = await supabase.storage
-                                        .from('events-photos')
-                                        .remove([fileName]);
-                                    
-                                    if (error) {
-                                        console.error('Erro ao deletar foto:', fileName, error);
-                                    } else {
-                                        console.log('✅ Foto deletada do storage:', fileName);
-                                    }
+                    for (const photoUrl of photosToDelete) {
+                        try {
+                            // Extrai o nome do arquivo da URL
+                            const fileName = photoUrl.split('/').pop();
+                            if (fileName) {
+                                const { error } = await supabase.storage
+                                    .from('events-photos')
+                                    .remove([fileName]);
+                                
+                                if (error) {
+                                    console.error('Erro ao deletar foto:', fileName, error);
+                                } else {
+                                    console.log('✅ Foto deletada do storage:', fileName);
                                 }
-                            } catch (deleteError) {
-                                console.error('Erro ao deletar foto do storage:', deleteError);
                             }
+                        } catch (deleteError) {
+                            console.error('Erro ao deletar foto do storage:', deleteError);
                         }
-                        
-                        // Limpa a lista de fotos para deletar
-                        photosToDelete = [];
                     }
-                } else if (table === 'members') {
-                    // Para membros, salva photo
-                    dataToSave.photo = imageUrls[0];
-                } else if (table === 'partners') {
-                    // Para parceiros, salva logo
-                    dataToSave.logo = imageUrls[0];
-                } else if (table === 'store_items') {
-                    // Para itens da loja, salva photo
-                    dataToSave.photo = imageUrls[0];
+                    
+                    // Limpa a lista de fotos para deletar
+                    photosToDelete = [];
                 }
-            }
-            
-            if (isOnline) {
-                let result;
                 
-                try {
-                    if (editingId) {
-                        dataToSave.updated_at = new Date().toISOString();
-                        
-                        const { data, error } = await supabase
-                            .from(table)
-                            .update(dataToSave)
-                            .eq('id', editingId)
-                            .select();
-                        
-                        if (error) throw error;
-                        result = data;
-                    } else {
-                        const { data, error } = await supabase
-                            .from(table)
-                            .insert([dataToSave])
-                            .select();
-                        
-                        if (error) throw error;
-                        result = data;
+                // Salva no banco de dados
+                if (isOnline) {
+                    let result;
+                    
+                    try {
+                        if (editingId) {
+                            dataToSave.updated_at = new Date().toISOString();
+                            
+                            const { data, error } = await supabase
+                                .from(table)
+                                .update(dataToSave)
+                                .eq('id', editingId)
+                                .select();
+                            
+                            if (error) throw error;
+                            result = data;
+                        } else {
+                            const { data, error } = await supabase
+                                .from(table)
+                                .insert([dataToSave])
+                                .select();
+                            
+                            if (error) throw error;
+                            result = data;
+                        }
+                    } catch (dbError) {
+                        console.error(`Erro no banco de dados:`, dbError);
+                        await saveDataLocally(table, dataToSave, editingId);
+                        showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
+                        return true;
                     }
-                } catch (dbError) {
-                    console.error(`Erro no banco de dados:`, dbError);
+                    
+                    // Recarrega os dados
+                    await loadEvents();
+                    
+                    showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
+                    return true;
+                } else {
                     await saveDataLocally(table, dataToSave, editingId);
-                    showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
                     return true;
                 }
                 
-                // Recarrega os dados
-                switch(table) {
-                    case 'users': await loadUsers(); break;
-                    case 'members': await loadMembers(); break;
-                    case 'events': await loadEvents(); break;
-                    case 'partners': await loadPartners(); break;
-                    case 'store_items': await loadStoreItems(); break;
+            } else {
+                // PROCESSAMENTO ORIGINAL PARA OUTRAS TABELAS
+                if (imageFiles && (Array.isArray(imageFiles) ? imageFiles.length > 0 : imageFiles)) {
+                    const baseName = formData.name?.replace(/\s+/g, '_').toLowerCase() || 
+                                    formData.title?.replace(/\s+/g, '_').toLowerCase() || 
+                                    'image';
+                    
+                    console.log(`📤 Processando ${Array.isArray(imageFiles) ? imageFiles.length + ' imagens' : '1 imagem'} para ${table}`);
+                    
+                    if (Array.isArray(imageFiles)) {
+                        // Múltiplas imagens
+                        const bucketName = 'events-photos';
+                        imageUrls = await uploadMultipleImages(imageFiles, bucketName, baseName);
+                        console.log('✅ URLs das fotos:', imageUrls);
+                    } else {
+                        // Uma imagem - definir bucket correto
+                        let bucketName;
+                        if (table === 'members') {
+                            bucketName = 'members-photos';
+                        } else if (table === 'partners') {
+                            bucketName = 'parceiros-photos';
+                        } else if (table === 'store_items') {
+                            bucketName = 'loja-photos';
+                        } else {
+                            bucketName = 'images';
+                        }
+                        
+                        console.log(`🪣 Usando bucket: ${bucketName} para ${table}`);
+                        const imageUrl = await uploadImage(imageFiles, bucketName, baseName);
+                        imageUrls = [imageUrl];
+                    }
+                    
+                    console.log(`✅ ${imageUrls.length} imagem(ns) uploadada(s) com sucesso`);
+                }
+                    
+                // Prepara os dados para salvar
+                const dataToSave = { ...formData };
+                
+                // Adiciona as URLs das imagens aos dados
+                if (imageUrls.length > 0) {
+                    if (table === 'members') {
+                        dataToSave.photo = imageUrls[0];
+                    } else if (table === 'partners') {
+                        dataToSave.logo = imageUrls[0];
+                    } else if (table === 'store_items') {
+                        dataToSave.photo = imageUrls[0];
+                    }
                 }
                 
-                showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
-                return true;
-            } else {
-                await saveDataLocally(table, dataToSave, editingId);
-                return true;
+                if (isOnline) {
+                    let result;
+                    
+                    try {
+                        if (editingId) {
+                            dataToSave.updated_at = new Date().toISOString();
+                            
+                            const { data, error } = await supabase
+                                .from(table)
+                                .update(dataToSave)
+                                .eq('id', editingId)
+                                .select();
+                            
+                            if (error) throw error;
+                            result = data;
+                        } else {
+                            const { data, error } = await supabase
+                                .from(table)
+                                .insert([dataToSave])
+                                .select();
+                            
+                            if (error) throw error;
+                            result = data;
+                        }
+                    } catch (dbError) {
+                        console.error(`Erro no banco de dados:`, dbError);
+                        await saveDataLocally(table, dataToSave, editingId);
+                        showMessage(`${getEntityName(table)} salvo localmente (erro no banco).`, 'warning');
+                        return true;
+                    }
+                    
+                    // Recarrega os dados
+                    switch(table) {
+                        case 'users': await loadUsers(); break;
+                        case 'members': await loadMembers(); break;
+                        case 'events': await loadEvents(); break;
+                        case 'partners': await loadPartners(); break;
+                        case 'store_items': await loadStoreItems(); break;
+                    }
+                    
+                    showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
+                    return true;
+                } else {
+                    await saveDataLocally(table, dataToSave, editingId);
+                    return true;
+                }
             }
             
         } catch (error) {
@@ -3180,7 +3236,8 @@
                 
                 console.log(`📝 Salvando evento com ${eventPhotosFiles.length} fotos novas e ${currentEditingEventPhotos ? currentEditingEventPhotos.length : 0} fotos existentes`);
                 
-                const success = await saveData('events', eventData, eventPhotosFiles, 'eventSubmitBtn', currentEditingEventId);
+                // CORREÇÃO: Passa null para imageFiles pois as fotos são gerenciadas pelas variáveis globais
+                const success = await saveData('events', eventData, null, 'eventSubmitBtn', currentEditingEventId);
                 
                 if (success) {
                     resetForm('event');
