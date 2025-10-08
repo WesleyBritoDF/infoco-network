@@ -519,6 +519,7 @@
             margin-bottom: 1.5rem;
         }
 
+        /* Para a prévia das fotos no formulário */
         .image-preview {
             width: 150px;
             height: 150px;
@@ -532,6 +533,12 @@
             background-color: #f8f9fa;
             box-shadow: var(--shadow);
         }
+        
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Garante que a imagem de preview também fique ajustada */
+        }
 
         .image-preview.sponsor,
         .image-preview.partner,
@@ -541,11 +548,7 @@
             height: 120px;
         }
 
-        .image-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+       
 
         .image-preview .placeholder {
             color: #a0aec0;
@@ -854,18 +857,24 @@
             background-color: rgba(47, 133, 90, 1);
         }
 
+        /* CORREÇÕES PARA AS FOTOS DOS MEMBROS */
         .card-image {
             width: 100%;
             height: 200px;
             overflow: hidden;
             position: relative;
+            background-color: #f8f9fa; /* Fundo para quando a imagem não carregar */
         }
-
+        
         .card-image img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: cover; /* Isso é crucial para ajustar a imagem */
             transition: var(--transition);
+        }
+        /* Para garantir que as imagens de perfil fiquem bem centralizadas */
+        .member-photo {
+            object-position: center top; /* Foca no rosto para fotos de perfil */
         }
 
         .card:hover .card-image img {
@@ -2781,57 +2790,66 @@ async function saveDataLocally(table, dataToSave, editingId = null) {
 }
 
     // Função para obter o nome da entidade
-function getEntityName(table) {
-    const names = {
-        'users': 'Usuário',
-        'members': 'Membro',
-        'events': 'Evento',
-        'partners': 'Parceiro',
-        'store_items': 'Item da Loja'
-    };
-    return names[table] || 'Item';
-}
-
-    // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
-    function renderMembers() {
-        if (!membersList) {
-            console.error('❌ Elemento members-list não encontrado');
-            return;
+        function getEntityName(table) {
+            const names = {
+                'users': 'Usuário',
+                'members': 'Membro',
+                'events': 'Evento',
+                'partners': 'Parceiro',
+                'store_items': 'Item da Loja'
+            };
+            return names[table] || 'Item';
         }
         
-        console.log('🎯 Renderizando membros:', members);
-        
-        renderList(membersList, members, 'members', (member) => {
-            const canEdit = isCurrentUserAdmin();
+            // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
+           function renderMembers() {
+            if (!membersList) {
+                console.error('❌ Elemento members-list não encontrado');
+                return;
+            }
             
-            return `
-                <div class="card-actions">
-                    ${canEdit ? `
-                        <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
-                        <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
-                    ` : ''}
-                </div>
-                <div class="card-image">
-                    <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${member.name}" loading="lazy">
-                </div>
-                <div class="card-header">
-                    <h3>${member.name}</h3>
-                    <span class="user-role">${member.role}</span>
-                </div>
-                <div class="card-body">
-                    <p><strong>Email:</strong> ${member.email}</p>
-                    ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
-                    <p>${member.bio || 'Sem descrição'}</p>
-                    ${member.linkedin ? `<p><strong>LinkedIn:</strong> <a href="${member.linkedin}" target="_blank">${member.linkedin}</a></p>` : ''}
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                        Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
-                        ${member.updated_at ? `<br>Atualizado em: ${new Date(member.updated_at).toLocaleDateString('pt-BR')}` : ''}
-                    </p>
-                </div>
-            `;
-        });
-    }
-
+            console.log('🎯 Renderizando membros:', members);
+            
+            renderList(membersList, members, 'members', (member) => {
+                const canEdit = isCurrentUserAdmin();
+                
+                return `
+                    <div class="card-actions">
+                        ${canEdit ? `
+                            <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
+                            <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
+                        ` : ''}
+                    </div>
+                    <div class="card-image">
+                        <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" 
+                             alt="${member.name}" 
+                             loading="lazy"
+                             class="member-photo"
+                             onerror="handleMemberPhotoError(this)">
+                    </div>
+                    <div class="card-header">
+                        <h3>${member.name}</h3>
+                        <span class="user-role">${member.role}</span>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Email:</strong> ${member.email}</p>
+                        ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                        <p>${member.bio || 'Sem descrição'}</p>
+                        ${member.linkedin ? `<p><strong>LinkedIn:</strong> <a href="${member.linkedin}" target="_blank">${member.linkedin}</a></p>` : ''}
+                        <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                            Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
+                            ${member.updated_at ? `<br>Atualizado em: ${new Date(member.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                        </p>
+                    </div>
+                `;
+            });
+        }
+        // Função para lidar com erro em fotos de membros
+        function handleMemberPhotoError(img) {
+            console.log('❌ Erro ao carregar foto do membro, usando placeholder...');
+            img.src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+            img.onerror = null; // Previne loop infinito
+        }
     function renderPendingMembers() {
         if (!pendingMembersList || !isCurrentUserAdmin()) return;
         
@@ -4757,6 +4775,7 @@ function updateMobileMenus() {
     
 </body>
 </html>
+
 
 
 
