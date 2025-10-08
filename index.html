@@ -519,7 +519,7 @@
             margin-bottom: 1.5rem;
         }
 
-        /* Para a prévia das fotos no formulário */
+       /* Para a prévia no formulário - ajuste importante */
         .image-preview {
             width: 150px;
             height: 150px;
@@ -530,15 +530,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             box-shadow: var(--shadow);
         }
-        
-        .image-preview img {
+        /* Nova classe para fotos que devem mostrar conteúdo completo */
+        .show-full-photo {
+            object-fit: contain;
+            background-color: #f8f9fa;
+            padding: 5px;
+        }
+
+       .image-preview img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Garante que a imagem de preview também fique ajustada */
+            object-fit: cover;
+            object-position: center 30%; /* Mesmo ajuste para preview */
         }
+
 
         .image-preview.sponsor,
         .image-preview.partner,
@@ -871,26 +879,45 @@
             background-color: rgba(47, 133, 90, 1);
         }
 
-        /* CORREÇÕES PARA AS FOTOS DOS MEMBROS */
+        /* CORREÇÕES ESPECÍFICAS PARA FOTOS DE MEMBROS */
         .card-image {
             width: 100%;
-            height: 200px;
+            height: 280px; /* Aumentei a altura para melhor visualização */
             overflow: hidden;
             position: relative;
-            background-color: #f8f9fa; /* Fundo para quando a imagem não carregar */
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .card-image img {
+          .card-image img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Isso é crucial para ajustar a imagem */
+            object-fit: cover; /* Mantém mas vamos ajustar a posição */
+            object-position: center 30%; /* Foca mais no rosto - ajuste crucial! */
             transition: var(--transition);
         }
-        /* Para garantir que as imagens de perfil fiquem bem centralizadas */
+        /* Para fotos de perfil, ajustamos o object-position */
         .member-photo {
-            object-position: center top; /* Foca no rosto para fotos de perfil */
+            object-fit: cover;
+            object-position: center 25%; /* Ajuste fino para focar no rosto */
         }
-
+        /* Versão alternativa: usar contain para mostrar a foto inteira */
+        .member-photo-full {
+            object-fit: contain;
+            background-color: #f8f9fa;
+            padding: 10px;
+        }
+        /* Container de imagem específico para membros */
+        .member-photo-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+        }
         .card:hover .card-image img {
             transform: scale(1.05);
         }
@@ -1415,9 +1442,15 @@
             }
         }
 
-        @media (max-width: 768px) {
-            .header-right {
-                gap: 1rem;
+       /* Ajuste responsivo */
+            @media (max-width: 768px) {
+                .card-image {
+                    height: 220px;
+                }
+                
+                .card-image img {
+                    object-position: center 25%;
+                }
             }
             
             .desktop-nav {
@@ -2816,54 +2849,99 @@ async function saveDataLocally(table, dataToSave, editingId = null) {
         }
         
             // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
-           function renderMembers() {
-            if (!membersList) {
-                console.error('❌ Elemento members-list não encontrado');
-                return;
-            }
-            
-            console.log('🎯 Renderizando membros:', members);
-            
-            renderList(membersList, members, 'members', (member) => {
-                const canEdit = isCurrentUserAdmin();
-                
-                return `
-                    <div class="card-actions">
-                        ${canEdit ? `
-                            <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
-                            <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
-                        ` : ''}
-                    </div>
-                   <div class="card-image member">
-                        <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" 
-                             alt="${member.name}" 
-                             loading="lazy"
-                             class="member-photo"
-                             onerror="handleMemberPhotoError(this)">
-                    </div>
-                    <div class="card-header">
-                        <h3>${member.name}</h3>
-                        <span class="user-role">${member.role}</span>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Email:</strong> ${member.email}</p>
-                        ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
-                        <p>${member.bio || 'Sem descrição'}</p>
-                        ${member.linkedin ? `<p><strong>LinkedIn:</strong> <a href="${member.linkedin}" target="_blank">${member.linkedin}</a></p>` : ''}
-                        <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                            Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
-                            ${member.updated_at ? `<br>Atualizado em: ${new Date(member.updated_at).toLocaleDateString('pt-BR')}` : ''}
-                        </p>
-                    </div>
-                `;
-            });
-        }
-        // Função para lidar com erro em fotos de membros
-        function handleMemberPhotoError(img) {
-            console.log('❌ Erro ao carregar foto do membro, usando placeholder...');
-            img.src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
-            img.onerror = null; // Previne loop infinito
-        }
+   function renderMembers() {
+    if (!membersList) {
+        console.error('❌ Elemento members-list não encontrado');
+        return;
+    }
+    
+    console.log('🎯 Renderizando membros:', members);
+    
+    renderList(membersList, members, 'members', (member) => {
+        const canEdit = isCurrentUserAdmin();
+        
+        return `
+            <div class="card-actions">
+                ${canEdit ? `
+                    <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
+                    <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
+                ` : ''}
+            </div>
+            <div class="card-image">
+                <div class="member-photo-container">
+                    <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" 
+                         alt="${member.name}" 
+                         loading="lazy"
+                         class="member-photo"
+                         onerror="handleMemberPhotoError(this)"
+                         onclick="togglePhotoView(this)">
+                </div>
+            </div>
+            <div class="card-header">
+                <h3>${member.name}</h3>
+                <span class="user-role">${member.role}</span>
+            </div>
+            <div class="card-body">
+                <p><strong>Email:</strong> ${member.email}</p>
+                ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                <p>${member.bio || 'Sem descrição'}</p>
+                ${member.linkedin ? `<p><strong>LinkedIn:</strong> <a href="${member.linkedin}" target="_blank">${member.linkedin}</a></p>` : ''}
+                <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                    Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
+                    ${member.updated_at ? `<br>Atualizado em: ${new Date(member.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                </p>
+                <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #666;">
+                    <small>📷 Clique na foto para alternar entre visualização completa e ajustada</small>
+                </div>
+            </div>
+        `;
+    });
+}
+/ Função auxiliar para mensagens informativas rápidas
+function showMessage(message, type = 'success', duration = 3000) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `global-notification ${type}`;
+    messageDiv.textContent = message;
+    messageDiv.style.background = type === 'info' ? '#4299e1' : 
+                                 type === 'warning' ? '#d69e2e' : 
+                                 type === 'error' ? '#e53e3e' : '#38a169';
+    
+    document.body.appendChild(messageDiv);
+    
+    setTimeout(() => {
+        messageDiv.style.opacity = '1';
+        messageDiv.style.transform = 'translateY(0)';
+    }, 100);
+    
+    setTimeout(() => {
+        messageDiv.style.opacity = '0';
+        messageDiv.style.transform = 'translateY(-100%)';
+        setTimeout(() => messageDiv.remove(), 300);
+    }, duration);
+}
+// Nova função para alternar entre visualizações
+function togglePhotoView(imgElement) {
+    if (imgElement.classList.contains('show-full-photo')) {
+        imgElement.classList.remove('show-full-photo');
+        imgElement.style.objectFit = 'cover';
+        imgElement.style.objectPosition = 'center 25%';
+        showMessage('Modo: Foto ajustada ao quadro', 'info', 2000);
+    } else {
+        imgElement.classList.add('show-full-photo');
+        imgElement.style.objectFit = 'contain';
+        imgElement.style.objectPosition = 'center';
+        showMessage('Modo: Foto completa (pode ter bordas)', 'info', 2000);
+    }
+}
+
+// Função melhorada para lidar com erro em fotos
+function handleMemberPhotoError(img) {
+    console.log('❌ Erro ao carregar foto do membro, usando placeholder...');
+    img.src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+    img.onerror = null;
+    img.style.objectFit = 'cover';
+    img.style.objectPosition = 'center';
+}
     function renderPendingMembers() {
         if (!pendingMembersList || !isCurrentUserAdmin()) return;
         
@@ -4789,6 +4867,7 @@ function updateMobileMenus() {
     
 </body>
 </html>
+
 
 
 
