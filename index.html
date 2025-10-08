@@ -2016,83 +2016,122 @@
     }
 
     // ========== FUNÇÕES DE UPLOAD DE IMAGENS CORRIGIDAS ==========
-    async function uploadImage(file, bucket, fileName) {
-        try {
-            console.log(`📤 Iniciando upload para bucket: ${bucket}, arquivo: ${fileName}`);
-            
-            if (!isOnline) {
-                console.log('📴 Modo offline - usando base64');
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        console.log('✅ Imagem convertida para base64');
-                        resolve(e.target.result);
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
+   async function uploadImage(file, bucket, fileName) {
+    try {
+        console.log(`📤 Iniciando upload para bucket: ${bucket}, arquivo: ${fileName}`);
+        
+        if (!isOnline) {
+            console.log('📴 Modo offline - usando base64');
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    console.log('✅ Imagem convertida para base64');
+                    resolve(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
 
-            // Verificar se o arquivo é uma imagem válida
-            if (!file.type.startsWith('image/')) {
-                throw new Error('Por favor, selecione um arquivo de imagem válido (JPG, PNG, GIF, WebP)');
-            }
+        // Verificar se o arquivo é uma imagem válida
+        if (!file.type.startsWith('image/')) {
+            throw new Error('Por favor, selecione um arquivo de imagem válido (JPG, PNG, GIF, WebP)');
+        }
 
-            // Verificar tamanho do arquivo (máx 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                throw new Error('A imagem deve ter menos de 5MB');
-            }
+        // Verificar tamanho do arquivo (máx 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            throw new Error('A imagem deve ter menos de 5MB');
+        }
 
-            const fileExt = file.name.split('.').pop().toLowerCase();
-            const validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-            
-            if (!validExtensions.includes(fileExt)) {
-                throw new Error('Formato de imagem não suportado. Use JPG, PNG, GIF ou WebP');
-            }
+        const fileExt = file.name.split('.').pop().toLowerCase();
+        const validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        
+        if (!validExtensions.includes(fileExt)) {
+            throw new Error('Formato de imagem não suportado. Use JPG, PNG, GIF ou WebP');
+        }
 
-            const uniqueFileName = `${fileName}_${Date.now()}.${fileExt}`;
+        // Sanitiza o nome do arquivo
+        const sanitizeFileName = (name) => {
+            return name
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9._-]/g, '_')
+                .toLowerCase();
+        };
+
+        const sanitizedFileName = sanitizeFileName(fileName);
+        const uniqueFileName = `${sanitizedFileName}_${Date.now()}.${fileExt}`;
+        
+        console.log(`🔄 Fazendo upload do arquivo: ${uniqueFileName} para bucket: ${bucket}`);
+        
+        // Fazer upload para o Supabase Storage
+        const { data, error } = await supabase.storage
+            .from(bucket)
+            .upload(uniqueFileName, file, {
+                cacheControl: '3600',
+                upsert: false
+            });
+
+        if (error) {
+            console.error('❌ Erro no upload:', error);
             
-            console.log(`🔄 Fazendo upload do arquivo: ${uniqueFileName} para bucket: ${bucket}`);
+            // Tentar com nome mais simples
+            const fallbackName = `image_${Date.now()}.${fileExt}`;
+            console.log(`🔄 Tentando fallback: ${fallbackName}`);
             
-            // Fazer upload para o Supabase Storage
-            const { data, error } = await supabase.storage
+            const { data: fallbackData, error: fallbackError } = await supabase.storage
                 .from(bucket)
-                .upload(uniqueFileName, file, {
+                .upload(fallbackName, file, {
                     cacheControl: '3600',
                     upsert: false
                 });
-
-            if (error) {
-                console.error('❌ Erro no upload:', error);
-                
-                // Tentar diagnóstico do erro
-                if (error.message.includes('Bucket not found')) {
+            
+            if (fallbackError) {
+                if (fallbackError.message.includes('Bucket not found')) {
                     throw new Error(`Bucket '${bucket}' não encontrado. Verifique se o bucket existe no Supabase Storage.`);
-                } else if (error.message.includes('not authorized')) {
+                } else if (fallbackError.message.includes('not authorized')) {
                     throw new Error(`Sem permissão para fazer upload no bucket '${bucket}'. Verifique as políticas de acesso.`);
                 } else {
-                    throw new Error(`Falha no upload: ${error.message}`);
+                    throw new Error(`Falha no upload: ${fallbackError.message}`);
                 }
             }
-
-            console.log('✅ Upload concluído, obtendo URL pública...');
-
-            // Obter URL pública
+            
             const { data: { publicUrl } } = supabase.storage
                 .from(bucket)
-                .getPublicUrl(uniqueFileName);
-
-            console.log('✅ URL pública obtida:', publicUrl);
-            return publicUrl;
+                .getPublicUrl(fallbackName);
             
-        } catch (error) {
-            console.error('❌ Erro completo no upload da imagem:', error);
-            throw new Error(`Falha no upload da imagem: ${error.message}`);
+            console.log('✅ Upload fallback concluído:', publicUrl);
+            return publicUrl;
         }
+
+        console.log('✅ Upload concluído, obtendo URL pública...');
+
+        // Obter URL pública
+        const { data: { publicUrl } } = supabase.storage
+            .from(bucket)
+            .getPublicUrl(uniqueFileName);
+
+        console.log('✅ URL pública obtida:', publicUrl);
+        return publicUrl;
+        
+    } catch (error) {
+        console.error('❌ Erro completo no upload da imagem:', error);
+        throw new Error(`Falha no upload da imagem: ${error.message}`);
     }
+}
 
    async function uploadMultipleImages(files, bucket, baseName) {
     try {
         console.log(`📤 Iniciando upload de ${files.length} imagens para o bucket: ${bucket}`);
+        
+        // Função para sanitizar nomes de arquivo
+        const sanitizeFileName = (fileName) => {
+            // Remove acentos e caracteres especiais
+            return fileName
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9._-]/g, '_')
+                .toLowerCase();
+        };
         
         const uploadPromises = Array.from(files).map(async (file, index) => {
             // Validação do arquivo
@@ -2114,9 +2153,11 @@
                 return null;
             }
             
-            const uniqueFileName = `${baseName}_${Date.now()}_${index}.${fileExt}`;
+            // Sanitiza o nome base e gera nome único
+            const sanitizedBaseName = sanitizeFileName(baseName);
+            const uniqueFileName = `${sanitizedBaseName}_${Date.now()}_${index}.${fileExt}`;
             
-            console.log(`🔄 Upload ${index + 1}/${files.length}: ${file.name} como ${uniqueFileName}`);
+            console.log(`🔄 Upload ${index + 1}/${files.length}: ${file.name} → ${uniqueFileName}`);
             
             if (!isOnline) {
                 console.log('📴 Modo offline - usando base64');
@@ -2140,7 +2181,28 @@
 
                 if (error) {
                     console.error(`❌ Erro no upload da imagem ${index + 1}:`, error);
-                    return null;
+                    // Tenta com nome mais simples em caso de erro
+                    const fallbackName = `event_${Date.now()}_${index}.${fileExt}`;
+                    console.log(`🔄 Tentando fallback: ${fallbackName}`);
+                    
+                    const { data: fallbackData, error: fallbackError } = await supabase.storage
+                        .from(bucket)
+                        .upload(fallbackName, file, {
+                            cacheControl: '3600',
+                            upsert: false
+                        });
+                    
+                    if (fallbackError) {
+                        console.error(`❌ Erro no fallback upload:`, fallbackError);
+                        return null;
+                    }
+                    
+                    const { data: { publicUrl } } = supabase.storage
+                        .from(bucket)
+                        .getPublicUrl(fallbackName);
+                    
+                    console.log(`✅ Upload fallback concluído: ${publicUrl}`);
+                    return publicUrl;
                 }
 
                 console.log(`✅ Upload concluído para ${uniqueFileName}`);
@@ -2170,12 +2232,21 @@
 }
 
     // ========== FUNÇÃO SAVE DATA CORRIGIDA PARA EVENTOS ==========
-   async function saveData(table, formData, imageFiles, buttonId, editingId = null) {
+  async function saveData(table, formData, imageFiles, buttonId, editingId = null) {
     try {
         showButtonLoading(document.getElementById(buttonId), true);
         
         console.log(`💾 Salvando dados para ${table}`, formData);
         
+        // Função para sanitizar nomes de arquivo
+        const sanitizeFileName = (name) => {
+            return name
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9._-]/g, '_')
+                .toLowerCase();
+        };
+
         // PROCESSAMENTO ESPECÍFICO PARA EVENTOS
         if (table === 'events') {
             console.log('🎯 Processando evento - Fotos novas:', eventPhotosFiles.length, 'Fotos existentes:', currentEditingEventPhotos?.length || 0);
@@ -2188,7 +2259,8 @@
                 
                 try {
                     const baseName = formData.title?.replace(/\s+/g, '_').toLowerCase() || 'event';
-                    uploadedPhotoUrls = await uploadMultipleImages(eventPhotosFiles, 'events-photos', baseName);
+                    const sanitizedBaseName = sanitizeFileName(baseName);
+                    uploadedPhotoUrls = await uploadMultipleImages(eventPhotosFiles, 'events-photos', sanitizedBaseName);
                     console.log('✅ Novas fotos uploadadas:', uploadedPhotoUrls);
                 } catch (uploadError) {
                     console.error('❌ Erro no upload de fotos:', uploadError);
@@ -2241,6 +2313,9 @@
                         console.error('Erro ao deletar foto do storage:', deleteError);
                     }
                 }
+                
+                // Limpa a lista de fotos para deletar após a exclusão
+                photosToDelete = [];
             }
             
             // Salva no banco de dados
@@ -2313,7 +2388,8 @@
                 console.log(`🪣 Usando bucket: ${bucketName} para ${table}`);
                 
                 try {
-                    imageUrl = await uploadImage(imageFiles, bucketName, baseName);
+                    const sanitizedBaseName = sanitizeFileName(baseName);
+                    imageUrl = await uploadImage(imageFiles, bucketName, sanitizedBaseName);
                     console.log(`✅ Imagem uploadada com sucesso: ${imageUrl}`);
                 } catch (uploadError) {
                     console.error(`❌ Erro no upload da imagem para ${table}:`, uploadError);
@@ -2333,6 +2409,11 @@
                 } else if (table === 'store_items') {
                     dataToSave.photo = imageUrl;
                 }
+            }
+            
+            // Para membros públicos, define approved como false
+            if (table === 'members' && buttonId === 'publicMemberSubmitBtn') {
+                dataToSave.approved = false;
             }
             
             if (isOnline) {
@@ -2368,11 +2449,21 @@
                 
                 // Recarrega os dados específicos
                 switch(table) {
-                    case 'users': await loadUsers(); break;
-                    case 'members': await loadMembers(); break;
-                    case 'events': await loadEvents(); break;
-                    case 'partners': await loadPartners(); break;
-                    case 'store_items': await loadStoreItems(); break;
+                    case 'users': 
+                        await loadUsers(); 
+                        break;
+                    case 'members': 
+                        await loadMembers(); 
+                        break;
+                    case 'events': 
+                        await loadEvents(); 
+                        break;
+                    case 'partners': 
+                        await loadPartners(); 
+                        break;
+                    case 'store_items': 
+                        await loadStoreItems(); 
+                        break;
                 }
                 
                 showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
@@ -2392,7 +2483,11 @@
     }
 }
 
-    async function saveDataLocally(table, dataToSave, editingId = null) {
+
+
+   // Função auxiliar para salvar dados localmente
+async function saveDataLocally(table, dataToSave, editingId = null) {
+    try {
         if (editingId) {
             const localData = loadFromLocalStorage(table) || [];
             const index = localData.findIndex(item => item.id === editingId);
@@ -2404,7 +2499,9 @@
                     updated_at: new Date().toISOString()
                 };
                 saveToLocalStorage(table, localData);
+                console.log(`✅ ${getEntityName(table)} atualizado localmente:`, editingId);
             } else {
+                console.warn(`${getEntityName(table)} não encontrado para atualização:`, editingId);
                 showMessage(`${getEntityName(table)} não encontrado para atualização`, 'error');
                 return;
             }
@@ -2415,6 +2512,7 @@
             const localData = loadFromLocalStorage(table) || [];
             localData.unshift(dataToSave);
             saveToLocalStorage(table, localData);
+            console.log(`✅ ${getEntityName(table)} criado localmente:`, dataToSave.id);
         }
         
         // Atualiza a interface
@@ -2423,8 +2521,7 @@
                 users = loadFromLocalStorage('users'); 
                 break;
             case 'members': 
-                members = loadFromLocalStorage('members'); 
-                renderMembers(); 
+                await loadMembers(); // Usa await para garantir o recarregamento
                 break;
             case 'events': 
                 events = loadFromLocalStorage('events'); 
@@ -2441,18 +2538,24 @@
         }
         
         showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
+        
+    } catch (error) {
+        console.error(`❌ Erro ao salvar localmente ${table}:`, error);
+        throw error;
     }
+}
 
-    function getEntityName(table) {
-        const names = {
-            'users': 'Usuário',
-            'members': 'Membro',
-            'events': 'Evento',
-            'partners': 'Parceiro',
-            'store_items': 'Item da Loja'
-        };
-        return names[table] || 'Item';
-    }
+    // Função para obter o nome da entidade
+function getEntityName(table) {
+    const names = {
+        'users': 'Usuário',
+        'members': 'Membro',
+        'events': 'Evento',
+        'partners': 'Parceiro',
+        'store_items': 'Item da Loja'
+    };
+    return names[table] || 'Item';
+}
 
     // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
     function renderMembers() {
@@ -4373,4 +4476,5 @@ async function debugStorage() {
     
 </body>
 </html>
+
 
