@@ -1465,11 +1465,7 @@
         <div class="container">
             <h2>Conecte-se, Compartilhe e Cresça.</h2>
             <p>Aqui você interage com outras pessoas e conecta-se a oportunidades.</p>
-           <!--<a href="#membros" class="btn">Membros</a>
-            <a href="#eventos" class="btn btn-secondary">Eventos</a>
-            <a href="#cadastro-publico" class="btn btn-user">Cadastre-se</a>-->
         </div>
-        
     </section>
 
     <!-- Main Content -->
@@ -2493,8 +2489,8 @@
                     // Uma imagem (para membros, parceiros, loja) - usa o bucket correspondente
                     let bucketName;
                     if (table === 'members') bucketName = 'members-photos';
-                    else if (table === 'partners') bucketName = 'partners-photos';
-                    else if (table === 'store_items') bucketName = 'store-photos';
+                    else if (table === 'partners') bucketName = 'parceiros-photos';
+                    else if (table === 'store_items') bucketName = 'loja-photos';
                     else bucketName = 'images';
                     
                     const imageUrl = await uploadImage(imageFiles, bucketName, baseName);
