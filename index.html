@@ -18,6 +18,8 @@
             --admin-color: #805ad5;
             --user-color: #319795;
             --pending-color: #d69e2e;
+            --partner-color: #dd6b20;
+            --store-color: #38a169;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
             --radius: 8px;
@@ -263,6 +265,22 @@
             background-color: #b7791f;
         }
 
+        .btn-partner {
+            background-color: var(--partner-color);
+        }
+
+        .btn-partner:hover {
+            background-color: #c05621;
+        }
+
+        .btn-store {
+            background-color: var(--store-color);
+        }
+
+        .btn-store:hover {
+            background-color: #2f855a;
+        }
+
         /* Main Content */
         main {
             padding: 4rem 0;
@@ -293,6 +311,14 @@
 
         .section-title.user::after {
             background: linear-gradient(to right, var(--user-color), #4fd1c7);
+        }
+
+        .section-title.partner::after {
+            background: linear-gradient(to right, var(--partner-color), #ed8936);
+        }
+
+        .section-title.store::after {
+            background: linear-gradient(to right, var(--store-color), #48bb78);
         }
 
         /* Forms */
@@ -364,7 +390,9 @@
             box-shadow: var(--shadow);
         }
 
-        .image-preview.sponsor {
+        .image-preview.sponsor,
+        .image-preview.partner,
+        .image-preview.store {
             border-radius: var(--radius);
             width: 200px;
             height: 120px;
@@ -757,6 +785,14 @@
             background: linear-gradient(135deg, var(--pending-color) 0%, #ed8936 100%);
         }
 
+        .card-header.partner {
+            background: linear-gradient(135deg, var(--partner-color) 0%, #ed8936 100%);
+        }
+
+        .card-header.store {
+            background: linear-gradient(135deg, var(--store-color) 0%, #48bb78 100%);
+        }
+
         .card-body {
             padding: 1.5rem;
         }
@@ -809,6 +845,26 @@
             font-weight: 500;
         }
 
+        .partner-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background-color: var(--partner-color);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .store-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background-color: var(--store-color);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
         /* Tabs */
         .tabs {
             display: flex;
@@ -843,6 +899,16 @@
         .tab.user.active {
             color: var(--user-color);
             border-bottom-color: var(--user-color);
+        }
+
+        .tab.partner.active {
+            color: var(--partner-color);
+            border-bottom-color: var(--partner-color);
+        }
+
+        .tab.store.active {
+            color: var(--store-color);
+            border-bottom-color: var(--store-color);
         }
 
         .tab-content {
@@ -1225,6 +1291,14 @@
                 border-left-color: var(--user-color);
             }
 
+            .tab.partner.active {
+                border-left-color: var(--partner-color);
+            }
+
+            .tab.store.active {
+                border-left-color: var(--store-color);
+            }
+
             .global-notification {
                 top: 10px;
                 right: 10px;
@@ -1376,6 +1450,8 @@
                         <li><a href="#inicio" class="active">Início</a></li>
                         <li><a href="#membros">Membros</a></li>
                         <li><a href="#eventos">Eventos</a></li>
+                        <li><a href="#parceiros">Parceiros</a></li>
+                        <li><a href="#loja">Nossa Loja</a></li>
                         <li><a href="#cadastro" id="cadastroMenu" style="display: none;">Cadastro</a></li>
                         <li><a href="#cadastro-publico" id="publicRegistrationMenu">Cadastre-se</a></li>
                     </ul>
@@ -1411,6 +1487,22 @@
             <h2 class="section-title">Eventos</h2>
             <div class="events-container" id="events-container">
                 <!-- Events will be dynamically added here -->
+            </div>
+        </section>
+
+        <!-- Partners Section -->
+        <section id="parceiros">
+            <h2 class="section-title partner">Nossos Parceiros</h2>
+            <div class="cards-grid" id="partners-list">
+                <!-- Partners will be dynamically added here -->
+            </div>
+        </section>
+
+        <!-- Store Section -->
+        <section id="loja">
+            <h2 class="section-title store">Nossa Loja</h2>
+            <div class="cards-grid" id="store-items-list">
+                <!-- Store items will be dynamically added here -->
             </div>
         </section>
 
@@ -1480,6 +1572,8 @@
             <div class="tabs">
                 <div class="tab active" data-tab="member">Cadastrar Membro</div>
                 <div class="tab" data-tab="event">Cadastrar Evento</div>
+                <div class="tab" data-tab="partner">Cadastrar Parceiro</div>
+                <div class="tab" data-tab="store">Cadastrar Item da Loja</div>
             </div>
 
             <!-- Member Form -->
@@ -1574,6 +1668,96 @@
                     </form>
                 </div>
             </div>
+
+            <!-- Partner Form -->
+            <div class="tab-content" id="partner-form">
+                <div class="form-container">
+                    <form id="partnerRegistrationForm">
+                        <div class="image-upload-container">
+                            <div class="image-preview partner" id="partnerLogoPreview">
+                                <div class="placeholder">Logo do Parceiro</div>
+                            </div>
+                            <input type="file" id="partnerLogo" class="image-upload-input" accept="image/*">
+                            <label for="partnerLogo" class="image-upload-btn">Selecionar Logo</label>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="partnerName">Nome do Parceiro *</label>
+                                <input type="text" id="partnerName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="partnerCategory">Categoria *</label>
+                                <input type="text" id="partnerCategory" class="form-control" required placeholder="Ex: Tecnologia, Alimentação, etc.">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="partnerWebsite">Website</label>
+                                <input type="url" id="partnerWebsite" class="form-control" placeholder="https://exemplo.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="partnerContact">Contato</label>
+                                <input type="text" id="partnerContact" class="form-control" placeholder="Email ou telefone">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="partnerDescription">Descrição do Parceiro *</label>
+                            <textarea id="partnerDescription" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-partner" id="partnerSubmitBtn">
+                            <span id="partnerSubmitText">Cadastrar Parceiro</span>
+                            <div class="btn-loading">Enviando...</div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Store Form -->
+            <div class="tab-content" id="store-form">
+                <div class="form-container">
+                    <form id="storeRegistrationForm">
+                        <div class="image-upload-container">
+                            <div class="image-preview store" id="storeItemPhotoPreview">
+                                <div class="placeholder">Foto do Produto</div>
+                            </div>
+                            <input type="file" id="storeItemPhoto" class="image-upload-input" accept="image/*">
+                            <label for="storeItemPhoto" class="image-upload-btn">Selecionar Foto</label>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="storeItemName">Nome do Produto *</label>
+                                <input type="text" id="storeItemName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="storeItemCategory">Categoria *</label>
+                                <input type="text" id="storeItemCategory" class="form-control" required placeholder="Ex: Camiseta, Caneca, Livro, etc.">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="storeItemPrice">Preço *</label>
+                                <input type="number" id="storeItemPrice" class="form-control" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="storeItemStock">Estoque Disponível</label>
+                                <input type="number" id="storeItemStock" class="form-control" min="0" value="1">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="storeItemDescription">Descrição do Produto *</label>
+                            <textarea id="storeItemDescription" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="storeItemLink">Link para Compra (opcional)</label>
+                            <input type="url" id="storeItemLink" class="form-control" placeholder="https://exemplo.com/produto">
+                        </div>
+                        <button type="submit" class="btn btn-store" id="storeSubmitBtn">
+                            <span id="storeSubmitText">Cadastrar Item</span>
+                            <div class="btn-loading">Enviando...</div>
+                        </button>
+                    </form>
+                </div>
+            </div>
         </section>
     </main>
 
@@ -1613,10 +1797,14 @@
     let members = [];
     let pendingMembers = [];
     let events = [];
+    let partners = [];
+    let storeItems = [];
     let isOnline = true;
     let currentUser = null;
     let currentEditingMemberId = null;
     let currentEditingEventId = null;
+    let currentEditingPartnerId = null;
+    let currentEditingStoreItemId = null;
     let eventChats = {};
     let adminPassword = "admin123";
     let eventPhotosFiles = [];
@@ -1628,6 +1816,8 @@
     // ========== DOM ELEMENTS ==========
     const membersList = document.getElementById('members-list');
     const eventsContainer = document.getElementById('events-container');
+    const partnersList = document.getElementById('partners-list');
+    const storeItemsList = document.getElementById('store-items-list');
     const pendingMembersList = document.getElementById('pending-members-list');
     const pendingMembersSection = document.getElementById('pending-members-section');
     const syncStatus = document.getElementById('syncStatus');
@@ -1798,6 +1988,30 @@
             }
         } catch (error) {
             console.error('Erro ao carregar eventos:', error);
+        }
+    }
+
+    async function loadPartners() {
+        try {
+            partners = await loadData('partners');
+            console.log('🤝 Parceiros carregados:', partners);
+            if (partnersList) {
+                renderPartners();
+            }
+        } catch (error) {
+            console.error('Erro ao carregar parceiros:', error);
+        }
+    }
+
+    async function loadStoreItems() {
+        try {
+            storeItems = await loadData('store_items');
+            console.log('🛍️ Itens da loja carregados:', storeItems);
+            if (storeItemsList) {
+                renderStoreItems();
+            }
+        } catch (error) {
+            console.error('Erro ao carregar itens da loja:', error);
         }
     }
 
@@ -2155,6 +2369,83 @@
         `;
     }
 
+    function renderPartners() {
+        if (!partnersList) {
+            console.error('❌ Elemento partners-list não encontrado');
+            return;
+        }
+        
+        console.log('🤝 Renderizando parceiros:', partners);
+        
+        renderList(partnersList, partners, 'partners', (partner) => {
+            const canEdit = isCurrentUserAdmin();
+            
+            return `
+                <div class="card-actions">
+                    ${canEdit ? `
+                        <button class="card-action-btn edit" onclick="editPartner('${partner.id}')" title="Editar parceiro">✏️</button>
+                        <button class="card-action-btn delete" onclick="deletePartner('${partner.id}')" title="Excluir parceiro">🗑️</button>
+                    ` : ''}
+                </div>
+                <div class="card-image">
+                    <img src="${partner.logo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${partner.name}" loading="lazy">
+                </div>
+                <div class="card-header partner">
+                    <h3>${partner.name}</h3>
+                    <span class="partner-badge">${partner.category}</span>
+                </div>
+                <div class="card-body">
+                    <p>${partner.description || 'Sem descrição'}</p>
+                    ${partner.website ? `<p><strong>Website:</strong> <a href="${partner.website}" target="_blank">${partner.website}</a></p>` : ''}
+                    ${partner.contact ? `<p><strong>Contato:</strong> ${partner.contact}</p>` : ''}
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                        Cadastrado em: ${new Date(partner.created_at).toLocaleDateString('pt-BR')}
+                        ${partner.updated_at ? `<br>Atualizado em: ${new Date(partner.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                    </p>
+                </div>
+            `;
+        });
+    }
+
+    function renderStoreItems() {
+        if (!storeItemsList) {
+            console.error('❌ Elemento store-items-list não encontrado');
+            return;
+        }
+        
+        console.log('🛍️ Renderizando itens da loja:', storeItems);
+        
+        renderList(storeItemsList, storeItems, 'store_items', (item) => {
+            const canEdit = isCurrentUserAdmin();
+            
+            return `
+                <div class="card-actions">
+                    ${canEdit ? `
+                        <button class="card-action-btn edit" onclick="editStoreItem('${item.id}')" title="Editar item">✏️</button>
+                        <button class="card-action-btn delete" onclick="deleteStoreItem('${item.id}')" title="Excluir item">🗑️</button>
+                    ` : ''}
+                </div>
+                <div class="card-image">
+                    <img src="${item.photo || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${item.name}" loading="lazy">
+                </div>
+                <div class="card-header store">
+                    <h3>${item.name}</h3>
+                    <span class="store-badge">${item.category}</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Preço:</strong> R$ ${parseFloat(item.price).toFixed(2)}</p>
+                    <p><strong>Estoque:</strong> ${item.stock || 0} unidades</p>
+                    <p>${item.description || 'Sem descrição'}</p>
+                    ${item.link ? `<p><strong>Link para compra:</strong> <a href="${item.link}" target="_blank">Clique aqui</a></p>` : ''}
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                        Cadastrado em: ${new Date(item.created_at).toLocaleDateString('pt-BR')}
+                        ${item.updated_at ? `<br>Atualizado em: ${new Date(item.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                    </p>
+                </div>
+            `;
+        });
+    }
+
     function renderList(container, data, type, templateFunction) {
         if (!container) return;
         
@@ -2199,8 +2490,13 @@
                     imageUrls = await uploadMultipleImages(imageFiles, bucketName, baseName);
                     console.log('✅ URLs das fotos do evento:', imageUrls);
                 } else {
-                    // Uma imagem (para membros) - usa o bucket members-photos
-                    const bucketName = 'members-photos';
+                    // Uma imagem (para membros, parceiros, loja) - usa o bucket correspondente
+                    let bucketName;
+                    if (table === 'members') bucketName = 'members-photos';
+                    else if (table === 'partners') bucketName = 'partners-photos';
+                    else if (table === 'store_items') bucketName = 'store-photos';
+                    else bucketName = 'images';
+                    
                     const imageUrl = await uploadImage(imageFiles, bucketName, baseName);
                     imageUrls = [imageUrl];
                 }
@@ -2217,8 +2513,14 @@
                     // Para eventos, salva array de fotos
                     dataToSave.photos = imageUrls;
                     console.log('📸 Fotos a serem salvas no evento:', imageUrls);
-                } else {
+                } else if (table === 'members') {
                     // Para membros, salva photo
+                    dataToSave.photo = imageUrls[0];
+                } else if (table === 'partners') {
+                    // Para parceiros, salva logo
+                    dataToSave.logo = imageUrls[0];
+                } else if (table === 'store_items') {
+                    // Para itens da loja, salva photo
                     dataToSave.photo = imageUrls[0];
                 }
             }
@@ -2259,6 +2561,8 @@
                     case 'users': await loadUsers(); break;
                     case 'members': await loadMembers(); break;
                     case 'events': await loadEvents(); break;
+                    case 'partners': await loadPartners(); break;
+                    case 'store_items': await loadStoreItems(); break;
                 }
                 
                 showMessage(`${getEntityName(table)} ${editingId ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
@@ -2315,6 +2619,14 @@
                 events = loadFromLocalStorage('events'); 
                 renderEvents(); 
                 break;
+            case 'partners': 
+                partners = loadFromLocalStorage('partners'); 
+                renderPartners(); 
+                break;
+            case 'store_items': 
+                storeItems = loadFromLocalStorage('store_items'); 
+                renderStoreItems(); 
+                break;
         }
         
         showMessage(`${getEntityName(table)} salvo localmente!`, 'success');
@@ -2324,7 +2636,9 @@
         const names = {
             'users': 'Usuário',
             'members': 'Membro',
-            'events': 'Evento'
+            'events': 'Evento',
+            'partners': 'Parceiro',
+            'store_items': 'Item da Loja'
         };
         return names[table] || 'Item';
     }
@@ -2343,6 +2657,8 @@
                 case 'users': currentData = users; break;
                 case 'members': currentData = members; break;
                 case 'events': currentData = events; break;
+                case 'partners': currentData = partners; break;
+                case 'store_items': currentData = storeItems; break;
             }
             
             const itemToDelete = currentData.find(item => item.id == itemId);
@@ -2365,6 +2681,8 @@
                 case 'users': users = updatedData; break;
                 case 'members': members = updatedData; break;
                 case 'events': events = updatedData; break;
+                case 'partners': partners = updatedData; break;
+                case 'store_items': storeItems = updatedData; break;
             }
             
             saveToLocalStorage(table, updatedData);
@@ -2374,6 +2692,8 @@
                     await loadMembers(); // Recarrega para atualizar membros pendentes também
                     break;
                 case 'events': renderEvents(); break;
+                case 'partners': renderPartners(); break;
+                case 'store_items': renderStoreItems(); break;
             }
             
             showMessage(`${getEntityName(table)} excluído com sucesso!`, 'success');
@@ -2461,6 +2781,85 @@
         } catch (error) {
             console.error('Erro ao preparar formulário de edição do evento:', error);
             showMessage('Erro ao carregar dados do evento para edição', 'error');
+        }
+    }
+
+    async function editPartner(partnerId) {
+        const partner = partners.find(p => p.id == partnerId);
+        if (!partner) {
+            showMessage('Parceiro não encontrado', 'error');
+            return;
+        }
+
+        try {
+            document.getElementById('partnerName').value = partner.name || '';
+            document.getElementById('partnerCategory').value = partner.category || '';
+            document.getElementById('partnerWebsite').value = partner.website || '';
+            document.getElementById('partnerContact').value = partner.contact || '';
+            document.getElementById('partnerDescription').value = partner.description || '';
+
+            // Atualiza o preview do logo
+            const preview = document.getElementById('partnerLogoPreview');
+            if (partner.logo) {
+                preview.innerHTML = `<img src="${partner.logo}" alt="Preview">`;
+            }
+
+            document.getElementById('partnerSubmitText').textContent = 'Atualizar Parceiro';
+            currentEditingPartnerId = partnerId;
+
+            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="partner"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('partner-form').classList.add('active');
+
+            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Parceiro".', 'success');
+            
+        } catch (error) {
+            console.error('Erro ao preparar formulário de edição do parceiro:', error);
+            showMessage('Erro ao carregar dados do parceiro para edição', 'error');
+        }
+    }
+
+    async function editStoreItem(itemId) {
+        const item = storeItems.find(i => i.id == itemId);
+        if (!item) {
+            showMessage('Item da loja não encontrado', 'error');
+            return;
+        }
+
+        try {
+            document.getElementById('storeItemName').value = item.name || '';
+            document.getElementById('storeItemCategory').value = item.category || '';
+            document.getElementById('storeItemPrice').value = item.price || '';
+            document.getElementById('storeItemStock').value = item.stock || '';
+            document.getElementById('storeItemDescription').value = item.description || '';
+            document.getElementById('storeItemLink').value = item.link || '';
+
+            // Atualiza o preview da foto
+            const preview = document.getElementById('storeItemPhotoPreview');
+            if (item.photo) {
+                preview.innerHTML = `<img src="${item.photo}" alt="Preview">`;
+            }
+
+            document.getElementById('storeSubmitText').textContent = 'Atualizar Item';
+            currentEditingStoreItemId = itemId;
+
+            document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="store"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('store-form').classList.add('active');
+
+            showMessage('Formulário preenchido para edição. Faça as alterações e clique em "Atualizar Item".', 'success');
+            
+        } catch (error) {
+            console.error('Erro ao preparar formulário de edição do item da loja:', error);
+            showMessage('Erro ao carregar dados do item da loja para edição', 'error');
         }
     }
 
@@ -2685,9 +3084,68 @@
             });
         }
 
+        if (document.getElementById('partnerRegistrationForm')) {
+            document.getElementById('partnerRegistrationForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const partnerLogoInput = document.getElementById('partnerLogo');
+                const partnerLogoFile = partnerLogoInput.files[0];
+                
+                const partnerData = {
+                    name: document.getElementById('partnerName')?.value || '',
+                    category: document.getElementById('partnerCategory')?.value || '',
+                    website: document.getElementById('partnerWebsite')?.value || '',
+                    contact: document.getElementById('partnerContact')?.value || '',
+                    description: document.getElementById('partnerDescription')?.value || ''
+                };
+                
+                if (!partnerData.name || !partnerData.category || !partnerData.description) {
+                    showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Categoria e Descrição).', 'error');
+                    return;
+                }
+                
+                const success = await saveData('partners', partnerData, partnerLogoFile, 'partnerSubmitBtn', currentEditingPartnerId);
+                
+                if (success) {
+                    resetForm('partner');
+                }
+            });
+        }
+
+        if (document.getElementById('storeRegistrationForm')) {
+            document.getElementById('storeRegistrationForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const storeItemPhotoInput = document.getElementById('storeItemPhoto');
+                const storeItemPhotoFile = storeItemPhotoInput.files[0];
+                
+                const storeItemData = {
+                    name: document.getElementById('storeItemName')?.value || '',
+                    category: document.getElementById('storeItemCategory')?.value || '',
+                    price: document.getElementById('storeItemPrice')?.value || '',
+                    stock: document.getElementById('storeItemStock')?.value || '0',
+                    description: document.getElementById('storeItemDescription')?.value || '',
+                    link: document.getElementById('storeItemLink')?.value || ''
+                };
+                
+                if (!storeItemData.name || !storeItemData.category || !storeItemData.price || !storeItemData.description) {
+                    showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Categoria, Preço e Descrição).', 'error');
+                    return;
+                }
+                
+                const success = await saveData('store_items', storeItemData, storeItemPhotoFile, 'storeSubmitBtn', currentEditingStoreItemId);
+                
+                if (success) {
+                    resetForm('store');
+                }
+            });
+        }
+
         // Image upload handlers
         setupImageUpload('memberPhoto', 'memberPhotoPreview');
         setupImageUpload('publicMemberPhoto', 'publicMemberPhotoPreview');
+        setupImageUpload('partnerLogo', 'partnerLogoPreview');
+        setupImageUpload('storeItemPhoto', 'storeItemPhotoPreview');
         setupMultiplePhotosUpload();
 
         // User login form
@@ -3012,11 +3470,29 @@
                 eventPhotosFiles = [];
                 currentEditingEventId = null;
                 break;
+            case 'partner':
+                form = document.getElementById('partnerRegistrationForm');
+                submitText = document.getElementById('partnerSubmitText');
+                preview = document.getElementById('partnerLogoPreview');
+                currentEditingPartnerId = null;
+                break;
+            case 'store':
+                form = document.getElementById('storeRegistrationForm');
+                submitText = document.getElementById('storeSubmitText');
+                preview = document.getElementById('storeItemPhotoPreview');
+                currentEditingStoreItemId = null;
+                break;
         }
         
         if (form) form.reset();
         if (preview) {
-            preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
+            if (type === 'partner') {
+                preview.innerHTML = '<div class="placeholder">Logo do Parceiro</div>';
+            } else if (type === 'store') {
+                preview.innerHTML = '<div class="placeholder">Foto do Produto</div>';
+            } else {
+                preview.innerHTML = '<div class="placeholder">Foto do Membro</div>';
+            }
         }
         if (photosPreview) {
             photosPreview.innerHTML = '';
@@ -3027,104 +3503,116 @@
     function resetEditingIds() {
         currentEditingMemberId = null;
         currentEditingEventId = null;
+        currentEditingPartnerId = null;
+        currentEditingStoreItemId = null;
         
         document.getElementById('memberSubmitText').textContent = 'Cadastrar Membro';
         document.getElementById('eventSubmitText').textContent = 'Cadastrar Evento';
+        document.getElementById('partnerSubmitText').textContent = 'Cadastrar Parceiro';
+        document.getElementById('storeSubmitText').textContent = 'Cadastrar Item';
     }
 
     // Funções de exclusão específicas
-   // ========== FUNÇÃO DELETE MEMBER CORRIGIDA PARA PENDENTES ==========
-async function deleteMember(memberId) {
-    try {
-        console.log('🗑️ Iniciando exclusão do membro ID:', memberId);
-        
-        // Procura o membro em TODAS as listas possíveis
-        let member = null;
-        let listType = '';
-        
-        // 1. Procura nos membros aprovados
-        member = members.find(m => m.id === memberId);
-        if (member) {
-            listType = 'aprovados';
-        }
-        
-        // 2. Se não encontrou, procura nos membros pendentes
-        if (!member) {
-            member = pendingMembers.find(m => m.id === memberId);
-            if (member) {
-                listType = 'pendentes';
-            }
-        }
-        
-        // 3. Se ainda não encontrou, procura no localStorage completo
-        if (!member) {
-            const allMembers = loadFromLocalStorage('members') || [];
-            member = allMembers.find(m => m.id === memberId);
-            if (member) {
-                listType = 'localStorage';
-            }
-        }
-        
-        if (!member) {
-            throw new Error(`Membro com ID ${memberId} não encontrado em nenhuma lista`);
-        }
-
-        console.log('📋 Membro encontrado:', member.name, '- Tipo:', listType);
-
-        if (!confirm(`Tem certeza que deseja excluir o membro "${member.name}"?`)) {
-            return;
-        }
-
-        showLoading('Excluindo membro...');
-
-        // Remove do banco de dados (se online)
-        if (isOnline) {
-            console.log('🌐 Removendo do Supabase...');
-            const { error } = await supabase
-                .from('members')
-                .delete()
-                .eq('id', memberId);
+    // ========== FUNÇÃO DELETE MEMBER CORRIGIDA PARA PENDENTES ==========
+    async function deleteMember(memberId) {
+        try {
+            console.log('🗑️ Iniciando exclusão do membro ID:', memberId);
             
-            if (error) {
-                console.error('❌ Erro do Supabase:', error);
-                // Continua mesmo com erro, para tentar remover localmente
-            } else {
-                console.log('✅ Removido do Supabase');
+            // Procura o membro em TODAS as listas possíveis
+            let member = null;
+            let listType = '';
+            
+            // 1. Procura nos membros aprovados
+            member = members.find(m => m.id === memberId);
+            if (member) {
+                listType = 'aprovados';
             }
+            
+            // 2. Se não encontrou, procura nos membros pendentes
+            if (!member) {
+                member = pendingMembers.find(m => m.id === memberId);
+                if (member) {
+                    listType = 'pendentes';
+                }
+            }
+            
+            // 3. Se ainda não encontrou, procura no localStorage completo
+            if (!member) {
+                const allMembers = loadFromLocalStorage('members') || [];
+                member = allMembers.find(m => m.id === memberId);
+                if (member) {
+                    listType = 'localStorage';
+                }
+            }
+            
+            if (!member) {
+                throw new Error(`Membro com ID ${memberId} não encontrado em nenhuma lista`);
+            }
+
+            console.log('📋 Membro encontrado:', member.name, '- Tipo:', listType);
+
+            if (!confirm(`Tem certeza que deseja excluir o membro "${member.name}"?`)) {
+                return;
+            }
+
+            showLoading('Excluindo membro...');
+
+            // Remove do banco de dados (se online)
+            if (isOnline) {
+                console.log('🌐 Removendo do Supabase...');
+                const { error } = await supabase
+                    .from('members')
+                    .delete()
+                    .eq('id', memberId);
+                
+                if (error) {
+                    console.error('❌ Erro do Supabase:', error);
+                    // Continua mesmo com erro, para tentar remover localmente
+                } else {
+                    console.log('✅ Removido do Supabase');
+                }
+            }
+
+            // Remove do localStorage - abordagem mais direta
+            console.log('💾 Atualizando localStorage...');
+            const allMembers = loadFromLocalStorage('members') || [];
+            const updatedMembers = allMembers.filter(m => m.id !== memberId);
+            saveToLocalStorage('members', updatedMembers);
+            console.log('✅ localStorage atualizado - removidos:', allMembers.length - updatedMembers.length, 'membros');
+
+            // Atualiza as variáveis globais
+            members = members.filter(m => m.id !== memberId);
+            pendingMembers = pendingMembers.filter(m => m.id !== memberId);
+            
+            console.log('🔄 Atualizando interface...');
+            
+            // Atualiza a interface
+            renderMembers();
+            if (isCurrentUserAdmin()) {
+                renderPendingMembers();
+            }
+            
+            console.log('✅ Exclusão concluída com sucesso');
+            showMessage(`✅ Membro "${member.name}" excluído com sucesso!`, 'success');
+
+        } catch (error) {
+            console.error('❌ Erro completo ao excluir membro:', error);
+            showMessage(`Erro ao excluir membro: ${error.message}`, 'error');
+        } finally {
+            hideLoading();
         }
-
-        // Remove do localStorage - abordagem mais direta
-        console.log('💾 Atualizando localStorage...');
-        const allMembers = loadFromLocalStorage('members') || [];
-        const updatedMembers = allMembers.filter(m => m.id !== memberId);
-        saveToLocalStorage('members', updatedMembers);
-        console.log('✅ localStorage atualizado - removidos:', allMembers.length - updatedMembers.length, 'membros');
-
-        // Atualiza as variáveis globais
-        members = members.filter(m => m.id !== memberId);
-        pendingMembers = pendingMembers.filter(m => m.id !== memberId);
-        
-        console.log('🔄 Atualizando interface...');
-        
-        // Atualiza a interface
-        renderMembers();
-        if (isCurrentUserAdmin()) {
-            renderPendingMembers();
-        }
-        
-        console.log('✅ Exclusão concluída com sucesso');
-        showMessage(`✅ Membro "${member.name}" excluído com sucesso!`, 'success');
-
-    } catch (error) {
-        console.error('❌ Erro completo ao excluir membro:', error);
-        showMessage(`Erro ao excluir membro: ${error.message}`, 'error');
-    } finally {
-        hideLoading();
     }
-}
 
     async function deleteEvent(eventId) {
         await deleteItem('events', eventId);
+    }
+
+    async function deletePartner(partnerId) {
+        await deleteItem('partners', partnerId);
+    }
+
+    async function deleteStoreItem(itemId) {
+        await deleteItem('store_items', itemId);
     }
 
     // ========== FUNÇÃO PARA APROVAR MEMBROS ==========
@@ -3516,6 +4004,8 @@ async function deleteMember(memberId) {
         // Recarrega as listas para mostrar/ocultar botões de edição
         if (membersList) renderMembers();
         if (eventsContainer) renderEvents();
+        if (partnersList) renderPartners();
+        if (storeItemsList) renderStoreItems();
         
         // Mostra membros pendentes se for admin
         if (isAdmin && pendingMembersList) {
@@ -3567,6 +4057,8 @@ async function deleteMember(memberId) {
             members = [];
             pendingMembers = [];
             events = [];
+            partners = [];
+            storeItems = [];
             eventChats = {};
             eventPhotosFiles = [];
             
@@ -3590,6 +4082,8 @@ async function deleteMember(memberId) {
                 loadUsers(),
                 loadMembers(),
                 loadEvents(),
+                loadPartners(),
+                loadStoreItems(),
                 loadEventChats()
             ]);
             
@@ -3622,5 +4116,3 @@ async function deleteMember(memberId) {
     
 </body>
 </html>
-
-
