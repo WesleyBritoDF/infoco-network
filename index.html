@@ -45,101 +45,151 @@
             padding: 0 15px;
         }
 
-        /* Header Styles */
+        /* Header Styles - MELHORADO */
         header {
             background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
             color: white;
-            padding: 1rem 0;
+            padding: 0;
             box-shadow: var(--shadow);
             position: sticky;
             top: 0;
             z-index: 1000;
+            border-bottom: 3px solid rgba(255,255,255,0.1);
         }
 
         .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 1rem 0;
+            position: relative;
         }
 
+        /* Logo Styles - MELHORADO */
         .logo {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 10px;
-            text-align: center;
+            gap: 1rem;
+            flex-shrink: 0;
         }
 
         .logo-image {
-            width: 135px;
-            height: 135px;
+            width: 60px;
+            height: 60px;
             border-radius: 8px;
             overflow: hidden;
             border: 2px solid rgba(255,255,255,0.2);
             box-shadow: var(--shadow);
             transition: var(--transition);
+            flex-shrink: 0;
         }
-        
+
+        .logo-image:hover {
+            transform: scale(1.05);
+            border-color: rgba(255,255,255,0.4);
+        }
+
         .logo-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        
+
         .logo-text {
             display: flex;
             flex-direction: column;
-            align-items: center;
-        }    
-       
-        .logo-image:hover {
-            transform: scale(1.05);
-            border-color: rgba(255,255,255,0.4);
+            justify-content: center;
         }
-    
-        .logo h2 {
+
+        .logo-text h1 {
             margin: 0;
-            font-size: 10px;
-            color: #ffffff;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text h2 {
+            margin: 0.2rem 0 0 0;
+            font-size: 0.7rem;
+            color: #90cdf4;
             font-weight: normal;
             opacity: 0.9;
         }
 
-        .logo span {
+        .logo-text h2 b {
             color: #63b3ed;
+            font-weight: 600;
         }
 
+        /* Header Right Section - NOVO */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        /* Botões Melhorados */
         .admin-access-btn {
             background: var(--admin-color);
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1.2rem;
             border-radius: var(--radius);
             cursor: pointer;
             font-weight: 500;
             transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .admin-access-btn:hover {
             background: #6b46c1;
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
         .admin-access-btn.logout {
             background-color: var(--accent-color);
         }
-        
+
         .admin-access-btn.logout:hover {
             background-color: #c53030;
         }
 
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 1.5rem;
+        .btn-icon {
+            font-size: 1rem;
         }
 
-        nav a {
+        .btn-text {
+            white-space: nowrap;
+        }
+
+        /* Navegação Desktop Melhorada */
+        .desktop-nav {
+            display: block;
+        }
+
+        .desktop-nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.8rem;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+        }
+
+        .desktop-nav a {
             color: white;
             text-decoration: none;
             font-weight: 500;
@@ -147,17 +197,20 @@
             padding: 0.5rem 0;
             position: relative;
             cursor: pointer;
+            font-size: 0.95rem;
+            white-space: nowrap;
         }
 
-        nav a:hover {
+        .desktop-nav a:hover {
+            color: #90cdf4;
+            transform: translateY(-1px);
+        }
+
+        .desktop-nav a.active {
             color: #90cdf4;
         }
 
-        nav a.active {
-            color: #90cdf4;
-        }
-
-        nav a.active::after {
+        .desktop-nav a.active::after {
             content: '';
             position: absolute;
             bottom: 0;
@@ -165,15 +218,105 @@
             width: 100%;
             height: 2px;
             background-color: #90cdf4;
+            transform: scaleX(1);
+            transition: transform 0.3s ease;
         }
 
+        .desktop-nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #90cdf4;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .desktop-nav a:hover::after {
+            transform: scaleX(1);
+        }
+
+        /* Menu Mobile - NOVO */
         .mobile-menu-btn {
             display: none;
             background: none;
             border: none;
             color: white;
-            font-size: 1.5rem;
             cursor: pointer;
+            padding: 0.5rem;
+            flex-direction: column;
+            gap: 4px;
+            width: 30px;
+            height: 30px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .mobile-menu-btn span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: white;
+            transition: var(--transition);
+            border-radius: 1px;
+        }
+
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+
+        .mobile-menu-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        .mobile-nav {
+            display: none;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .mobile-nav.show {
+            display: block;
+        }
+
+        .mobile-nav ul {
+            list-style: none;
+            padding: 1rem 0;
+            margin: 0;
+        }
+
+        .mobile-nav li {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .mobile-nav li:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-nav a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .mobile-nav a:hover,
+        .mobile-nav a.active {
+            background: rgba(255,255,255,0.1);
+            color: #90cdf4;
         }
 
         /* Hero Section */
@@ -1230,29 +1373,66 @@
             border-radius: var(--radius);
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
+        /* Responsive Design - ATUALIZADO */
+        @media (max-width: 1024px) {
             .header-content {
-                flex-direction: column;
+                padding: 0.8rem 0;
+            }
+            
+            .desktop-nav ul {
+                gap: 1.2rem;
+            }
+            
+            .logo-text h1 {
+                font-size: 1.2rem;
+            }
+            
+            .logo-text h2 {
+                font-size: 0.65rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-right {
                 gap: 1rem;
             }
-
-            nav ul {
-                flex-direction: column;
-                text-align: center;
-                gap: 0.5rem;
+            
+            .desktop-nav {
                 display: none;
             }
-
-            nav ul.show {
+            
+            .mobile-menu-btn {
                 display: flex;
             }
-
-            .mobile-menu-btn {
-                display: block;
-                position: absolute;
-                top: 1rem;
-                right: 1rem;
+            
+            .logo {
+                gap: 0.8rem;
+            }
+            
+            .logo-image {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .logo-text h1 {
+                font-size: 1.1rem;
+            }
+            
+            .logo-text h2 {
+                font-size: 0.6rem;
+            }
+            
+            .admin-access-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+            
+            .btn-text {
+                display: none;
+            }
+            
+            .admin-access-btn {
+                padding: 0.6rem;
             }
 
             .hero h2 {
@@ -1326,6 +1506,33 @@
                 width: 40px;
                 height: 40px;
                 font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content {
+                padding: 0.6rem 0;
+            }
+            
+            .logo {
+                gap: 0.6rem;
+            }
+            
+            .logo-image {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .logo-text h1 {
+                font-size: 1rem;
+            }
+            
+            .logo-text h2 {
+                font-size: 0.55rem;
+            }
+            
+            .header-actions {
+                gap: 0.5rem;
             }
         }
         
@@ -1427,25 +1634,33 @@
 
     <!-- Header -->
     <header>
-        <div class="container">
-            <div class="header-content">
-               <div class="logo">
-                    <div class="logo-image">
-                        <img src="https://jywmvnxurbtziixntuuq.supabase.co/storage/v1/object/public/Imagens/LogotipoS.jpeg" 
-                             alt="NETWORK IN FOCO Logo" 
-                             onerror="handleLogoError(this)">
-                    </div>
-                    <div class="logo-text">
-                        <h2>Versão 10 <b>develop</b> | © 2025</h2>
-                    </div>
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-image">
+                    <img src="https://jywmvnxurbtziixntuuq.supabase.co/storage/v1/object/public/Imagens/LogotipoS.jpeg" 
+                         alt="NETWORK IN FOCO Logo" 
+                         onerror="handleLogoError(this)">
                 </div>
-                <div style="display: flex; gap: 1rem; align-items: center;">
+                <div class="logo-text">
+                    <h1>NETWORK IN FOCO</h1>
+                    <h2>Versão 10 <b>develop</b> | © 2025</h2>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="header-actions">
                     <button class="admin-access-btn" onclick="showAdminLoginModal()">
-                        🔑 Acesso Admin
+                        <span class="btn-icon">🔑</span>
+                        <span class="btn-text">Acesso Admin</span>
                     </button>
-                    <button class="mobile-menu-btn">☰</button>
+                    <button class="admin-access-btn logout" id="logoutBtn" style="display: none;" onclick="logout()">
+                        <span class="btn-icon">🚪</span>
+                        <span class="btn-text">Sair</span>
+                    </button>
                 </div>
-                <nav>
+                
+                <nav class="desktop-nav">
                     <ul>
                         <li><a href="#inicio" class="active">Início</a></li>
                         <li><a href="#membros">Membros</a></li>
@@ -1456,9 +1671,29 @@
                         <li><a href="#cadastro" id="cadastroMenu" style="display: none;">Cadastro</a></li>
                     </ul>
                 </nav>
+                
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
-    </header>
+        
+        <!-- Menu Mobile -->
+        <nav class="mobile-nav" id="mobileNav">
+            <ul>
+                <li><a href="#inicio" class="active">Início</a></li>
+                <li><a href="#membros">Membros</a></li>
+                <li><a href="#eventos">Eventos</a></li>
+                <li><a href="#parceiros">Parceiros</a></li>
+                <li><a href="#loja">Nossa Loja</a></li>
+                <li><a href="#cadastro-publico" id="publicRegistrationMenuMobile">Cadastre-se</a></li>
+                <li><a href="#cadastro" id="cadastroMenuMobile" style="display: none;">Cadastro</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
 
     <!-- Hero Section -->
     <section class="hero" id="inicio">
@@ -4402,7 +4637,7 @@ function getEntityName(table) {
             addLogoutButton();
             
             setupEventListeners();
-            
+            setupMobileMenu()
             // Carrega dados
             console.log('📥 Carregando dados...');
             await Promise.all([
@@ -4471,11 +4706,58 @@ async function debugStorage() {
 
 // Chame esta função durante a inicialização para verificar
 // debugStorage();
+    // Menu Mobile Functionality
+function setupMobileMenu() {
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileNav = document.getElementById('mobileNav');
     
+    if (mobileMenuBtn && mobileNav) {
+        mobileMenuBtn.addEventListener('click', function() {
+            mobileMenuBtn.classList.toggle('active');
+            mobileNav.classList.toggle('show');
+            
+            // Fecha o menu ao clicar em um link
+            const mobileLinks = mobileNav.querySelectorAll('a');
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenuBtn.classList.remove('active');
+                    mobileNav.classList.remove('show');
+                });
+            });
+        });
+        
+        // Fecha o menu ao clicar fora
+        document.addEventListener('click', function(event) {
+            if (!mobileMenuBtn.contains(event.target) && !mobileNav.contains(event.target)) {
+                mobileMenuBtn.classList.remove('active');
+                mobileNav.classList.remove('show');
+            }
+        });
+    }
+}
+
+// Atualiza os menus mobile quando o usuário faz login/logout
+function updateMobileMenus() {
+    const isAdmin = isCurrentUserAdmin();
+    const cadastroMenuMobile = document.getElementById('cadastroMenuMobile');
+    const publicRegistrationMenuMobile = document.getElementById('publicRegistrationMenuMobile');
+    
+    if (cadastroMenuMobile) {
+        cadastroMenuMobile.style.display = isAdmin ? 'block' : 'none';
+    }
+    
+    if (publicRegistrationMenuMobile) {
+        publicRegistrationMenuMobile.style.display = isAdmin ? 'none' : 'block';
+    }
+}
+
+// Chame esta função no initializeApp()
+// setupMobileMenu();
 </script>
     
 </body>
 </html>
+
 
 
 
