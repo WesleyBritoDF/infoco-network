@@ -20,6 +20,7 @@
     --pending-color: #d69e2e;
     --partner-color: #dd6b20;
     --store-color: #38a169;
+    --birthday-color: #d53f8c;
     --shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
     --radius: 8px;
@@ -618,6 +619,14 @@ header {
     background-color: #2f855a;
 }
 
+.btn-birthday {
+    background-color: var(--birthday-color);
+}
+
+.btn-birthday:hover {
+    background-color: #b83280;
+}
+
 /* Main Content */
 main {
     padding: 4rem 0;
@@ -1158,6 +1167,26 @@ main {
     z-index: 5;
 }
 
+.birthday-indicator {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--birthday-color);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    z-index: 5;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
 .card-header {
     padding: 1.5rem;
     background: linear-gradient(135deg, var(--primary-color) 0%, #2c5282 100%);
@@ -1182,6 +1211,10 @@ main {
 
 .card-header.store {
     background: linear-gradient(135deg, var(--store-color) 0%, #48bb78 100%);
+}
+
+.card-header.birthday {
+    background: linear-gradient(135deg, var(--birthday-color) 0%, #ed64a6 100%);
 }
 
 .card-body {
@@ -1250,6 +1283,16 @@ main {
     display: inline-block;
     padding: 0.3rem 0.8rem;
     background-color: var(--store-color);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.birthday-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    background-color: var(--birthday-color);
     color: white;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -1621,6 +1664,48 @@ footer {
     border-radius: var(--radius);
 }
 
+/* Birthday Reminder */
+.birthday-reminder {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--birthday-color) 0%, #ed64a6 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    z-index: 10001;
+    animation: slideIn 0.3s ease;
+    max-width: 500px;
+    text-align: center;
+    display: none;
+}
+
+.birthday-reminder.show {
+    display: block;
+}
+
+.birthday-reminder h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.birthday-reminder p {
+    margin-bottom: 0.5rem;
+}
+
+.birthday-reminder-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
 /* Melhorias para scroll suave */
 html {
     scroll-behavior: smooth;
@@ -1658,6 +1743,13 @@ section {
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div>Carregando...</div>
+    </div>
+
+    <!-- Birthday Reminder -->
+    <div class="birthday-reminder" id="birthdayReminder">
+        <button class="birthday-reminder-close" onclick="closeBirthdayReminder()">✕</button>
+        <h3>🎉 Aniversariantes de Hoje!</h3>
+        <div id="birthdayList"></div>
     </div>
 
     <!-- User Login Modal -->
@@ -1857,13 +1949,19 @@ section {
                             <input type="text" id="publicMemberRole" class="form-control" required>
                         </div>
                     </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="publicMemberBirthday">Data de Aniversário *</label>
+                            <input type="date" id="publicMemberBirthday" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="publicMemberLinkedin">LinkedIn (opcional)</label>
+                            <input type="url" id="publicMemberLinkedin" class="form-control" placeholder="https://linkedin.com/in/seu-perfil">
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="publicMemberBio">Biografia/Descrição *</label>
                         <textarea id="publicMemberBio" class="form-control" rows="4" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="publicMemberLinkedin">LinkedIn (opcional)</label>
-                        <input type="url" id="publicMemberLinkedin" class="form-control" placeholder="https://linkedin.com/in/seu-perfil">
                     </div>
                     <button type="submit" class="btn btn-pending" id="publicMemberSubmitBtn">
                         <span id="publicMemberSubmitText">Enviar para Aprovação</span>
@@ -1919,8 +2017,18 @@ section {
                                 <input type="tel" id="memberPhone" class="form-control">
                             </div>
                             <div class="form-group">
+                                <label for="memberBirthday">Data de Aniversário *</label>
+                                <input type="date" id="memberBirthday" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
                                 <label for="memberRole">Cargo/Função *</label>
                                 <input type="text" id="memberRole" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="memberLinkedin">LinkedIn (opcional)</label>
+                                <input type="url" id="memberLinkedin" class="form-control" placeholder="https://linkedin.com/in/seu-perfil">
                             </div>
                         </div>
                         <div class="form-group">
@@ -2148,6 +2256,8 @@ section {
     const galleryModal = document.getElementById('galleryModal');
     const galleryImage = document.getElementById('galleryImage');
     const galleryCounter = document.getElementById('galleryCounter');
+    const birthdayReminder = document.getElementById('birthdayReminder');
+    const birthdayList = document.getElementById('birthdayList');
 
     // ========== INICIALIZAÇÃO DO SUPABASE ==========
     async function initializeSupabase() {
@@ -2296,6 +2406,9 @@ section {
             if (pendingMembersList && isCurrentUserAdmin()) {
                 renderPendingMembers();
             }
+            
+            // Verificar aniversariantes do dia
+            checkBirthdays();
             
         } catch (error) {
             console.error('Erro ao carregar membros:', error);
@@ -2888,8 +3001,10 @@ async function saveDataLocally(table, dataToSave, editingId = null) {
     
     renderList(membersList, members, 'members', (member) => {
         const canEdit = isCurrentUserAdmin();
+        const isBirthday = checkIfBirthdayToday(member.birthday);
         
         return `
+            ${isBirthday ? '<div class="birthday-indicator">🎂 Aniversariante!</div>' : ''}
             <div class="card-actions">
                 ${canEdit ? `
                     <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
@@ -2906,13 +3021,15 @@ async function saveDataLocally(table, dataToSave, editingId = null) {
                          onclick="togglePhotoView(this)">
                 </div>
             </div>
-            <div class="card-header">
+            <div class="card-header ${isBirthday ? 'birthday' : ''}">
                 <h3>${member.name}</h3>
                 <span class="user-role">${member.role}</span>
+                ${isBirthday ? '<span class="birthday-badge">🎂 Aniversariante</span>' : ''}
             </div>
             <div class="card-body">
                 <p><strong>Email:</strong> ${member.email}</p>
                 ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                ${member.birthday ? `<p><strong>Aniversário:</strong> ${formatBirthday(member.birthday)}</p>` : ''}
                 <p>${member.bio || 'Sem descrição'}</p>
                 ${member.linkedin ? `<p><strong>LinkedIn:</strong> <a href="${member.linkedin}" target="_blank">${member.linkedin}</a></p>` : ''}
                 <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
@@ -3003,6 +3120,7 @@ function handleMemberPhotoError(img) {
                 <div class="card-body">
                     <p><strong>Email:</strong> ${member.email}</p>
                     ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                    ${member.birthday ? `<p><strong>Aniversário:</strong> ${formatBirthday(member.birthday)}</p>` : ''}
                     <p>${member.bio || 'Sem descrição'}</p>
                     ${member.linkedin ? `<p><strong>LinkedIn:</strong> <a href="${member.linkedin}" target="_blank">${member.linkedin}</a></p>` : ''}
                     <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
@@ -3358,7 +3476,9 @@ function handleMemberPhotoError(img) {
             document.getElementById('memberName').value = member.name || '';
             document.getElementById('memberEmail').value = member.email || '';
             document.getElementById('memberPhone').value = member.phone || '';
+            document.getElementById('memberBirthday').value = member.birthday || '';
             document.getElementById('memberRole').value = member.role || '';
+            document.getElementById('memberLinkedin').value = member.linkedin || '';
             document.getElementById('memberBio').value = member.bio || '';
 
             // Atualiza o preview da foto
@@ -3576,6 +3696,64 @@ function handleMemberPhotoError(img) {
         }
     }
 
+    // ========== FUNÇÕES DE ANIVERSÁRIO ==========
+    function checkIfBirthdayToday(birthday) {
+        if (!birthday) return false;
+        
+        const today = new Date();
+        const birthdayDate = new Date(birthday);
+        
+        return today.getDate() === birthdayDate.getDate() && 
+               today.getMonth() === birthdayDate.getMonth();
+    }
+
+    function formatBirthday(birthday) {
+        if (!birthday) return 'Não informado';
+        
+        const date = new Date(birthday);
+        return date.toLocaleDateString('pt-BR');
+    }
+
+    function checkBirthdays() {
+        const today = new Date();
+        const birthdayMembers = members.filter(member => 
+            member.birthday && checkIfBirthdayToday(member.birthday)
+        );
+        
+        if (birthdayMembers.length > 0) {
+            showBirthdayReminder(birthdayMembers);
+        }
+    }
+
+    function showBirthdayReminder(birthdayMembers) {
+        if (!birthdayReminder || !birthdayList) return;
+        
+        birthdayList.innerHTML = '';
+        
+        birthdayMembers.forEach(member => {
+            const memberDiv = document.createElement('div');
+            memberDiv.style.marginBottom = '0.5rem';
+            memberDiv.innerHTML = `
+                <strong>🎉 ${member.name}</strong> - ${member.role}
+                ${member.birthday ? `<br><small>Aniversário: ${formatBirthday(member.birthday)}</small>` : ''}
+            `;
+            birthdayList.appendChild(memberDiv);
+        });
+        
+        birthdayReminder.classList.add('show');
+        
+        // Fecha automaticamente após 10 segundos
+        setTimeout(() => {
+            closeBirthdayReminder();
+        }, 10000);
+    }
+
+    function closeBirthdayReminder() {
+        if (birthdayReminder) {
+            birthdayReminder.classList.remove('show');
+        }
+    }
+
     // ========== FUNÇÕES DE USUÁRIO E LOGIN ==========
     function showUserLoginModal(eventId = null) {
         const modal = document.getElementById('userLoginModal');
@@ -3638,13 +3816,15 @@ function handleMemberPhotoError(img) {
                     name: document.getElementById('memberName')?.value || '',
                     email: document.getElementById('memberEmail')?.value || '',
                     phone: document.getElementById('memberPhone')?.value || '',
+                    birthday: document.getElementById('memberBirthday')?.value || '',
                     role: document.getElementById('memberRole')?.value || '',
+                    linkedin: document.getElementById('memberLinkedin')?.value || '',
                     bio: document.getElementById('memberBio')?.value || '',
                     approved: true // Admin cadastra diretamente aprovado
                 };
                 
-                if (!memberData.name || !memberData.email || !memberData.role) {
-                    showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Email e Cargo).', 'error');
+                if (!memberData.name || !memberData.email || !memberData.role || !memberData.birthday) {
+                    showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Email, Cargo e Data de Aniversário).', 'error');
                     return;
                 }
                 
@@ -3667,14 +3847,15 @@ function handleMemberPhotoError(img) {
                     name: document.getElementById('publicMemberName')?.value || '',
                     email: document.getElementById('publicMemberEmail')?.value || '',
                     phone: document.getElementById('publicMemberPhone')?.value || '',
+                    birthday: document.getElementById('publicMemberBirthday')?.value || '',
                     role: document.getElementById('publicMemberRole')?.value || '',
                     bio: document.getElementById('publicMemberBio')?.value || '',
                     linkedin: document.getElementById('publicMemberLinkedin')?.value || '',
                     approved: false // Cadastro público fica pendente
                 };
                 
-                if (!memberData.name || !memberData.email || !memberData.role || !memberData.phone) {
-                    showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Email, Telefone e Cargo).', 'error');
+                if (!memberData.name || !memberData.email || !memberData.role || !memberData.phone || !memberData.birthday) {
+                    showMessage('Por favor, preencha todos os campos obrigatórios (Nome, Email, Telefone, Cargo e Data de Aniversário).', 'error');
                     return;
                 }
                 
@@ -4867,7 +5048,3 @@ async function debugStorage() {
     
 </body>
 </html>
-
-
-
-
