@@ -1877,6 +1877,26 @@ section {
     background-color: #1e88e5;
     transform: translateY(-2px);
 }
+ .access-counter {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 999;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .access-counter .icon {
+            font-size: 1rem;
+        }
+        
     </style>
 </head>
 <body>
@@ -1890,6 +1910,11 @@ section {
         <div>Carregando...</div>
     </div>
 
+    <!-- Contador de Acessos -->
+    <div class="access-counter" id="accessCounter" style="display: none;">
+        <span class="icon">👁️</span>
+        <span id="accessCount">0</span> acessos
+    </div>
     <!-- Birthday Reminder -->
     <div class="birthday-reminder" id="birthdayReminder">
         <button class="birthday-reminder-close" onclick="closeBirthdayReminder()">✕</button>
@@ -2380,7 +2405,7 @@ section {
     </footer>
 
 <script>
-    // ========== CONFIGURAÇÃO DO SUPABASE ==========
+     // ========== CONFIGURAÇÃO DO SUPABASE ==========
     const SUPABASE_URL = 'https://jywmvnxurbtziixntuuq.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5d212bnh1cmJ0emlpeG50dXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0OTQ4NzMsImV4cCI6MjA3NTA3MDg3M30.XQ_nZV8E-ifNzFmNggRtlhKETIIt-Kw3skjOsE56xFk';
     
@@ -2401,6 +2426,7 @@ section {
     let eventChats = {};
     let adminPassword = "NIF25@#";
     let eventPhotosFiles = [];
+    let pageAccessCount = 0;
     
     // Variáveis para galeria
     let currentGalleryEvent = null;
@@ -2424,6 +2450,8 @@ section {
     const galleryCounter = document.getElementById('galleryCounter');
     const birthdayReminder = document.getElementById('birthdayReminder');
     const birthdayList = document.getElementById('birthdayList');
+    const accessCounter = document.getElementById('accessCounter');
+    const accessCount = document.getElementById('accessCount');
     
     // Novos elementos para aniversariantes do mês
     const birthdayMonthCard = document.getElementById('birthdayMonthCard');
@@ -2448,6 +2476,142 @@ section {
         }
     }
 
+    // ========== SISTEMA DE TRACKING DE ACESSOS ==========
+    async function trackPageAccess() {
+        try {
+            console.log('📊 Registrando acesso à página...');
+            
+            // Gera um ID único para este acesso
+            const accessId = 'access_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Coleta informações do usuário
+            const userAgent = navigator.userAgent;
+            const language = navigator.language;
+            const platform = navigator.platform;
+            const screenResolution = `${screen.width}x${screen.height}`;
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
+            const accessData = {
+                id: accessId,
+                user_agent: userAgent,
+                language: language,
+                platform: platform,
+                screen_resolution: screenResolution,
+                timezone: timezone,
+                page_url: window.location.href,
+                referrer: document.referrer || 'direct',
+                timestamp: new Date().toISOString(),
+                ip_address: 'unknown' // Em um sistema real, você precisaria de um backend para capturar o IP
+            };
+            
+            if (isOnline) {
+                // Tenta salvar no Supabase
+                const { data, error } = await supabase
+                    .from('page_accesses')
+                    .insert([accessData]);
+                
+                if (error) {
+                    console.error('❌ Erro ao salvar acesso:', error);
+                    // Salva localmente em caso de erro
+                    saveAccessLocally(accessData);
+                } else {
+                    console.log('✅ Acesso registrado com sucesso no Supabase');
+                }
+            } else {
+                // Modo offline - salva localmente
+                saveAccessLocally(accessData);
+            }
+            
+            // Atualiza o contador de acessos
+            await updateAccessCounter();
+            
+        } catch (error) {
+            console.error('❌ Erro no tracking de acesso:', error);
+            // Mesmo com erro, tenta atualizar o contador
+            await updateAccessCounter();
+        }
+    }
+
+    function saveAccessLocally(accessData) {
+        try {
+            const localAccesses = loadFromLocalStorage('page_accesses') || [];
+            localAccesses.push(accessData);
+            saveToLocalStorage('page_accesses', localAccesses);
+            console.log('✅ Acesso salvo localmente');
+        } catch (error) {
+            console.error('❌ Erro ao salvar acesso localmente:', error);
+        }
+    }
+
+    async function updateAccessCounter() {
+        try {
+            let totalAccesses = 0;
+            
+            if (isOnline) {
+                // Busca o total de acessos do Supabase
+                const { data, error, count } = await supabase
+                    .from('page_accesses')
+                    .select('*', { count: 'exact', head: true });
+                
+                if (!error && count !== null) {
+                    totalAccesses = count;
+                } else {
+                    // Fallback para dados locais em caso de erro
+                    const localAccesses = loadFromLocalStorage('page_accesses') || [];
+                    totalAccesses = localAccesses.length;
+                }
+            } else {
+                // Modo offline - usa apenas dados locais
+                const localAccesses = loadFromLocalStorage('page_accesses') || [];
+                totalAccesses = localAccesses.length;
+            }
+            
+            pageAccessCount = totalAccesses;
+            
+            // Atualiza a interface
+            if (accessCount) {
+                accessCount.textContent = totalAccesses.toLocaleString('pt-BR');
+            }
+            if (accessCounter) {
+                accessCounter.style.display = 'flex';
+            }
+            
+            console.log(`📊 Total de acessos: ${totalAccesses}`);
+            
+        } catch (error) {
+            console.error('❌ Erro ao atualizar contador de acessos:', error);
+        }
+    }
+
+    async function syncLocalAccesses() {
+        if (!isOnline) return;
+        
+        try {
+            const localAccesses = loadFromLocalStorage('page_accesses') || [];
+            
+            if (localAccesses.length > 0) {
+                console.log(`🔄 Sincronizando ${localAccesses.length} acessos locais...`);
+                
+                for (const access of localAccesses) {
+                    const { error } = await supabase
+                        .from('page_accesses')
+                        .insert([access]);
+                    
+                    if (!error) {
+                        // Remove do localStorage após sincronização bem-sucedida
+                        const updatedAccesses = localAccesses.filter(a => a.id !== access.id);
+                        saveToLocalStorage('page_accesses', updatedAccesses);
+                    }
+                }
+                
+                console.log('✅ Acessos locais sincronizados');
+                await updateAccessCounter();
+            }
+        } catch (error) {
+            console.error('❌ Erro ao sincronizar acessos locais:', error);
+        }
+    }
+
     // ========== MODO OFFLINE ==========
     function setupOfflineMode() {
         isOnline = false;
@@ -2455,12 +2619,23 @@ section {
         
         window.supabase = {
             from: (table) => ({
-                select: () => ({
-                    order: () => Promise.resolve({ 
-                        data: loadFromLocalStorage(table) || [], 
-                        error: null 
-                    })
-                }),
+                select: (columns = '*') => {
+                    if (columns === '*') {
+                        return {
+                            order: () => Promise.resolve({ 
+                                data: loadFromLocalStorage(table) || [], 
+                                error: null 
+                            })
+                        };
+                    } else {
+                        // Para contagem
+                        return Promise.resolve({ 
+                            data: null, 
+                            error: null,
+                            count: loadFromLocalStorage(table)?.length || 0
+                        });
+                    }
+                },
                 insert: (data) => ({
                     select: () => {
                         const localData = loadFromLocalStorage(table) || [];
@@ -2550,7 +2725,6 @@ section {
             hideLoading();
         }
     }
-
     async function loadUsers() {
         try {
             users = await loadData('users');
@@ -5187,7 +5361,7 @@ section {
     }
 
     // ========== INICIALIZAÇÃO ==========
-    async function initializeApp() {
+   async function initializeApp() {
         try {
             console.log('🚀 Inicializando aplicação...');
             
@@ -5200,6 +5374,7 @@ section {
             storeItems = [];
             eventChats = {};
             eventPhotosFiles = [];
+            pageAccessCount = 0;
             
             const supabaseInitialized = await initializeSupabase();
             
@@ -5215,6 +5390,12 @@ section {
             
             setupEventListeners();
             setupMobileMenu();
+            
+            // Registra o acesso atual à página
+            await trackPageAccess();
+            
+            // Sincroniza acessos locais (se houver)
+            await syncLocalAccesses();
             
             // Carrega dados
             console.log('📥 Carregando dados...');
@@ -5340,6 +5521,7 @@ async function debugStorage() {
     
 </body>
 </html>
+
 
 
 
