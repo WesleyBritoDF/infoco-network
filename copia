@@ -847,7 +847,7 @@ main {
     font-size: 0.8rem;
 }
 
-/* Versão alternativa para fotos quadradas */
+/*  alternativa para fotos quadradas */
 .card-image.member {
     width: 100%;
     height: 250px; /* Um pouco mais alto para fotos de perfil */
@@ -1108,7 +1108,7 @@ main {
     object-position: center 25%; /* Ajuste fino para focar no rosto */
 }
 
-/* Versão alternativa: usar contain para mostrar a foto inteira */
+/*  alternativa: usar contain para mostrar a foto inteira */
 .member-photo-full {
     object-fit: contain;
     background-color: #f8f9fa;
@@ -1896,6 +1896,83 @@ section {
         .access-counter .icon {
             font-size: 1rem;
         }
+/* ========== AJUSTES ESPECÍFICOS PARA FOTOS DE PARCEIROS ========== */
+        
+        /* Container da imagem do parceiro */
+        .card-image.partner {
+            width: 100%;
+            height: 200px; /* Altura fixa para padronização */
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px; /* Espaçamento interno */
+        }
+
+        /* Imagem do parceiro - CENTRALIZADA E AJUSTADA */
+        .card-image.partner img {
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* Mantém a proporção sem cortar */
+            object-position: center center;
+            transition: var(--transition);
+        }
+
+        /* Efeito hover suave */
+        .card:hover .card-image.partner img {
+            transform: scale(1.05);
+        }
+
+        /* Preview no formulário de parceiros */
+        .image-preview.partner {
+            border-radius: var(--radius);
+            width: 250px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border: 2px dashed #cbd5e0;
+        }
+
+        .image-preview.partner img {
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            object-position: center center;
+        }
+
+        /* Para mobile - ajustes responsivos */
+        @media (max-width: 768px) {
+            .card-image.partner {
+                height: 180px;
+                padding: 10px;
+            }
+            
+            .image-preview.partner {
+                width: 200px;
+                height: 120px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-image.partner {
+                height: 160px;
+                padding: 8px;
+            }
+            
+            .image-preview.partner {
+                width: 180px;
+                height: 100px;
+            }
+        }
+        
         
     </style>
 </head>
@@ -1991,7 +2068,7 @@ section {
                 </div>
                 <div class="logo-text">
                     <h1>NETWORK IN FOCO</h1>
-                    <h2>Versão 2 <b>develop</b> | © 2025</h2>
+                    <h2>Versão 1 <b>develop</b> | © 2025</h2>
                 </div>
             </div>
             
@@ -3758,7 +3835,7 @@ section {
         `;
     }
 
-    function renderPartners() {
+     function renderPartners() {
         if (!partnersList) {
             console.error('❌ Elemento partners-list não encontrado');
             return;
@@ -3776,8 +3853,11 @@ section {
                         <button class="card-action-btn delete" onclick="deletePartner('${partner.id}')" title="Excluir parceiro">🗑️</button>
                     ` : ''}
                 </div>
-                <div class="card-image">
-                    <img src="${partner.logo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" alt="${partner.name}" loading="lazy">
+                <div class="card-image partner">
+                    <img src="${partner.logo || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" 
+                         alt="${partner.name}" 
+                         loading="lazy"
+                         onerror="handlePartnerLogoError(this)">
                 </div>
                 <div class="card-header partner">
                     <h3>${partner.name}</h3>
@@ -3795,7 +3875,14 @@ section {
             `;
         });
     }
-
+ // Função para lidar com erro no carregamento de logos de parceiros
+    function handlePartnerLogoError(img) {
+        console.log('❌ Erro ao carregar logo do parceiro, usando placeholder...');
+        img.src = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+        img.onerror = null;
+        img.style.objectFit = 'contain';
+        img.style.objectPosition = 'center';
+    }
     function renderStoreItems() {
         if (!storeItemsList) {
             console.error('❌ Elemento store-items-list não encontrado');
