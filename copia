@@ -1972,7 +1972,255 @@ section {
                 height: 100px;
             }
         }
+         /* ========== NOVOS ESTILOS PARA O SISTEMA DE FILTRO ========== */
         
+        /* Container do filtro */
+        .filter-container {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .filter-toggle {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .filter-toggle:hover {
+            background: #2c5282;
+        }
+        
+        .filter-content {
+            display: none;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .filter-content.show {
+            display: block;
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-option {
+            background-color: #f7fafc;
+            border: 1px solid #cbd5e0;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .filter-option:hover {
+            background-color: #edf2f7;
+            border-color: var(--secondary-color);
+        }
+        
+        .filter-option.active {
+            background-color: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+        
+        .filter-search {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-search-input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 1px solid #cbd5e0;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        
+        .filter-search-input:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+        
+        .filter-search-icon {
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: flex-end;
+        }
+        
+        .filter-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .filter-btn.apply {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .filter-btn.apply:hover {
+            background-color: #2c5282;
+        }
+        
+        .filter-btn.clear {
+            background-color: #e2e8f0;
+            color: var(--dark-color);
+        }
+        
+        .filter-btn.clear:hover {
+            background-color: #cbd5e0;
+        }
+        
+        .filter-results {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: var(--radius);
+            display: none;
+        }
+        
+        .filter-results.show {
+            display: block;
+        }
+        
+        .filter-results-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .filter-results-count {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .filter-results-clear {
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: underline;
+        }
+        
+        .filter-results-clear:hover {
+            color: #2c5282;
+        }
+        
+        .filter-results-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .filter-tag {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .filter-tag-remove {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .filter-tag-remove:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-style: italic;
+            background-color: #f8f9fa;
+            border-radius: var(--radius);
+            grid-column: 1/-1;
+        }
+        
+        /* Responsividade para o filtro */
+        @media (max-width: 768px) {
+            .filter-options {
+                gap: 0.5rem;
+            }
+            
+            .filter-option {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .filter-actions {
+                flex-direction: column;
+            }
+            
+            .filter-btn {
+                width: 100%;
+            }
+        }
         
     </style>
 </head>
@@ -2128,12 +2376,54 @@ section {
     </section>
 
     <!-- Main Content -->
+     <!-- Main Content -->
     <main class="container">
         <!-- Members Section -->
         <section id="membros">
             <h2 class="section-title">Nossos Membros</h2>
             
+            <!-- Sistema de Filtro por Cargo/Função -->
+            <div class="filter-container" id="membersFilter">
+                <div class="filter-header">
+                    <h3 class="filter-title">
+                        <span>🔍</span>
+                        Filtrar por Cargo/Função
+                    </h3>
+                    <button class="filter-toggle" id="filterToggle">
+                        <span>⚙️</span>
+                        <span>Filtros</span>
+                    </button>
+                </div>
+                
+                <div class="filter-content" id="filterContent">
+                    <div class="filter-search">
+                        <span class="filter-search-icon">🔍</span>
+                        <input type="text" class="filter-search-input" id="filterSearch" placeholder="Buscar cargo ou função...">
+                    </div>
+                    
+                    <div class="filter-options" id="filterOptions">
+                        <!-- Opções de filtro serão carregadas dinamicamente -->
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <button class="filter-btn apply" id="applyFilter">Aplicar Filtros</button>
+                        <button class="filter-btn clear" id="clearFilter">Limpar Filtros</button>
+                    </div>
+                    
+                    <div class="filter-results" id="filterResults">
+                        <div class="filter-results-info">
+                            <span class="filter-results-count" id="filterResultsCount">0 membros encontrados</span>
+                            <button class="filter-results-clear" id="clearResults">Limpar</button>
+                        </div>
+                        <div class="filter-results-tags" id="filterResultsTags">
+                            <!-- Tags dos filtros aplicados serão mostradas aqui -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Card de Aniversariantes do Mês -->
+            
             <div class="birthday-month-card" id="birthdayMonthCard" style="display: none;">
                 <div class="birthday-month-header">
                     <div class="birthday-month-icon">🎂</div>
@@ -2811,33 +3101,55 @@ section {
         }
     }
 
-    async function loadMembers() {
-        try {
-            const allMembers = await loadData('members');
-            
-            // Separar membros aprovados e pendentes
-            members = allMembers.filter(member => member.approved === true);
-            pendingMembers = allMembers.filter(member => member.approved !== true);
-            
-            console.log('📋 Membros carregados:', members.length);
-            console.log('⏳ Membros pendentes:', pendingMembers.length);
-            
-            if (membersList) {
-                renderMembers();
+     // Atualiza a função loadMembers para incluir a extração de cargos
+        async function loadMembers() {
+            try {
+                const allMembers = await loadData('members');
+                
+                // Separar membros aprovados e pendentes
+                members = allMembers.filter(member => member.approved === true);
+                pendingMembers = allMembers.filter(member => member.approved !== true);
+                
+                console.log('📋 Membros carregados:', members.length);
+                console.log('⏳ Membros pendentes:', pendingMembers.length);
+                
+                // Extrai todos os cargos/funções únicos
+                extractAllRoles();
+                
+                if (membersList) {
+                    renderMembers();
+                }
+                
+                if (pendingMembersList && isCurrentUserAdmin()) {
+                    renderPendingMembers();
+                }
+                
+                // Verificar aniversariantes do dia e do mês
+                checkBirthdays();
+                renderBirthdayMonthCard();
+                
+                // Inicializa o sistema de filtro após carregar os membros
+                initializeFilterSystem();
+                
+            } catch (error) {
+                console.error('Erro ao carregar membros:', error);
             }
-            
-            if (pendingMembersList && isCurrentUserAdmin()) {
-                renderPendingMembers();
-            }
-            
-            // Verificar aniversariantes do dia e do mês
-            checkBirthdays();
-            renderBirthdayMonthCard();
-            
-        } catch (error) {
-            console.error('Erro ao carregar membros:', error);
         }
-    }
+// Função para inicializar o sistema de filtro
+        function initializeFilterSystem() {
+            console.log('🎛️ Inicializando sistema de filtro...');
+            
+            // Renderiza as opções de filtro
+            renderFilterOptions();
+            
+            // Configura os event listeners
+            setupFilterEventListeners();
+            
+            // Aplica filtros iniciais (se houver algum salvo)
+            applyFilters();
+            
+            console.log('✅ Sistema de filtro inicializado');
+        }
 
     async function loadEvents() {
         try {
@@ -3525,58 +3837,65 @@ section {
     }
 
     // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
-    function renderMembers() {
-        if (!membersList) {
-            console.error('❌ Elemento members-list não encontrado');
-            return;
+    // Atualiza a função renderMembers para usar a função de filtro
+        function renderMembers() {
+            // Se houver filtros ativos, usa a função de renderização filtrada
+            if (memberFilters.roles.length > 0 || memberFilters.search.trim() !== '') {
+                renderFilteredMembers();
+            } else {
+                // Senão, usa a renderização normal
+                if (!membersList) {
+                    console.error('❌ Elemento members-list não encontrado');
+                    return;
+                }
+                
+                console.log('🎯 Renderizando membros:', members);
+                
+                renderList(membersList, members, 'members', (member) => {
+                    const canEdit = isCurrentUserAdmin();
+                    const isBirthday = checkIfBirthdayToday(member.birthday);
+                    
+                    return `
+                        ${isBirthday ? '<div class="birthday-indicator">🎂 Aniversariante!</div>' : ''}
+                        <div class="card-actions">
+                            ${canEdit ? `
+                                <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
+                                <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
+                            ` : ''}
+                        </div>
+                        <div class="card-image">
+                            <div class="member-photo-container">
+                                <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" 
+                                     alt="${member.name}" 
+                                     loading="lazy"
+                                     class="member-photo"
+                                     onerror="handleMemberPhotoError(this)"
+                                     onclick="togglePhotoView(this)">
+                            </div>
+                        </div>
+                        <div class="card-header ${isBirthday ? 'birthday' : ''}">
+                            <h3>${member.name}</h3>
+                            <span class="user-role">${member.role}</span>
+                            ${isBirthday ? '<span class="birthday-badge">🎂 Aniversariante</span>' : ''}
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Email:</strong> ${member.email}</p>
+                            ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                            ${member.birthday ? `<p><strong>Aniversário:</strong> ${formatBirthday(member.birthday)}</p>` : ''}
+                            <p>${member.bio || 'Sem descrição'}</p>
+                            ${member.linkedin ? `<p><strong>LinkedIn:</strong> <a href="${member.linkedin}" target="_blank">${member.linkedin}</a></p>` : ''}
+                            <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                                Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
+                                ${member.updated_at ? `<br>Atualizado em: ${new Date(member.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                            </p>
+                            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #666;">
+                                <small>📷 Clique na foto para alternar entre visualização completa e ajustada</small>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
         }
-        
-        console.log('🎯 Renderizando membros:', members);
-        
-        renderList(membersList, members, 'members', (member) => {
-            const canEdit = isCurrentUserAdmin();
-            const isBirthday = checkIfBirthdayToday(member.birthday);
-            
-            return `
-                ${isBirthday ? '<div class="birthday-indicator">🎂 Aniversariante!</div>' : ''}
-                <div class="card-actions">
-                    ${canEdit ? `
-                        <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
-                        <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
-                    ` : ''}
-                </div>
-                <div class="card-image">
-                    <div class="member-photo-container">
-                        <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" 
-                             alt="${member.name}" 
-                             loading="lazy"
-                             class="member-photo"
-                             onerror="handleMemberPhotoError(this)"
-                             onclick="togglePhotoView(this)">
-                    </div>
-                </div>
-                <div class="card-header ${isBirthday ? 'birthday' : ''}">
-                    <h3>${member.name}</h3>
-                    <span class="user-role">${member.role}</span>
-                    ${isBirthday ? '<span class="birthday-badge">🎂 Aniversariante</span>' : ''}
-                </div>
-                <div class="card-body">
-                    <p><strong>Email:</strong> ${member.email}</p>
-                    ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
-                    ${member.birthday ? `<p><strong>Aniversário:</strong> ${formatBirthday(member.birthday)}</p>` : ''}
-                    <p>${member.bio || 'Sem descrição'}</p>
-                    ${member.linkedin ? `<p><strong>LinkedIn:</strong> <a href="${member.linkedin}" target="_blank">${member.linkedin}</a></p>` : ''}
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
-                        Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
-                        ${member.updated_at ? `<br>Atualizado em: ${new Date(member.updated_at).toLocaleDateString('pt-BR')}` : ''}
-                    </p>
-                    <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #666;">
-                        <small>📷 Clique na foto para alternar entre visualização completa e ajustada</small>
-                    </div>
-                </div>
-            `;
-        });
-    }
 
     // Função auxiliar para mensagens informativas rápidas
     function showMessage(message, type = 'success', duration = 3000) {
@@ -5601,7 +5920,342 @@ async function debugStorage() {
         console.error('❌ Erro no debug do storage:', error);
     }
 }
+// ========== VARIÁVEIS GLOBAIS PARA O FILTRO ==========
+        let memberFilters = {
+            roles: [],
+            search: ''
+        };
+        let allRoles = []; // Array para armazenar todos os cargos/funções únicos
 
+        // ========== FUNÇÕES DO SISTEMA DE FILTRO ==========
+        
+        // Função para extrair todos os cargos/funções únicos dos membros
+        function extractAllRoles() {
+            const rolesSet = new Set();
+            
+            // Adiciona cargos dos membros aprovados
+            members.forEach(member => {
+                if (member.role && member.role.trim() !== '') {
+                    rolesSet.add(member.role.trim());
+                }
+            });
+            
+            // Adiciona cargos dos membros pendentes
+            pendingMembers.forEach(member => {
+                if (member.role && member.role.trim() !== '') {
+                    rolesSet.add(member.role.trim());
+                }
+            });
+            
+            // Converte Set para Array e ordena alfabeticamente
+            allRoles = Array.from(rolesSet).sort((a, b) => a.localeCompare(b));
+            
+            console.log('📊 Cargos/funções extraídos:', allRoles);
+        }
+
+        // Função para renderizar as opções de filtro
+        function renderFilterOptions() {
+            const filterOptions = document.getElementById('filterOptions');
+            
+            if (!filterOptions) {
+                console.error('❌ Elemento filterOptions não encontrado');
+                return;
+            }
+            
+            filterOptions.innerHTML = '';
+            
+            if (allRoles.length === 0) {
+                filterOptions.innerHTML = '<p style="color: #666; font-style: italic;">Nenhum cargo/função disponível para filtro.</p>';
+                return;
+            }
+            
+            allRoles.forEach(role => {
+                const option = document.createElement('div');
+                option.className = `filter-option ${memberFilters.roles.includes(role) ? 'active' : ''}`;
+                option.textContent = role;
+                option.dataset.role = role;
+                
+                option.addEventListener('click', () => {
+                    toggleFilterOption(role, option);
+                });
+                
+                filterOptions.appendChild(option);
+            });
+        }
+
+        // Função para alternar uma opção de filtro
+        function toggleFilterOption(role, element) {
+            const index = memberFilters.roles.indexOf(role);
+            
+            if (index === -1) {
+                // Adiciona ao filtro
+                memberFilters.roles.push(role);
+                element.classList.add('active');
+            } else {
+                // Remove do filtro
+                memberFilters.roles.splice(index, 1);
+                element.classList.remove('active');
+            }
+            
+            console.log('🎯 Filtros ativos:', memberFilters.roles);
+        }
+
+        // Função para aplicar os filtros
+        function applyFilters() {
+            console.log('🔍 Aplicando filtros:', memberFilters);
+            
+            // Atualiza a lista de membros com os filtros aplicados
+            renderFilteredMembers();
+            
+            // Atualiza a exibição dos resultados do filtro
+            updateFilterResults();
+            
+            // Fecha o painel de filtros (opcional)
+            const filterContent = document.getElementById('filterContent');
+            if (filterContent) {
+                filterContent.classList.remove('show');
+            }
+        }
+
+        // Função para renderizar membros filtrados
+        function renderFilteredMembers() {
+            if (!membersList) return;
+            
+            let filteredMembers = [...members]; // Começa com todos os membros aprovados
+            
+            // Aplica filtro por cargos/funções
+            if (memberFilters.roles.length > 0) {
+                filteredMembers = filteredMembers.filter(member => 
+                    member.role && memberFilters.roles.includes(member.role.trim())
+                );
+            }
+            
+            // Aplica filtro de busca
+            if (memberFilters.search.trim() !== '') {
+                const searchTerm = memberFilters.search.toLowerCase().trim();
+                filteredMembers = filteredMembers.filter(member => 
+                    (member.name && member.name.toLowerCase().includes(searchTerm)) ||
+                    (member.role && member.role.toLowerCase().includes(searchTerm)) ||
+                    (member.bio && member.bio.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            console.log(`👥 Membros após filtro: ${filteredMembers.length} de ${members.length}`);
+            
+            // Renderiza os membros filtrados
+            renderList(membersList, filteredMembers, 'members', (member) => {
+                const canEdit = isCurrentUserAdmin();
+                const isBirthday = checkIfBirthdayToday(member.birthday);
+                
+                return `
+                    ${isBirthday ? '<div class="birthday-indicator">🎂 Aniversariante!</div>' : ''}
+                    <div class="card-actions">
+                        ${canEdit ? `
+                            <button class="card-action-btn edit" onclick="editMember('${member.id}')" title="Editar membro">✏️</button>
+                            <button class="card-action-btn delete" onclick="deleteMember('${member.id}')" title="Excluir membro">🗑️</button>
+                        ` : ''}
+                    </div>
+                    <div class="card-image">
+                        <div class="member-photo-container">
+                            <img src="${member.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'}" 
+                                 alt="${member.name}" 
+                                 loading="lazy"
+                                 class="member-photo"
+                                 onerror="handleMemberPhotoError(this)"
+                                 onclick="togglePhotoView(this)">
+                        </div>
+                    </div>
+                    <div class="card-header ${isBirthday ? 'birthday' : ''}">
+                        <h3>${member.name}</h3>
+                        <span class="user-role">${member.role}</span>
+                        ${isBirthday ? '<span class="birthday-badge">🎂 Aniversariante</span>' : ''}
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Email:</strong> ${member.email}</p>
+                        ${member.phone ? `<p><strong>Telefone:</strong> ${member.phone}</p>` : ''}
+                        ${member.birthday ? `<p><strong>Aniversário:</strong> ${formatBirthday(member.birthday)}</p>` : ''}
+                        <p>${member.bio || 'Sem descrição'}</p>
+                        ${member.linkedin ? `<p><strong>LinkedIn:</strong> <a href="${member.linkedin}" target="_blank">${member.linkedin}</a></p>` : ''}
+                        <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">
+                            Cadastrado em: ${new Date(member.created_at).toLocaleDateString('pt-BR')}
+                            ${member.updated_at ? `<br>Atualizado em: ${new Date(member.updated_at).toLocaleDateString('pt-BR')}` : ''}
+                        </p>
+                        <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #666;">
+                            <small>📷 Clique na foto para alternar entre visualização completa e ajustada</small>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Mostra mensagem se não houver resultados
+            if (filteredMembers.length === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'no-results';
+                noResults.innerHTML = `
+                    <h3>😔 Nenhum membro encontrado</h3>
+                    <p>Tente ajustar os filtros ou termos de busca.</p>
+                    <button class="btn" onclick="clearFilters()" style="margin-top: 1rem;">Limpar Filtros</button>
+                `;
+                membersList.appendChild(noResults);
+            }
+        }
+
+        // Função para atualizar a exibição dos resultados do filtro
+        function updateFilterResults() {
+            const filterResults = document.getElementById('filterResults');
+            const filterResultsCount = document.getElementById('filterResultsCount');
+            const filterResultsTags = document.getElementById('filterResultsTags');
+            
+            if (!filterResults || !filterResultsCount || !filterResultsTags) return;
+            
+            // Conta membros filtrados
+            const filteredCount = getFilteredMembersCount();
+            const totalCount = members.length;
+            
+            filterResultsCount.textContent = `${filteredCount} de ${totalCount} membros`;
+            
+            // Atualiza as tags dos filtros aplicados
+            filterResultsTags.innerHTML = '';
+            
+            // Tags para cargos/funções
+            memberFilters.roles.forEach(role => {
+                const tag = document.createElement('div');
+                tag.className = 'filter-tag';
+                tag.innerHTML = `
+                    ${role}
+                    <button class="filter-tag-remove" onclick="removeFilterTag('${role}')">×</button>
+                `;
+                filterResultsTags.appendChild(tag);
+            });
+            
+            // Tag para busca
+            if (memberFilters.search.trim() !== '') {
+                const tag = document.createElement('div');
+                tag.className = 'filter-tag';
+                tag.innerHTML = `
+                    Busca: "${memberFilters.search}"
+                    <button class="filter-tag-remove" onclick="removeSearchFilter()">×</button>
+                `;
+                filterResultsTags.appendChild(tag);
+            }
+            
+            // Mostra ou esconde a seção de resultados
+            if (memberFilters.roles.length > 0 || memberFilters.search.trim() !== '') {
+                filterResults.classList.add('show');
+            } else {
+                filterResults.classList.remove('show');
+            }
+        }
+
+        // Função para obter a contagem de membros filtrados
+        function getFilteredMembersCount() {
+            let filteredMembers = [...members];
+            
+            // Aplica filtro por cargos/funções
+            if (memberFilters.roles.length > 0) {
+                filteredMembers = filteredMembers.filter(member => 
+                    member.role && memberFilters.roles.includes(member.role.trim())
+                );
+            }
+            
+            // Aplica filtro de busca
+            if (memberFilters.search.trim() !== '') {
+                const searchTerm = memberFilters.search.toLowerCase().trim();
+                filteredMembers = filteredMembers.filter(member => 
+                    (member.name && member.name.toLowerCase().includes(searchTerm)) ||
+                    (member.role && member.role.toLowerCase().includes(searchTerm)) ||
+                    (member.bio && member.bio.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            return filteredMembers.length;
+        }
+
+        // Função para remover uma tag de filtro específica
+        function removeFilterTag(role) {
+            const index = memberFilters.roles.indexOf(role);
+            if (index !== -1) {
+                memberFilters.roles.splice(index, 1);
+                
+                // Atualiza a interface
+                renderFilterOptions();
+                applyFilters();
+            }
+        }
+
+        // Função para remover o filtro de busca
+        function removeSearchFilter() {
+            memberFilters.search = '';
+            const searchInput = document.getElementById('filterSearch');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            applyFilters();
+        }
+
+        // Função para limpar todos os filtros
+        function clearFilters() {
+            memberFilters = {
+                roles: [],
+                search: ''
+            };
+            
+            // Atualiza a interface
+            renderFilterOptions();
+            
+            const searchInput = document.getElementById('filterSearch');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            
+            applyFilters();
+        }
+
+        // Função para configurar os event listeners do filtro
+        function setupFilterEventListeners() {
+            // Toggle do painel de filtros
+            const filterToggle = document.getElementById('filterToggle');
+            const filterContent = document.getElementById('filterContent');
+            
+            if (filterToggle && filterContent) {
+                filterToggle.addEventListener('click', () => {
+                    filterContent.classList.toggle('show');
+                });
+            }
+            
+            // Busca em tempo real
+            const filterSearch = document.getElementById('filterSearch');
+            if (filterSearch) {
+                let searchTimeout;
+                
+                filterSearch.addEventListener('input', (e) => {
+                    clearTimeout(searchTimeout);
+                    
+                    searchTimeout = setTimeout(() => {
+                        memberFilters.search = e.target.value;
+                        applyFilters();
+                    }, 500); // Debounce de 500ms
+                });
+            }
+            
+            // Botão aplicar filtros
+            const applyFilter = document.getElementById('applyFilter');
+            if (applyFilter) {
+                applyFilter.addEventListener('click', applyFilters);
+            }
+            
+            // Botão limpar filtros
+            const clearFilter = document.getElementById('clearFilter');
+            if (clearFilter) {
+                clearFilter.addEventListener('click', clearFilters);
+            }
+            
+            // Botão limpar resultados
+            const clearResults = document.getElementById('clearResults');
+            if (clearResults) {
+                clearResults.addEventListener('click', clearFilters);
+            }
+        }
 // Chame esta função durante a inicialização para verificar
 // debugStorage();
 </script>
